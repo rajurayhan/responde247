@@ -49,6 +49,22 @@ class ResellerSeeder extends Seeder
                 ]
             );
 
+            $resellerAdminUser = User::firstOrCreate(
+                ['email' => 'send2raju.bd@gmail.com'],
+                [
+                    'name' => 'Raju',
+                    'email' => 'hello@responde247.com',
+                    'password' => Hash::make('hola@2025'), // Default password, should be changed
+                    'role' => 'reseller_admin',
+                    'phone' => null,
+                    'company' => 'Responde247.com',
+                    'bio' => 'Admin user for Responde247.com reseller',
+                    'status' => 'active',
+                    'reseller_id' => $reseller->id,
+                    'email_verified_at' => now(),
+                ]
+            );
+
             $this->command->info("Admin user '{$adminUser->name}' created/found with email: {$adminUser->email}");
             $this->command->info("Reseller seeding completed successfully!");
         });
