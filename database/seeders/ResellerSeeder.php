@@ -18,14 +18,14 @@ class ResellerSeeder extends Seeder
     {
         // Use database transaction to ensure data consistency
         DB::transaction(function () {
-            // Create the Sulus.ai reseller
+            // Create the Responde247.com reseller
             $reseller = Reseller::firstOrCreate(
-                ['org_name' => 'Sulus.ai'],
+                ['org_name' => 'Responde247.com'],
                 [
-                    'org_name' => 'Sulus.ai',
+                    'org_name' => 'Responde247.com',
                     'logo_address' => null, // Can be updated later
-                    'company_email' => 'info@sulus.ai',
-                    'domain' => 'sulus.ai',
+                    'company_email' => 'info@Responde247.com',
+                    'domain' => 'responde247.com',
                     'status' => 'active',
                 ]
             );
@@ -34,15 +34,15 @@ class ResellerSeeder extends Seeder
 
             // Create the admin user for the reseller
             $adminUser = User::firstOrCreate(
-                ['email' => 'raju@sulus.ai'],
+                ['email' => 'send2raju.bd@gmail.com'],
                 [
                     'name' => 'Raju',
-                    'email' => 'raju@sulus.ai',
-                    'password' => Hash::make('password123'), // Default password, should be changed
+                    'email' => 'send2raju.bd@gmail.com',
+                    'password' => Hash::make('raju@2025'), // Default password, should be changed
                     'role' => 'reseller_admin',
                     'phone' => null,
-                    'company' => 'Sulus.ai',
-                    'bio' => 'Admin user for Sulus.ai reseller',
+                    'company' => 'Responde247.com',
+                    'bio' => 'Admin user for Responde247.com reseller',
                     'status' => 'active',
                     'reseller_id' => $reseller->id,
                     'email_verified_at' => now(),
