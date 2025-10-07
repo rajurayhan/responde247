@@ -375,7 +375,7 @@ router.beforeEach((to, from, next) => {
     // Check hostname restriction for reseller registration
     if (to.name === 'reseller-registration') {
         const hostname = window.location.hostname;
-        const allowedHosts = ['localhost', 'app.sulus.ai'];
+        const allowedHosts = ['localhost', 'responde247.com'];
         
         console.log('Reseller registration access check:', {
             hostname,
