@@ -13,6 +13,14 @@ class DetectTenantByDomain
     {
         $domain = $request->getHost();
 
+        // Allow logo endpoint to work without reseller
+        if ($request->is('api/saas-public/logo.png')) {
+            // Set null reseller for logo endpoint
+            app()->instance('currentReseller', null);
+            app()->instance('currentResellerSettings', null);
+            return $next($request);
+        }
+
         // Cache reseller lookup for 5 minutes
         $cacheKey = "reseller_domain_{$domain}";
         $reseller = cache()->remember($cacheKey, 300, function () use ($domain) {
