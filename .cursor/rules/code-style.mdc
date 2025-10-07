@@ -1,0 +1,279 @@
+---
+alwaysApply: true
+---
+
+# Code Style & Formatting Guidelines
+
+## General Principles
+
+### Consistency
+- Follow existing code patterns in the project
+- Use consistent naming conventions throughout
+- Maintain consistent indentation (4 spaces for PHP, 2 spaces for Vue/JS)
+
+### Readability
+- Write self-documenting code with meaningful names
+- Use descriptive variable and method names
+- Add comments for complex business logic
+- Keep functions and methods focused on single responsibilities
+
+## PHP/Laravel Style
+
+### PSR Standards
+- Follow PSR-4 autoloading standards
+- Use PSR-12 coding style
+- Run `php artisan pint` to format code
+
+### Naming Conventions
+```php
+// Classes: PascalCase
+class UserController extends Controller
+
+// Methods and variables: camelCase
+public function getUserData()
+{
+    $userData = $this->service->fetchData();
+}
+
+// Constants: UPPER_SNAKE_CASE
+const MAX_RETRY_ATTEMPTS = 3;
+
+// Database tables: snake_case plural
+'user_subscriptions', 'call_logs'
+
+// Model properties: snake_case
+protected $fillable = ['first_name', 'last_name', 'phone_number'];
+```
+
+### Method Organization
+Order methods in controllers:
+1. Resource methods (index, show, store, update, destroy)
+2. Custom public methods
+3. Private/protected helper methods
+
+### Documentation
+```php
+/**
+ * Create a new assistant for the authenticated user
+ * 
+ * @param Request $request
+ * @return JsonResponse
+ */
+public function store(Request $request): JsonResponse
+{
+    // Implementation
+}
+```
+
+## Vue.js/JavaScript Style
+
+### Component Structure
+Organize Vue components consistently:
+
+```vue
+<template>
+  <!-- Template content -->
+</template>
+
+<script>
+// Imports
+import { ref, computed, onMounted } from 'vue'
+
+// Component definition
+export default {
+  name: 'ComponentName',
+  components: {
+    // Child components
+  },
+  setup() {
+    // Reactive data
+    // Computed properties
+    // Methods
+    // Lifecycle hooks
+    
+    return {
+      // Exposed properties
+    }
+  }
+}
+</script>
+
+<style scoped>
+/* Component styles */
+</style>
+```
+
+### JavaScript Conventions
+```javascript
+// Variables: camelCase
+const userName = 'John Doe'
+const isAuthenticated = true
+
+// Functions: camelCase with descriptive names
+const fetchUserData = async () => {
+  // Implementation
+}
+
+// Constants: UPPER_SNAKE_CASE
+const API_BASE_URL = 'https://api.example.com'
+
+// Objects: camelCase keys
+const userProfile = {
+  firstName: 'John',
+  lastName: 'Doe',
+  phoneNumber: '+1234567890'
+}
+```
+
+## Database Conventions
+
+### Table Names
+- Use snake_case plural nouns
+- Examples: `users`, `user_subscriptions`, `call_logs`
+
+### Column Names
+- Use snake_case
+- Boolean columns: `is_active`, `has_subscription`
+- Foreign keys: `user_id`, `assistant_id`
+- Timestamps: `created_at`, `updated_at`, `verified_at`
+
+### Migration Structure
+```php
+Schema::create('user_subscriptions', function (Blueprint $table) {
+    $table->id();
+    $table->foreignId('user_id')->constrained()->onDelete('cascade');
+    $table->foreignId('package_id')->constrained('subscription_packages');
+    $table->string('stripe_subscription_id')->nullable();
+    $table->enum('status', ['active', 'canceled', 'past_due'])->default('active');
+    $table->timestamp('trial_ends_at')->nullable();
+    $table->timestamps();
+    
+    $table->index(['user_id', 'status']);
+});
+```
+
+## File Organization
+
+### Directory Structure
+- Group related files in logical directories
+- Use feature-based organization for Vue components
+- Keep service classes in `app/Services/`
+- Store utilities in appropriate directories
+
+### File Naming
+- PHP classes: PascalCase matching class name
+- Vue components: PascalCase (e.g., `UserProfile.vue`)
+- JavaScript utilities: camelCase (e.g., `apiHelpers.js`)
+- CSS files: kebab-case (e.g., `user-profile.css`)
+
+## Error Handling
+
+### Consistent Error Responses
+```php
+// Success response
+return response()->json([
+    'success' => true,
+    'message' => 'Operation completed successfully',
+    'data' => $data
+], 200);
+
+// Error response
+return response()->json([
+    'success' => false,
+    'message' => 'Operation failed',
+    'errors' => $validationErrors
+], 422);
+```
+
+### Exception Handling
+```php
+try {
+    $result = $this->performOperation();
+    return response()->json(['success' => true, 'data' => $result]);
+} catch (ValidationException $e) {
+    return response()->json([
+        'success' => false,
+        'message' => 'Validation failed',
+        'errors' => $e->errors()
+    ], 422);
+} catch (\Exception $e) {
+    Log::error('Operation failed', [
+        'error' => $e->getMessage(),
+        'trace' => $e->getTraceAsString()
+    ]);
+    
+    return response()->json([
+        'success' => false,
+        'message' => 'Internal server error'
+    ], 500);
+}
+```
+
+## Comments & Documentation
+
+### When to Comment
+- Complex business logic
+- API integrations
+- Non-obvious code behavior
+- Temporary workarounds (with TODO)
+
+### Comment Style
+```php
+// Single line comments for brief explanations
+$data = $this->processData(); // Transform raw data
+
+/**
+ * Multi-line comments for detailed explanations
+ * 
+ * This method processes webhook data from Vapi.ai
+ * and creates corresponding call log entries
+ */
+public function processWebhook(array $data): ?CallLog
+```
+
+### TODO Comments
+```php
+// TODO: Implement caching for better performance
+// FIXME: Handle edge case where user has no subscription
+// HACK: Temporary workaround for API limitation
+```
+
+## Performance Considerations
+
+### Database Queries
+- Use eager loading to prevent N+1 queries
+- Add appropriate database indexes
+- Use pagination for large datasets
+- Cache expensive queries when appropriate
+
+### Frontend Performance
+- Use computed properties for derived data
+- Implement proper loading states
+- Optimize image sizes and formats
+- Use lazy loading for large components
+
+### API Efficiency
+- Return only necessary data
+- Use appropriate HTTP status codes
+- Implement request rate limiting
+- Cache responses when possible
+
+## Security Best Practices
+
+### Input Validation
+- Validate all user input
+- Use Laravel's validation rules
+- Sanitize data before database storage
+- Escape output to prevent XSS
+
+### Authentication
+- Use Laravel Sanctum for API authentication
+- Implement proper role-based access control
+- Validate user permissions on each request
+- Use HTTPS in production
+
+### Data Protection
+- Hash sensitive data (passwords)
+- Encrypt sensitive database fields
+- Don't log sensitive information
+- Follow GDPR/privacy requirements

@@ -1,0 +1,340 @@
+---
+globs: tests/**/*.php
+description: Testing patterns and conventions
+---
+
+# Testing Patterns & Conventions
+
+## Test Structure
+
+### Feature Tests
+Place feature tests in `tests/Feature/` directory. Use RefreshDatabase trait for database tests:
+
+```php
+<?php
+
+namespace Tests\Feature;
+
+use Tests\TestCase;
+use App\Models\User;
+use App\Models\SubscriptionPackage;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+class SubscriptionTest extends TestCase
+{
+    use RefreshDatabase;
+
+    protected SubscriptionPackage $package;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        
+        // Create test data
+        $this->package = SubscriptionPackage::create([
+            'name' => 'Test Package',
+            'slug' => 'test-package',
+            'price' => 29.99,
+            'voice_agents_limit' => 2,
+            'monthly_minutes_limit' => 1000,
+            'is_active' => true,
+        ]);
+    }
+
+    public function test_user_can_create_subscription()
+    {
+        $user = User::factory()->create();
+        
+        $response = $this->actingAs($user)->postJson('/api/subscriptions', [
+            'package_id' => $this->package->id,
+            'billing_interval' => 'monthly'
+        ]);
+        
+        $response->assertStatus(201)
+                ->assertJson(['success' => true]);
+                
+        $this->assertDatabaseHas('user_subscriptions', [
+            'user_id' => $user->id,
+            'package_id' => $this->package->id
+        ]);
+    }
+}
+```
+
+### Unit Tests
+Place unit tests in `tests/Unit/` directory for testing individual classes:
+
+```php
+<?php
+
+namespace Tests\Unit;
+
+use PHPUnit\Framework\TestCase;
+use App\Services\VapiService;
+
+class VapiServiceTest extends TestCase
+{
+    public function test_api_key_validation()
+    {
+        $service = new VapiService();
+        $this->assertTrue($service->hasValidApiKey());
+    }
+}
+```
+
+## Testing Patterns
+
+### API Endpoint Testing
+Test all API endpoints with proper authentication and validation:
+
+```php
+public function test_authenticated_user_can_access_endpoint()
+{
+    $user = User::factory()->create(['role' => 'user']);
+    
+    $response = $this->actingAs($user)->getJson('/api/protected-endpoint');
+    
+    $response->assertStatus(200)
+            ->assertJsonStructure([
+                'success',
+                'data' => [
+                    'id',
+                    'name',
+                    'created_at'
+                ]
+            ]);
+}
+
+public function test_unauthenticated_user_cannot_access_endpoint()
+{
+    $response = $this->getJson('/api/protected-endpoint');
+    
+    $response->assertStatus(401);
+}
+
+public function test_validation_errors_are_returned()
+{
+    $user = User::factory()->create();
+    
+    $response = $this->actingAs($user)->postJson('/api/endpoint', [
+        // Missing required fields
+    ]);
+    
+    $response->assertStatus(422)
+            ->assertJsonValidationErrors(['required_field']);
+}
+```
+
+### Service Layer Testing
+Test service classes with mocked dependencies:
+
+```php
+public function test_external_api_service_handles_errors()
+{
+    Http::fake([
+        'api.external.com/*' => Http::response([], 500)
+    ]);
+    
+    $service = app(ExternalApiService::class);
+    $result = $service->makeRequest('/endpoint');
+    
+    $this->assertNull($result);
+}
+
+public function test_external_api_service_returns_data()
+{
+    $expectedData = ['id' => 1, 'name' => 'Test'];
+    
+    Http::fake([
+        'api.external.com/*' => Http::response($expectedData, 200)
+    ]);
+    
+    $service = app(ExternalApiService::class);
+    $result = $service->makeRequest('/endpoint');
+    
+    $this->assertEquals($expectedData, $result);
+}
+```
+
+### Database Testing
+Test database operations and relationships:
+
+```php
+public function test_user_has_many_assistants()
+{
+    $user = User::factory()->create();
+    $assistants = Assistant::factory(3)->create(['user_id' => $user->id]);
+    
+    $this->assertCount(3, $user->assistants);
+    $this->assertEquals($assistants->pluck('id')->sort(), 
+                       $user->assistants->pluck('id')->sort());
+}
+
+public function test_soft_delete_works_correctly()
+{
+    $model = Model::factory()->create();
+    $model->delete();
+    
+    $this->assertSoftDeleted($model);
+    $this->assertDatabaseHas('models', ['id' => $model->id]);
+}
+```
+
+### File Upload Testing
+Test file uploads with fake storage:
+
+```php
+public function test_profile_image_upload()
+{
+    Storage::fake('public');
+    $user = User::factory()->create();
+    
+    $file = UploadedFile::fake()->image('avatar.jpg', 100, 100);
+    
+    $response = $this->actingAs($user)->postJson('/api/profile/image', [
+        'image' => $file
+    ]);
+    
+    $response->assertStatus(200);
+    Storage::disk('public')->assertExists('avatars/' . $file->hashName());
+}
+```
+
+## Test Data Management
+
+### Factory Usage
+Use factories for creating test data:
+
+```php
+// Create single model
+$user = User::factory()->create();
+
+// Create multiple models
+$users = User::factory(5)->create();
+
+// Create with specific attributes
+$admin = User::factory()->create(['role' => 'admin']);
+
+// Create related models
+$user = User::factory()
+    ->has(Assistant::factory(3))
+    ->create();
+```
+
+### Database Seeders for Tests
+Create test-specific seeders:
+
+```php
+public function test_with_seeded_data()
+{
+    $this->seed(TestDataSeeder::class);
+    
+    $response = $this->getJson('/api/packages');
+    
+    $response->assertStatus(200)
+            ->assertJsonCount(3, 'data');
+}
+```
+
+## Mocking External Services
+
+### HTTP Requests
+Mock HTTP requests to external APIs:
+
+```php
+public function test_vapi_integration()
+{
+    Http::fake([
+        'api.vapi.ai/assistant' => Http::response([
+            'id' => 'assistant-123',
+            'name' => 'Test Assistant'
+        ], 200)
+    ]);
+    
+    $service = app(VapiService::class);
+    $result = $service->createAssistant(['name' => 'Test']);
+    
+    $this->assertEquals('assistant-123', $result['id']);
+}
+```
+
+### Queue Jobs
+Test queue jobs:
+
+```php
+public function test_job_is_dispatched()
+{
+    Queue::fake();
+    
+    // Trigger action that dispatches job
+    $this->postJson('/api/trigger-job');
+    
+    Queue::assertPushed(ProcessCallLogJob::class);
+}
+
+public function test_job_processes_correctly()
+{
+    $callLog = CallLog::factory()->create();
+    
+    $job = new ProcessCallLogJob($callLog);
+    $job->handle();
+    
+    $this->assertTrue($callLog->fresh()->processed);
+}
+```
+
+## Test Organization
+
+### Test Naming
+- Use descriptive test method names starting with `test_`
+- Describe what the test is verifying
+- Use snake_case for test method names
+
+### Test Structure (Arrange-Act-Assert)
+```php
+public function test_user_can_update_profile()
+{
+    // Arrange
+    $user = User::factory()->create();
+    $updateData = ['name' => 'Updated Name'];
+    
+    // Act
+    $response = $this->actingAs($user)->putJson('/api/profile', $updateData);
+    
+    // Assert
+    $response->assertStatus(200);
+    $this->assertEquals('Updated Name', $user->fresh()->name);
+}
+```
+
+### Test Coverage Goals
+- Aim for high test coverage on critical business logic
+- Test all API endpoints
+- Test authentication and authorization
+- Test external service integrations
+- Test error handling and edge cases
+
+## Continuous Integration
+
+### Test Commands
+Run different test suites:
+
+```bash
+# Run all tests
+php artisan test
+
+# Run specific test file
+php artisan test tests/Feature/UserTest.php
+
+# Run tests with coverage
+php artisan test --coverage
+
+# Run tests in parallel
+php artisan test --parallel
+```
+
+### Test Environment
+- Use separate test database
+- Mock external services in tests
+- Use factories instead of fixtures
+- Clean up after each test with RefreshDatabase

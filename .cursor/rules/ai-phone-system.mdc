@@ -1,0 +1,353 @@
+---
+description: AI phone system and Vapi.ai integration patterns
+---
+
+# AI Phone System & Vapi.ai Integration Rules
+
+This project integrates with Vapi.ai for AI voice agents, Twilio for phone numbers, and Stripe for billing.
+
+## Vapi.ai Integration Patterns
+
+### Service Layer ([app/Services/VapiService.php](mdc:app/Services/VapiService.php))
+Centralized service for Vapi.ai API interactions:
+
+```php
+class VapiService
+{
+    protected $baseUrl = 'https://api.vapi.ai';
+    protected $apiKey;
+
+    public function createAssistant(array $data): ?array
+    {
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $this->apiKey,
+                'Content-Type' => 'application/json',
+            ])->post($this->baseUrl . '/assistant', $data);
+
+            if ($response->successful()) {
+                return $response->json();
+            }
+
+            Log::error('Vapi API Error', [
+                'status' => $response->status(),
+                'body' => $response->body()
+            ]);
+            return null;
+        } catch (\Exception $e) {
+            Log::error('Vapi Service Error: ' . $e->getMessage());
+            return null;
+        }
+    }
+}
+```
+
+### Webhook Processing
+Handle Vapi.ai webhooks with proper validation and processing:
+
+```php
+// VapiWebhookController
+public function handleWebhook(Request $request)
+{
+    $payload = $request->all();
+    
+    Log::info('Vapi webhook received', [
+        'type' => $payload['message']['type'] ?? 'unknown',
+        'callId' => $payload['message']['call']['id'] ?? 'unknown',
+        'timestamp' => now()->toISOString()
+    ]);
+
+    $eventType = $payload['message']['type'] ?? null;
+    
+    switch ($eventType) {
+        case 'end-of-call-report':
+            return $this->processEndCallReport($payload);
+        case 'call-start':
+            return $this->processCallStart($payload);
+        default:
+            Log::warning('Unknown webhook event type', ['type' => $eventType]);
+            return response()->json(['success' => false], 400);
+    }
+}
+```
+
+### Call Logs Processing
+Process call data from webhooks ([app/Services/CallLogsProcessor.php](mdc:app/Services/CallLogsProcessor.php)):
+
+```php
+class CallLogsProcessor
+{
+    public function processWebhook(array $webhookData): ?CallLog
+    {
+        try {
+            $callLog = CallLog::updateOrCreate(
+                ['call_id' => $webhookData['call']['id']],
+                $this->extractCallData($webhookData)
+            );
+            
+            // Extract contacts from transcript
+            $this->extractContacts($callLog, $webhookData);
+            
+            return $callLog;
+        } catch (\Exception $e) {
+            Log::error('Call log processing error', [
+                'error' => $e->getMessage(),
+                'webhook_data' => $webhookData
+            ]);
+            return null;
+        }
+    }
+}
+```
+
+## Assistant Management
+
+### Assistant Configuration
+AI assistants have complex configuration with multiple components:
+
+```vue
+<!-- AssistantForm.vue -->
+<template>
+  <div class="assistant-form">
+    <div class="tab-navigation">
+      <button @click="activeTab = 'model'" :class="tabClass('model')">
+        Model Configuration
+      </button>
+      <button @click="activeTab = 'voice'" :class="tabClass('voice')">
+        Voice Settings
+      </button>
+      <button @click="activeTab = 'transcriber'" :class="tabClass('transcriber')">
+        Transcriber
+      </button>
+    </div>
+    
+    <ModelConfiguration v-if="activeTab === 'model'" v-model="form.model" />
+    <VoiceConfiguration v-if="activeTab === 'voice'" v-model="form.voice" />
+    <TranscriberConfiguration v-if="activeTab === 'transcriber'" v-model="form.transcriber" />
+  </div>
+</template>
+```
+
+### Phone Number Management
+Integration with Twilio for phone number management:
+
+```php
+class TwilioService
+{
+    public function searchAvailableNumbers(string $areaCode, string $country = 'US'): array
+    {
+        try {
+            $numbers = $this->client->availablePhoneNumbers($country)
+                ->local
+                ->read([
+                    'areaCode' => $areaCode,
+                    'limit' => 20
+                ]);
+            
+            return array_map(function($number) {
+                return [
+                    'phone_number' => $number->phoneNumber,
+                    'friendly_name' => $number->friendlyName,
+                    'locality' => $number->locality,
+                    'region' => $number->region
+                ];
+            }, $numbers);
+        } catch (\Exception $e) {
+            Log::error('Twilio number search error: ' . $e->getMessage());
+            return [];
+        }
+    }
+}
+```
+
+## Call Analytics & Reporting
+
+### Call Log Data Structure
+Store comprehensive call information:
+
+```php
+// CallLog model
+protected $fillable = [
+    'call_id',
+    'assistant_id', 
+    'user_id',
+    'phone_number_from',
+    'phone_number_to',
+    'status',
+    'duration',
+    'cost',
+    'transcript',
+    'recording_url',
+    'started_at',
+    'ended_at',
+    'metadata'
+];
+
+protected $casts = [
+    'metadata' => 'array',
+    'started_at' => 'datetime',
+    'ended_at' => 'datetime'
+];
+```
+
+### Contact Extraction
+Extract contact information from call transcripts:
+
+```php
+public function extractContacts(CallLog $callLog, array $webhookData): void
+{
+    $transcript = $webhookData['transcript'] ?? '';
+    
+    // Extract phone numbers
+    $phoneNumbers = $this->extractPhoneNumbers($transcript);
+    
+    // Extract email addresses  
+    $emails = $this->extractEmails($transcript);
+    
+    // Extract names from conversation
+    $names = $this->extractNames($transcript);
+    
+    foreach ($phoneNumbers as $phone) {
+        Contact::updateOrCreate(
+            ['phone' => $phone],
+            [
+                'user_id' => $callLog->user_id,
+                'source' => 'call_log',
+                'call_log_id' => $callLog->id
+            ]
+        );
+    }
+}
+```
+
+## Subscription & Billing Integration
+
+### Usage Tracking
+Track usage against subscription limits:
+
+```php
+public function checkUsageLimits(User $user): array
+{
+    $subscription = $user->activeSubscription;
+    
+    if (!$subscription) {
+        return ['can_create' => false, 'reason' => 'No active subscription'];
+    }
+    
+    $currentAssistants = $user->assistants()->count();
+    $monthlyMinutes = $this->getMonthlyMinutes($user);
+    
+    return [
+        'can_create' => $currentAssistants < $subscription->package->voice_agents_limit,
+        'assistants_used' => $currentAssistants,
+        'assistants_limit' => $subscription->package->voice_agents_limit,
+        'minutes_used' => $monthlyMinutes,
+        'minutes_limit' => $subscription->package->monthly_minutes_limit
+    ];
+}
+```
+
+### Stripe Integration
+Handle subscription billing with Stripe:
+
+```php
+class StripeService
+{
+    public function createSubscription(User $user, SubscriptionPackage $package, string $paymentMethodId): ?array
+    {
+        try {
+            // Create or get Stripe customer
+            $customerId = $user->stripe_customer_id ?? $this->createCustomer($user);
+            
+            // Create subscription
+            $subscription = Subscription::create([
+                'customer' => $customerId,
+                'items' => [[
+                    'price' => $package->stripe_price_id,
+                ]],
+                'default_payment_method' => $paymentMethodId,
+                'expand' => ['latest_invoice.payment_intent'],
+            ]);
+            
+            return [
+                'subscription_id' => $subscription->id,
+                'status' => $subscription->status,
+                'client_secret' => $subscription->latest_invoice->payment_intent->client_secret
+            ];
+        } catch (ApiErrorException $e) {
+            Log::error('Stripe subscription creation failed: ' . $e->getMessage());
+            return null;
+        }
+    }
+}
+```
+
+## Security & Validation
+
+### Webhook Security
+Validate webhook signatures:
+
+```php
+public function validateWebhookSignature(Request $request): bool
+{
+    $signature = $request->header('X-Vapi-Signature');
+    $payload = $request->getContent();
+    $secret = config('services.vapi.webhook_secret');
+    
+    $expectedSignature = hash_hmac('sha256', $payload, $secret);
+    
+    return hash_equals($signature, $expectedSignature);
+}
+```
+
+### Input Validation
+Validate complex assistant configurations:
+
+```php
+public function store(Request $request)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'model.provider' => 'required|in:openai,anthropic',
+        'model.model' => 'required|string',
+        'voice.provider' => 'required|in:11labs,playht,rime',
+        'voice.voiceId' => 'required|string',
+        'transcriber.provider' => 'required|in:deepgram,whisper',
+        'transcriber.model' => 'required|string',
+    ]);
+}
+```
+
+## Error Handling & Monitoring
+
+### Comprehensive Logging
+Log all external API interactions:
+
+```php
+Log::info('Vapi API call', [
+    'endpoint' => $endpoint,
+    'method' => 'POST',
+    'user_id' => $user->id,
+    'assistant_id' => $assistantId,
+    'timestamp' => now()->toISOString()
+]);
+```
+
+### Graceful Degradation
+Handle API failures gracefully:
+
+```php
+public function getAssistants(User $user): array
+{
+    try {
+        return $this->vapiService->getAssistants($user);
+    } catch (\Exception $e) {
+        Log::error('Failed to fetch assistants from Vapi', [
+            'user_id' => $user->id,
+            'error' => $e->getMessage()
+        ]);
+        
+        // Return cached data or empty array
+        return $user->assistants()->get()->toArray();
+    }
+}

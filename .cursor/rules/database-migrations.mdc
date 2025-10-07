@@ -1,0 +1,225 @@
+---
+globs: **/migrations/*.php
+description: Safe database migration patterns
+---
+
+# Database Migration Safety Rules
+
+## Safe Migration Pattern
+
+Always use the SafeMigrationTrait ([app/Traits/SafeMigrationTrait.php](mdc:app/Traits/SafeMigrationTrait.php)) for migrations to prevent errors when running migrations multiple times.
+
+### Migration Template
+
+```php
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+use App\Traits\SafeMigrationTrait;
+
+return new class extends Migration
+{
+    use SafeMigrationTrait;
+
+    public function up(): void
+    {
+        // Use safe methods to add columns
+        $this->safeAddColumn('table_name', 'column_name', function (Blueprint $table) {
+            $table->string('column_name')->nullable();
+        });
+        
+        // Use safe enum column addition
+        $this->safeAddEnumColumn('assistants', 'type', ['demo', 'production'], 'demo', 'vapi_assistant_id');
+        
+        // Use safe string column addition
+        $this->safeAddStringColumn('assistants', 'phone_number', null, true, 'vapi_assistant_id');
+    }
+
+    public function down(): void
+    {
+        // Use safe methods to drop columns
+        $this->safeDropColumn('table_name', 'column_name');
+    }
+};
+```
+
+### Available Safe Methods
+
+#### safeAddColumn()
+Safely add a column if it doesn't exist:
+
+```php
+$this->safeAddColumn('users', 'phone', function (Blueprint $table) {
+    $table->string('phone')->nullable();
+});
+```
+
+#### safeDropColumn()
+Safely drop a column if it exists:
+
+```php
+$this->safeDropColumn('users', 'phone');
+```
+
+#### safeAddEnumColumn()
+Safely add an enum column with values and default:
+
+```php
+$this->safeAddEnumColumn('assistants', 'status', ['active', 'inactive'], 'active', 'name');
+```
+
+#### safeAddStringColumn()
+Safely add a string column with options:
+
+```php
+$this->safeAddStringColumn('users', 'company', 255, true, 'email');
+```
+
+## Migration Best Practices
+
+### Column Addition Rules
+1. **Always use safe methods** - Never use direct Schema methods for column operations
+2. **Make new columns nullable** - Unless absolutely required, make new columns nullable
+3. **Provide defaults** - For non-nullable columns, always provide sensible defaults
+4. **Use after() positioning** - Specify column positioning for better table organization
+
+### Table Creation
+For new tables, use standard Laravel methods:
+
+```php
+public function up(): void
+{
+    if (!Schema::hasTable('new_table')) {
+        Schema::create('new_table', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->text('description')->nullable();
+            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->timestamps();
+        });
+    }
+}
+```
+
+### Index Management
+Always check for index existence:
+
+```php
+public function up(): void
+{
+    Schema::table('table_name', function (Blueprint $table) {
+        if (!$this->indexExists('table_name', 'index_name')) {
+            $table->index(['column1', 'column2'], 'index_name');
+        }
+    });
+}
+
+private function indexExists($table, $indexName): bool
+{
+    $indexes = Schema::getConnection()
+        ->getDoctrineSchemaManager()
+        ->listTableIndexes($table);
+    
+    return array_key_exists($indexName, $indexes);
+}
+```
+
+### Foreign Key Constraints
+Handle foreign keys safely:
+
+```php
+public function up(): void
+{
+    if (!Schema::hasColumn('child_table', 'parent_id')) {
+        Schema::table('child_table', function (Blueprint $table) {
+            $table->foreignId('parent_id')->constrained()->onDelete('cascade');
+        });
+    }
+}
+
+public function down(): void
+{
+    if (Schema::hasColumn('child_table', 'parent_id')) {
+        Schema::table('child_table', function (Blueprint $table) {
+            $table->dropForeign(['parent_id']);
+            $table->dropColumn('parent_id');
+        });
+    }
+}
+```
+
+## Data Seeding in Migrations
+
+### Conditional Data Insertion
+When adding data during migrations:
+
+```php
+public function up(): void
+{
+    // Add column first
+    $this->safeAddColumn('users', 'role', function (Blueprint $table) {
+        $table->enum('role', ['admin', 'user'])->default('user');
+    });
+    
+    // Update existing data
+    if (Schema::hasColumn('users', 'role')) {
+        DB::table('users')->whereNull('role')->update(['role' => 'user']);
+    }
+}
+```
+
+### Rollback Safety
+Always ensure rollbacks work:
+
+```php
+public function down(): void
+{
+    // Drop foreign keys first
+    if (Schema::hasColumn('table', 'foreign_key')) {
+        Schema::table('table', function (Blueprint $table) {
+            $table->dropForeign(['foreign_key']);
+        });
+    }
+    
+    // Then drop columns
+    $this->safeDropColumn('table', 'foreign_key');
+}
+```
+
+## Migration Testing
+
+### Test Migration Rollbacks
+Always test that migrations can be rolled back:
+
+```bash
+php artisan migrate
+php artisan migrate:rollback --step=1
+php artisan migrate
+```
+
+### Test Multiple Runs
+Ensure migrations are idempotent:
+
+```bash
+php artisan migrate
+php artisan migrate  # Should not cause errors
+```
+
+## Column Naming Conventions
+
+- Use snake_case for column names
+- Use descriptive names that indicate purpose
+- For foreign keys, use `{model}_id` format
+- For boolean columns, use `is_` or `has_` prefix
+- For timestamp columns, use `_at` suffix (e.g., `verified_at`)
+
+## Data Type Guidelines
+
+- Use appropriate data types for the content
+- Use `text` for long content, `string` for short content
+- Use `decimal` for monetary values, not `float`
+- Use `json` for flexible data structures
+- Use `timestamp` for date/time values
+- Use `enum` for predefined value sets

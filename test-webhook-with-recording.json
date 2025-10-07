@@ -1,0 +1,63 @@
+{
+    "message": {
+      "timestamp": 1753804472071,
+      "type": "end-of-call-report",
+      "analysis": {
+        "summary": "Test call for recording download functionality. John Doe called to inquire about web development services. During the call, the AI gathered his contact information, including his name, phone number (555-123-4567), and email address (john@example.com). John requested a callback, and the AI confirmed that a team member would contact him later to discuss his needs.",
+        "successEvaluation": "true"
+      },
+      "artifact": {
+        "messages": [
+          {
+            "role": "system",
+            "message": "Test system message",
+            "time": 1753804271408,
+            "secondsFromStart": 0
+          },
+          {
+            "role": "bot",
+            "message": "Thank you for calling Test Company. This is AI Assistant. How may I assist you today?",
+            "time": 1753804272561,
+            "endTime": 1753804277121,
+            "secondsFromStart": 1.04,
+            "duration": 4360,
+            "source": ""
+          },
+          {
+            "role": "user",
+            "message": "Hi, I'm John Doe. I need help with web development.",
+            "time": 1753804279551,
+            "endTime": 1753804280341,
+            "secondsFromStart": 8.03,
+            "duration": 790
+          }
+        ],
+        "transcript": "AI: Thank you for calling Test Company. This is AI Assistant. How may I assist you today?\nUser: Hi, I'm John Doe. I need help with web development.\nAI: Great! I'd be happy to help you with web development. May I get your contact information?\nUser: Sure, my email is john@example.com and phone is 555-123-4567.\nAI: Perfect! I have your information. Someone from our team will contact you soon.",
+        "recordingUrl": "https://storage.vapi.ai/dfa9d7e4-c651-4dbf-913a-cce916a31b7e-1753804469991-7c5973d1-291a-4bc0-a73c-9c6f64b025fd-mono.wav",
+        "stereoRecordingUrl": "https://storage.vapi.ai/dfa9d7e4-c651-4dbf-913a-cce916a31b7e-1753804469991-88424695-2a04-4e71-acee-ce54ced93345-stereo.wav"
+      },
+      "call": {
+        "id": "test-call-recording-345678",
+        "assistantId": "9c8da847-ec4b-4cd0-a37c-8dc3d70dcbcb"
+      },
+      "startedAt": "2025-07-29T15:51:11.606Z",
+      "endedAt": "2025-07-29T15:54:27.481Z",
+      "endedReason": "customer-ended-call",
+      "durationMs": 195875,
+      "durationSeconds": 195.875,
+      "cost": 0.6096,
+      "costBreakdown": {
+        "stt": 0.0327,
+        "llm": 0.2834,
+        "tts": 0.1288,
+        "vapi": 0.1632,
+        "total": 0.6096
+      },
+      "phoneNumber": {
+        "number": "+16825828396"
+      },
+      "customer": {
+        "number": "+15551234567"
+      }
+    }
+  } 

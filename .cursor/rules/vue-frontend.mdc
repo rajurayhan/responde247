@@ -1,0 +1,124 @@
+---
+globs: *.vue,*.js
+---
+
+# Vue.js Frontend Development Rules
+
+## Component Structure
+
+### Use Composition API
+Always use Vue 3 Composition API with `setup()` function:
+
+```vue
+<script>
+import { ref, computed, onMounted } from 'vue'
+
+export default {
+  name: 'ComponentName',
+  setup() {
+    const loading = ref(false)
+    const data = ref([])
+    
+    const isReady = computed(() => {
+      return !loading.value && data.value.length > 0
+    })
+    
+    onMounted(() => {
+      loadData()
+    })
+    
+    return {
+      loading,
+      data,
+      isReady
+    }
+  }
+}
+</script>
+```
+
+### Component Organization
+- **Directory Structure**: Organize by feature in [resources/js/components/](mdc:resources/js/components/)
+  - `auth/` - Authentication components
+  - `admin/` - Admin panel components  
+  - `dashboard/` - User dashboard components
+  - `shared/` - Reusable components
+  - `assistant/` - AI assistant configuration
+  - `call-logs/` - Call management
+  - `subscription/` - Billing and subscriptions
+
+### Component Naming
+- Use PascalCase for component names
+- Prefix admin components with "Admin" (e.g., `AdminDashboard.vue`)
+- Use descriptive names that indicate purpose
+
+## Routing Patterns
+
+### Route Structure ([resources/js/app.js](mdc:resources/js/app.js))
+- Use nested routes for admin sections
+- Apply route guards with meta properties:
+  - `requiresAuth: true` - Requires authentication
+  - `requiresAdmin: true` - Requires admin role
+  - `requiresGuest: true` - Only for unauthenticated users
+
+### Navigation Guards
+```javascript
+router.beforeEach((to, from, next) => {
+    const isAuthenticated = !!localStorage.getItem('token')
+    const user = JSON.parse(localStorage.getItem('user') || '{}')
+    const isAdmin = user.role === 'admin'
+    
+    if (to.meta.requiresAuth && !isAuthenticated) {
+        localStorage.setItem('intendedUrl', to.fullPath)
+        next('/login')
+    } else if (to.meta.requiresAdmin && !isAdmin) {
+        next('/dashboard')
+    } else {
+        next()
+    }
+})
+```
+
+## State Management
+
+### Local State
+- Use `ref()` for reactive primitive values
+- Use `reactive()` for complex objects
+- Use `computed()` for derived state
+
+### Authentication State
+- Store user data and token in localStorage
+- Check authentication status with computed properties
+- Clear storage on logout
+
+### API Communication
+- Use Axios for HTTP requests
+- Handle loading states with reactive variables
+- Implement proper error handling with try/catch
+
+## Styling Guidelines
+
+### Tailwind CSS Usage
+- Use utility classes for styling
+- Create custom components for complex UI patterns
+- Maintain consistent spacing and color schemes
+- Use responsive design classes (sm:, md:, lg:, xl:)
+
+### Component Styling
+- Scope styles to components when necessary
+- Use CSS Grid and Flexbox utilities
+- Maintain accessibility with proper ARIA attributes
+
+## Form Handling
+
+### Form Validation
+- Implement client-side validation
+- Display validation errors from API responses
+- Use reactive form state management
+- Provide loading states during submission
+
+### User Experience
+- Show loading spinners during async operations
+- Display success/error messages
+- Implement proper form reset after submission
+- Use SweetAlert2 for confirmations and notifications

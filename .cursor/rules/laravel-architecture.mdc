@@ -1,0 +1,70 @@
+---
+alwaysApply: true
+---
+
+# Laravel AI Phone System Architecture
+
+This is a Laravel 12 SPA application for managing AI voice agents with Vue.js frontend and Vapi.ai integration.
+
+## Project Structure
+
+### Backend Architecture
+- **Framework**: Laravel 12 with PHP 8.2+
+- **Authentication**: Laravel Sanctum for API authentication
+- **Database**: SQLite (configurable to MySQL/PostgreSQL)
+- **Key Dependencies**: Stripe, Twilio, Guzzle, GetID3
+
+### Frontend Architecture
+- **Framework**: Vue.js 3 with Composition API
+- **Routing**: Vue Router with history mode
+- **Styling**: Tailwind CSS with utility-first approach
+- **Build Tool**: Vite for fast development and building
+- **HTTP Client**: Axios for API communication
+
+### Core Components
+
+#### Models ([app/Models/](mdc:app/Models/))
+- User management with role-based access (admin/user)
+- Assistant management for AI voice agents
+- Subscription and billing integration
+- Call logs and analytics
+- Contact management system
+
+#### Controllers ([app/Http/Controllers/](mdc:app/Http/Controllers/))
+- RESTful API endpoints
+- Webhook handlers for external services
+- Admin management interfaces
+- Authentication and user management
+
+#### Services ([app/Services/](mdc:app/Services/))
+- VapiService: Integration with Vapi.ai API
+- StripeService: Payment and subscription management  
+- TwilioService: Phone number management
+- CallLogsProcessor: Call data processing
+- VapiCallReportProcessor: Webhook data processing
+
+#### Frontend Components ([resources/js/components/](mdc:resources/js/components/))
+- Organized by feature (auth/, admin/, dashboard/, etc.)
+- Shared components in shared/ directory
+- Form components for complex configurations
+
+## Key Patterns
+
+### Authentication Flow
+- JWT tokens stored in localStorage
+- Role-based route protection (requiresAuth, requiresAdmin)
+- Conditional dashboard rendering based on user role
+
+### API Integration
+- Centralized service classes for external APIs
+- Comprehensive error handling and logging
+- Webhook processing for real-time data
+
+### Database Migrations
+- Use SafeMigrationTrait ([app/Traits/SafeMigrationTrait.php](mdc:app/Traits/SafeMigrationTrait.php)) for safe column operations
+- All migrations must be idempotent and reversible
+
+### Component Organization
+- Feature-based directory structure
+- Composition API with setup() function
+- Reactive data management with ref() and computed()
