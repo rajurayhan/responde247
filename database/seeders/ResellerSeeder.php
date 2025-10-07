@@ -50,9 +50,9 @@ class ResellerSeeder extends Seeder
             );
 
             $resellerAdminUser = User::firstOrCreate(
-                ['email' => 'send2raju.bd@gmail.com'],
+                ['email' => 'hello@responde247.com'],
                 [
-                    'name' => 'Raju',
+                    'name' => 'Alex',
                     'email' => 'hello@responde247.com',
                     'password' => Hash::make('hola@2025'), // Default password, should be changed
                     'role' => 'reseller_admin',
