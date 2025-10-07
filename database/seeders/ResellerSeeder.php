@@ -39,7 +39,7 @@ class ResellerSeeder extends Seeder
                     'name' => 'Raju',
                     'email' => 'send2raju.bd@gmail.com',
                     'password' => Hash::make('raju@2025'), // Default password, should be changed
-                    'role' => 'reseller_admin',
+                    'role' => 'admin',
                     'phone' => null,
                     'company' => 'Responde247.com',
                     'bio' => 'Admin user for Responde247.com reseller',
