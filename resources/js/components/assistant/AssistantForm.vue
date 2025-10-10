@@ -680,17 +680,16 @@
             <input
               v-model="form.metadata.webhook_url"
               type="url"
-              placeholder="https://n8n.cloud.lhgdev.com/webhook/lhg-live-demo-agents"
+              readonly
+              :placeholder="webhookUrl"
               :class="[
                 'w-full px-3 py-2 border rounded-md text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500',
-                fieldErrors.webhook_url 
-                  ? 'border-red-300 focus:border-red-500 focus:ring-red-500 bg-red-50' 
-                  : 'border-gray-300 focus:border-green-500 bg-white'
+                'border-gray-300 bg-gray-50 cursor-not-allowed'
               ]"
             />
             <p v-if="fieldErrors.webhook_url" class="text-xs text-red-600 mt-1">{{ fieldErrors.webhook_url }}</p>
             <p v-else class="text-xs text-gray-500 mt-1">
-              Server URL to receive webhook events. When provided, end-of-call reports will be automatically enabled and sent to this URL.
+              Fixed webhook URL for receiving call events. End-of-call reports are automatically enabled and sent to this URL.
             </p>
           </div>
         </div>
@@ -873,7 +872,7 @@ You embody the highest standards of customer service that {{company_name}} would
         services_products: '',
         sms_phone_number: '',
         assistant_phone_number: '',
-        webhook_url: 'https://n8n.cloud.lhgdev.com/webhook/lhg-live-demo-agents'
+        webhook_url: window.RESELLER_DATA?.webhook_url || '{{ route("core.webhook") }}'
       },
       analysisPlan: {
         summary: false,
@@ -1034,6 +1033,11 @@ You embody the highest standards of customer service that {{company_name}} would
     // Computed property to check if area code is supported for the selected country
     const isAreaCodeSupported = computed(() => {
       return ['Mexico'].includes(form.value.metadata.country)
+    })
+
+    // Computed property for webhook URL from reseller data
+    const webhookUrl = computed(() => {
+      return window.RESELLER_DATA?.webhook_url || '{{ route("core.webhook") }}'
     })
 
     // Watch for type changes to handle template loading
@@ -1238,7 +1242,7 @@ You embody the highest standards of customer service that {{company_name}} would
           form.value.metadata.services_products = assistant.vapi_data.metadata.services_products || ''
           form.value.metadata.sms_phone_number = assistant.vapi_data.metadata.sms_phone_number || ''
           form.value.metadata.assistant_phone_number = assistant.vapi_data.metadata.assistant_phone_number || ''
-          form.value.metadata.webhook_url = assistant.vapi_data.metadata.webhook_url || ''
+          form.value.metadata.webhook_url = assistant.vapi_data.metadata.webhook_url || window.RESELLER_DATA?.webhook_url || '{{ route("core.webhook") }}'
         }
         
         // Map phone_number from database
@@ -1848,6 +1852,7 @@ You embody the highest standards of customer service that {{company_name}} would
       actualSulusData,
       templatedData,
       isAreaCodeSupported,
+      webhookUrl,
       searchReset,
       activeTab,
       updateModel,

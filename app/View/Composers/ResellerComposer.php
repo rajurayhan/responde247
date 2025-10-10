@@ -30,6 +30,7 @@ class ResellerComposer
             'company_address' => '',
             'domain' => request()->getHost(),
             'reseller_id' => null,
+            'webhook_url' => route('core.webhook'),
         ];
 
         if ($reseller) {

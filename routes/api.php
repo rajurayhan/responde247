@@ -34,7 +34,7 @@ Route::post('/stripe/webhook', [App\Http\Controllers\StripeWebhookController::cl
 
 // Vapi webhook route (no auth required)
 Route::post('/vapi/webhook', [App\Http\Controllers\VapiWebhookController::class, 'handleWebhook']);
-Route::post('/core/webhook', [App\Http\Controllers\VapiWebhookController::class, 'handleWebhook']); // Same as Vapi webhook
+Route::post('/core/webhook', [App\Http\Controllers\VapiWebhookController::class, 'handleWebhook'])->name('core.webhook'); // Same as Vapi webhook
 
 // Email verification route
 Route::get('/verify-email/{hash}', [App\Http\Controllers\Auth\VerifyEmailController::class, '__invoke'])

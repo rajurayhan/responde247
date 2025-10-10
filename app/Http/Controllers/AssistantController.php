@@ -229,7 +229,7 @@ class AssistantController extends Controller
             'reseller_id' => $user->reseller_id,
             'type' => $data['type'] ?? 'demo', // Default to demo
             'phone_number' => $data['metadata']['assistant_phone_number'] ?? null,
-            'webhook_url' => $data['metadata']['webhook_url'] ?? 'https://n8n.cloud.lhgdev.com/webhook/lhg-live-demo-agents',
+            'webhook_url' => $data['metadata']['webhook_url'] ?? route('core.webhook'),
         ];
 
         // Add all optional Vapi API fields to database
