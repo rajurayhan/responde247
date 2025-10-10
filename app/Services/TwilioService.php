@@ -32,8 +32,8 @@ class TwilioService
                 'smsEnabled' => true
             ];
             
-            // Add area code filter for supported countries (US, CA, AU)
-            if ($areaCode && in_array($countryCode, ['US', 'CA', 'AU'])) {
+            // Add area code filter for supported countries (US, CA, AU, MX)
+            if ($areaCode && in_array($countryCode, ['US', 'CA', 'AU', 'MX'])) {
                 $params['areaCode'] = $areaCode;
             }
             
@@ -46,7 +46,7 @@ class TwilioService
                 Log::info('No local numbers with voice+SMS found, trying without restrictions');
                 
                 $params = ['limit' => $limit];
-                if ($areaCode && in_array($countryCode, ['US', 'CA', 'AU'])) {
+                if ($areaCode && in_array($countryCode, ['US', 'CA', 'AU', 'MX'])) {
                     $params['areaCode'] = $areaCode;
                 }
                 
@@ -308,7 +308,11 @@ class TwilioService
         // If it doesn't start with +, add country code
         if (!str_starts_with($phoneNumber, '+')) {
             $countryPrefixes = [
-                'US' => '+1'
+                'US' => '+1',
+                'CA' => '+1',
+                'AU' => '+61',
+                'GB' => '+44',
+                'MX' => '+52'
             ];
             
             $phoneNumber = ($countryPrefixes[$countryCode] ?? '+1') . $phoneNumber;
@@ -470,6 +474,8 @@ class TwilioService
         // Country code mapping based on phone number prefixes
         if (preg_match('/^\+1/', $cleanNumber)) {
             return 'US'; // Default to US for +1, could be Canada but US is more common
+        } elseif (preg_match('/^\+52/', $cleanNumber)) {
+            return 'MX';
         } elseif (preg_match('/^\+61/', $cleanNumber)) {
             return 'AU';
         } elseif (preg_match('/^\+44/', $cleanNumber)) {

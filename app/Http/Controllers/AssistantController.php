@@ -184,7 +184,8 @@ class AssistantController extends Controller
                     'United States' => 'US',
                     'Canada' => 'CA',
                     'Australia' => 'AU',
-                    'United Kingdom' => 'GB'
+                    'United Kingdom' => 'GB',
+                    'Mexico' => 'MX'
                 ];
                 $countryCode = $countryCodeMap[$request->input('metadata.country')] ?? null;
             }

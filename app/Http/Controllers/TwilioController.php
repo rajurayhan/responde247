@@ -23,7 +23,7 @@ class TwilioController extends Controller
     {
         $request->validate([
             'country_code' => 'string|max:2',
-            'country' => 'string|in:United States,Canada,Australia,United Kingdom',
+            'country' => 'string|in:United States,Canada,Australia,United Kingdom,Mexico',
             'limit' => 'integer|min:1|max:50',
             'area_code' => 'nullable|string|max:3'
         ]);
@@ -38,7 +38,8 @@ class TwilioController extends Controller
             'United States' => 'US',
             'Canada' => 'CA',
             'Australia' => 'AU',
-            'United Kingdom' => 'GB'
+            'United Kingdom' => 'GB',
+            'Mexico' => 'MX'
         ];
 
         // Use country parameter if provided, otherwise use country_code
@@ -50,7 +51,7 @@ class TwilioController extends Controller
         if ($areaCode && !$this->validateAreaCode($areaCode, $countryCode)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Area code is not supported for the selected country. Only US, CA, AU, and GB support area codes.'
+                'message' => 'Area code is not supported for the selected country. Only US, CA, AU, GB, and MX support area codes.'
             ], 422);
         }
 
@@ -157,12 +158,15 @@ class TwilioController extends Controller
     {
         if (!$areaCode) return true;
         
-        // Only US, CA, AU, and GB support area codes
-        if (!in_array($countryCode, ['US', 'CA', 'AU', 'GB'])) {
+        // Only US, CA, AU, GB, and MX support area codes
+        if (!in_array($countryCode, ['US', 'CA', 'AU', 'GB', 'MX'])) {
             return false;
         }
         
-        // Validate area code format (3 digits for US, CA, AU, GB)
+        // Validate area code format (2-3 digits for MX, 3 digits for US, CA, AU, GB)
+        if ($countryCode === 'MX') {
+            return preg_match('/^\d{2,3}$/', $areaCode);
+        }
         return preg_match('/^\d{3}$/', $areaCode);
     }
 } 
