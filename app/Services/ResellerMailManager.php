@@ -52,12 +52,29 @@ class ResellerMailManager
         }
 
         // Set mail configuration at runtime
+        // Validate that the mailer is supported
+        $supportedMailers = ['smtp', 'mailgun', 'ses', 'postmark', 'resend', 'sendmail', 'log'];
+        if (!in_array($mailMailer, $supportedMailers)) {
+            Log::warning('Unsupported mailer configured, falling back to SMTP', [
+                'reseller_id' => $reseller->id,
+                'configured_mailer' => $mailMailer,
+                'domain' => $reseller->domain
+            ]);
+            $mailMailer = 'smtp';
+        }
+        
         Config::set('mail.default', $mailMailer);
-        Config::set('mail.mailers.smtp.host', $mailHost);
-        Config::set('mail.mailers.smtp.port', $mailPort);
-        Config::set('mail.mailers.smtp.username', $mailUsername);
-        Config::set('mail.mailers.smtp.password', $mailPassword);
-        Config::set('mail.mailers.smtp.encryption', $mailEncryption);
+        
+        // Only set SMTP-specific config if using SMTP
+        if ($mailMailer === 'smtp') {
+            Config::set('mail.mailers.smtp.host', $mailHost);
+            Config::set('mail.mailers.smtp.port', $mailPort);
+            Config::set('mail.mailers.smtp.username', $mailUsername);
+            Config::set('mail.mailers.smtp.password', $mailPassword);
+            Config::set('mail.mailers.smtp.encryption', $mailEncryption);
+        }
+        
+        // Set from address and name for all mailers
         Config::set('mail.from.address', $mailFromAddress ?: $reseller->company_email);
         Config::set('mail.from.name', $mailFromName ?: $reseller->org_name);
 

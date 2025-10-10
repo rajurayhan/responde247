@@ -51,7 +51,24 @@ class AuthController extends Controller
             }
 
             // Send welcome email with verification link
-            $user->notify(new WelcomeEmail());
+            try {
+                $user->notify(new WelcomeEmail());
+                Log::info('Welcome email sent successfully', [
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                    'reseller_id' => $resellerId,
+                    'timestamp' => now()->toISOString()
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Failed to send welcome email', [
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                    'reseller_id' => $resellerId,
+                    'error' => $e->getMessage(),
+                    'timestamp' => now()->toISOString()
+                ]);
+                // Don't fail registration if email sending fails
+            }
 
             $token = $user->createToken('auth_token')->plainTextToken;
 
