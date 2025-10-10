@@ -64,7 +64,7 @@ class AuthController extends Controller
                     'user_id' => $user->id,
                     'email' => $user->email,
                     'reseller_id' => $resellerId,
-                    'error' => $e->getMessage(),
+                    'error' => $e,
                     'timestamp' => now()->toISOString()
                 ]);
                 // Don't fail registration if email sending fails
