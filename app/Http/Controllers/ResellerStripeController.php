@@ -8,6 +8,7 @@ use App\Models\ResellerSubscription;
 use App\Models\ResellerTransaction;
 use App\Models\ResellerSetting;
 use App\Services\StripeService;
+use App\Traits\SafeTimestampConversion;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -17,6 +18,7 @@ use Carbon\Carbon;
 
 class ResellerStripeController extends Controller
 {
+    use SafeTimestampConversion;
     protected $stripeService;
 
     public function __construct(StripeService $stripeService)
@@ -353,14 +355,18 @@ class ResellerStripeController extends Controller
 
             $stripeSubscription = $this->stripeService->createResellerSubscription($subscriptionData, $reseller->id);
 
-            // Create local reseller subscription
+            // Create local reseller subscription with safe timestamp conversion
+            $periodStart = $this->safeTimestampConversion($stripeSubscription['current_period_start']);
+            $periodEnd = $this->safeTimestampConversion($stripeSubscription['current_period_end']);
+            $trialEnd = $stripeSubscription['trial_end'] ? $this->safeTimestampConversion($stripeSubscription['trial_end']) : null;
+
             $localSubscription = ResellerSubscription::create([
                 'reseller_id' => $reseller->id,
                 'reseller_package_id' => $package->id,
                 'status' => 'pending',
-                'current_period_start' => Carbon::createFromTimestamp($stripeSubscription['current_period_start']),
-                'current_period_end' => Carbon::createFromTimestamp($stripeSubscription['current_period_end']),
-                'trial_ends_at' => $stripeSubscription['trial_end'] ? Carbon::createFromTimestamp($stripeSubscription['trial_end']) : null,
+                'current_period_start' => $periodStart,
+                'current_period_end' => $periodEnd,
+                'trial_ends_at' => $trialEnd,
                 'stripe_subscription_id' => $stripeSubscription['id'],
                 'stripe_customer_id' => $customer['id'],
                 'metadata' => [
@@ -643,4 +649,5 @@ class ResellerStripeController extends Controller
             ], 500);
         }
     }
+
 }
