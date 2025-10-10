@@ -105,15 +105,19 @@ class TwilioService
     public function purchaseNumber($phoneNumber, $countryCode = null)
     {
         try {
-            // Ensure phone number is in E.164 format
-            $phoneNumber = $this->formatPhoneNumber($phoneNumber);
-            
             // Determine country code if not provided
             if (!$countryCode) {
                 $countryCode = $this->determineCountryFromPhoneNumber($phoneNumber);
             }
             
-            Log::info('Twilio Purchase Number Attempt: ' . $phoneNumber . ' for country: ' . $countryCode);
+            // Ensure phone number is in E.164 format with correct country code
+            $phoneNumber = $this->formatPhoneNumber($phoneNumber, $countryCode);
+            
+            Log::info('Twilio Purchase Number Attempt', [
+                'phone_number' => $phoneNumber,
+                'country_code' => $countryCode,
+                'original_phone_number' => $phoneNumber
+            ]);
             
             // Check if the number is already owned by this account
             $existingNumbers = $this->client->incomingPhoneNumbers

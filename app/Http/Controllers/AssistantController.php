@@ -188,6 +188,12 @@ class AssistantController extends Controller
                     'Mexico' => 'MX'
                 ];
                 $countryCode = $countryCodeMap[$request->input('metadata.country')] ?? null;
+                
+                Log::info('Assistant Creation - Country Detection', [
+                    'metadata_country' => $request->input('metadata.country'),
+                    'detected_country_code' => $countryCode,
+                    'selected_phone_number' => $request->selected_phone_number
+                ]);
             }
             
             // Purchase the selected phone number
