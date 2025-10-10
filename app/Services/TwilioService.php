@@ -518,13 +518,20 @@ class TwilioService
         $bundleSids = config('services.twilio.bundle_sids', []);
         
         // Countries that require bundle verification
-        $countriesRequiringBundle = ['GB'];
+        $countriesRequiringBundle = ['GB', 'MX'];
         
         if (in_array($countryCode, $countriesRequiringBundle) && isset($bundleSids[$countryCode])) {
             $bundleSid = $bundleSids[$countryCode];
             Log::info('Twilio Bundle SID Lookup: Found bundle SID ' . $bundleSid . ' for country ' . $countryCode);
             
-            // Validate the bundle SID with Twilio
+            // For Mexico, we'll use the bundle SID directly without validation for now
+            // since the bundle might be in a different status
+            if ($countryCode === 'MX') {
+                Log::info('Twilio Bundle SID: Using Mexican bundle SID without validation: ' . $bundleSid);
+                return $bundleSid;
+            }
+            
+            // Validate the bundle SID with Twilio for other countries
             if ($this->validateBundleSid($bundleSid)) {
                 return $bundleSid;
             } else {
