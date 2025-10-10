@@ -165,8 +165,7 @@
                         <option value="smtp">SMTP</option>
                         <option value="sendmail">Sendmail</option>
                         <option value="mailgun">Mailgun</option>
-                        <option value="ses">Amazon SES</option>
-                        <option value="postmark">Postmark</option>
+                        <option value="log">Log (Development)</option>
                       </select>
                     </div>
 

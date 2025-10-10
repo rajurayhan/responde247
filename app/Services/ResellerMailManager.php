@@ -53,7 +53,7 @@ class ResellerMailManager
 
         // Set mail configuration at runtime
         // Validate that the mailer is supported
-        $supportedMailers = ['smtp', 'mailgun', 'ses', 'postmark', 'resend', 'sendmail', 'log'];
+        $supportedMailers = ['smtp', 'sendmail', 'mailgun', 'log'];
         if (!in_array($mailMailer, $supportedMailers)) {
             Log::warning('Unsupported mailer configured, falling back to SMTP', [
                 'reseller_id' => $reseller->id,
