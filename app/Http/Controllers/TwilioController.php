@@ -23,22 +23,18 @@ class TwilioController extends Controller
     {
         $request->validate([
             'country_code' => 'string|max:2',
-            'country' => 'string|in:United States,Canada,Australia,United Kingdom,Mexico',
+            'country' => 'string|in:Mexico',
             'limit' => 'integer|min:1|max:50',
             'area_code' => 'nullable|string|max:3'
         ]);
 
-        $countryCode = $request->input('country_code', 'US');
+        $countryCode = $request->input('country_code', 'MX');
         $country = $request->input('country');
         $limit = $request->input('limit', 10);
         $areaCode = $request->input('area_code');
 
         // Map country names to Twilio country codes
         $countryCodeMap = [
-            'United States' => 'US',
-            'Canada' => 'CA',
-            'Australia' => 'AU',
-            'United Kingdom' => 'GB',
             'Mexico' => 'MX'
         ];
 
@@ -51,7 +47,7 @@ class TwilioController extends Controller
         if ($areaCode && !$this->validateAreaCode($areaCode, $countryCode)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Area code is not supported for the selected country. Only US, CA, AU, GB, and MX support area codes.'
+                'message' => 'Area code is not supported for the selected country. Only MX supports area codes.'
             ], 422);
         }
 
@@ -158,15 +154,12 @@ class TwilioController extends Controller
     {
         if (!$areaCode) return true;
         
-        // Only US, CA, AU, GB, and MX support area codes
-        if (!in_array($countryCode, ['US', 'CA', 'AU', 'GB', 'MX'])) {
+        // Only MX supports area codes
+        if (!in_array($countryCode, ['MX'])) {
             return false;
         }
         
-        // Validate area code format (2-3 digits for MX, 3 digits for US, CA, AU, GB)
-        if ($countryCode === 'MX') {
-            return preg_match('/^\d{2,3}$/', $areaCode);
-        }
-        return preg_match('/^\d{3}$/', $areaCode);
+        // Validate area code format (2-3 digits for MX)
+        return preg_match('/^\d{2,3}$/', $areaCode);
     }
 } 

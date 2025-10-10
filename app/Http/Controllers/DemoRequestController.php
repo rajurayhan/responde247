@@ -21,7 +21,7 @@ class DemoRequestController extends Controller
             'phone' => 'required|string|max:20',
             'company_name' => 'required|string|max:255',
             'industry' => 'required|string|max:255',
-            'country' => 'required|string|max:255',
+            'country' => 'required|string|in:Mexico',
             'services' => 'required|string|max:1000',
         ]);
 

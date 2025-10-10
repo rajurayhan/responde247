@@ -136,7 +136,7 @@ class VapiAssistantRequest extends FormRequest
             'metadata' => 'nullable|array',
             'metadata.company_name' => 'nullable|string|max:255',
             'metadata.industry' => 'nullable|string|max:255',
-            'metadata.country' => 'required|string|in:United States,Canada,Australia,United Kingdom',
+            'metadata.country' => 'required|string|in:Mexico',
             'metadata.services_products' => 'nullable|string|max:1000',
             'metadata.sms_phone_number' => 'nullable|string|max:20',
             'metadata.assistant_phone_number' => 'nullable|string|max:20|regex:/^\+[1-9]\d{1,14}$/',
