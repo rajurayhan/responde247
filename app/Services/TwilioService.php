@@ -159,19 +159,27 @@ class TwilioService
                 'smsMethod' => 'POST'
             ];
             
-            // Add bundle SID for countries that require it (like UK)
+            // Add bundle SID for countries that require it (like UK and Mexico)
             $bundleSid = $this->getBundleSidForCountry($countryCode);
             if ($bundleSid) {
                 $purchaseParams['bundleSid'] = $bundleSid;
                 Log::info('Twilio Purchase Number: Using bundle SID ' . $bundleSid . ' for country ' . $countryCode);
-            } else {
-                // Add address SID for countries that require it (but not bundle)
-                $addressSid = $this->getAddressSidForCountry($countryCode);
-                if ($addressSid) {
-                    $purchaseParams['addressSid'] = $addressSid;
-                    Log::info('Twilio Purchase Number: Using address SID ' . $addressSid . ' for country ' . $countryCode);
-                }
             }
+            
+            // Add address SID for countries that require it
+            // Note: Some countries (like Mexico) require BOTH bundle and address SIDs
+            $addressSid = $this->getAddressSidForCountry($countryCode);
+            if ($addressSid) {
+                $purchaseParams['addressSid'] = $addressSid;
+                Log::info('Twilio Purchase Number: Using address SID ' . $addressSid . ' for country ' . $countryCode);
+            }
+            
+            // Log the complete purchase parameters for debugging
+            Log::info('Twilio Purchase Parameters', [
+                'phone_number' => $phoneNumber,
+                'country_code' => $countryCode,
+                'purchase_params' => $purchaseParams
+            ]);
             
             // Purchase the phone number
             $incomingPhoneNumber = $this->client->incomingPhoneNumbers
