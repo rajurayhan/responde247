@@ -63,6 +63,11 @@ Route::get('/api/public/audio/{fileName}/info', [App\Http\Controllers\PublicAudi
     ->where('fileName', '[A-Za-z0-9]{12}\.(wav|mp3)')
     ->name('public.audio.info');
 
+// Public audio player page
+Route::get('/play/{fileName}', [App\Http\Controllers\PublicAudioPlayerController::class, 'showPlayer'])
+    ->where('fileName', '[A-Za-z0-9]{12}\.(wav|mp3)')
+    ->name('public.audio.player');
+
 // Reseller subscription checkout success and cancel routes
 Route::get('/reseller/subscription/success', [App\Http\Controllers\ResellerCheckoutController::class, 'success'])
     ->name('reseller.subscription.success');

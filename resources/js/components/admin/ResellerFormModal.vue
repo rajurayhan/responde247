@@ -248,6 +248,10 @@ export default {
   setup(props, { emit }) {
     // Get the current instance to access $toast
     const { proxy } = getCurrentInstance()
+    
+    // Debug logging
+    console.log('ResellerFormModal setup called with props:', props)
+    
     const saving = ref(false)
     const errors = ref({})
     const uploadErrors = ref({})
@@ -266,6 +270,11 @@ export default {
     })
 
     const isEditing = computed(() => props.reseller && props.reseller.id)
+
+    // Watch for show prop changes
+    watch(() => props.show, (newShow) => {
+      console.log('ResellerFormModal show prop changed to:', newShow)
+    })
 
     // Reset form when modal opens/closes or reseller changes
     watch([() => props.show, () => props.reseller], () => {

@@ -177,7 +177,7 @@ class ResellerSubscriptionValidationModelTest extends TestCase
         ]);
 
         $message = $this->regularUser->getAssistantCreationValidationMessage();
-        $this->assertEquals('Your reseller does not have an active subscription. Please contact your reseller administrator.', $message);
+        $this->assertEquals('No active subscription found. Please contact your reseller administrator.', $message);
     }
 
     public function test_validation_message_for_inactive_reseller()

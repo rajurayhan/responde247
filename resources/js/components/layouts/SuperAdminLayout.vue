@@ -162,6 +162,7 @@ export default {
         'super-admin-reseller-packages': 'Reseller Packages',
         'super-admin-reseller-subscriptions': 'Reseller Subscriptions',
         'super-admin-reseller-transactions': 'Reseller Transactions',
+        'super-admin-users': 'User Management',
         'super-admin-usage-reports': 'Usage Reports'
       }
       return titles[routeName] || 'Super Admin'
@@ -175,6 +176,7 @@ export default {
         'super-admin-reseller-packages': 'Manage reseller subscription packages',
         'super-admin-reseller-subscriptions': 'Monitor reseller subscription status',
         'super-admin-reseller-transactions': 'Track reseller billing and transactions',
+        'super-admin-users': 'Manage users across all resellers',
         'super-admin-usage-reports': 'Comprehensive usage analytics and reporting'
       }
       return subtitles[routeName] || null

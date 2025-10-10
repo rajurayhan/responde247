@@ -83,8 +83,8 @@ class ResellerRegistrationController extends Controller
 
             // Use database transaction to ensure data consistency
             $result = DB::transaction(function () use ($validated, $logoUrl, $package) {
-                // Always append .responde247.com to subdomain
-                $finalDomain = $validated['subdomain_name'] . '.responde247.com';
+                // Always append .futureassistant.ai to subdomain
+                $finalDomain = $validated['subdomain_name'] . '.futureassistant.ai';
 
                 // Create the reseller
                 $reseller = Reseller::create([
@@ -435,8 +435,8 @@ class ResellerRegistrationController extends Controller
 
             $subdomain = $request->input('subdomain');
             
-            // Always append .responde247.com to check the full domain
-            $fullDomain = $subdomain . '.responde247.com';
+            // Always append .futureassistant.ai to check the full domain
+            $fullDomain = $subdomain . '.futureassistant.ai';
             
             // Check if domain is already taken
             $existingReseller = Reseller::where('domain', $fullDomain)->first();

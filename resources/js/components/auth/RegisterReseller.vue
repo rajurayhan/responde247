@@ -144,7 +144,7 @@
         <div v-if="currentStep === 2" class="space-y-6">
           <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Choose Your Subdomain</h3>
-            <p class="text-sm text-gray-600 mb-6">Your reseller platform will be hosted on a subdomain of responde247.com</p>
+            <p class="text-sm text-gray-600 mb-6">Your reseller platform will be hosted on a subdomain of futureassistant.ai</p>
             
             <!-- Subdomain Display Card -->
             <div class="p-6 border-2 border-blue-500 bg-blue-50 rounded-lg mb-6">
@@ -156,7 +156,7 @@
                 </div>
                 <h4 class="text-lg font-semibold text-gray-900 mb-2">Subdomain Hosting</h4>
                 <p class="text-sm text-gray-600 mb-4">
-                  Use a subdomain on responde247.com (e.g., yourcompany.responde247.com)
+                  Use a subdomain on futureassistant.ai (e.g., yourcompany.futureassistant.ai)
                 </p>
                 <div class="space-y-2 text-sm text-gray-700">
                   <div class="flex items-center justify-center">
@@ -198,7 +198,7 @@
                   :class="{ 'border-red-500 focus:ring-red-500': errors.subdomain_name }"
                 />
                 <span class="px-4 py-3 bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg text-gray-700">
-                  .responde247.com
+                  .futureassistant.ai
                 </span>
               </div>
               <p class="mt-1 text-xs text-gray-500">Only letters, numbers, and hyphens allowed</p>

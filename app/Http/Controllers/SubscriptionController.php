@@ -6,6 +6,7 @@ use App\Models\SubscriptionPackage;
 use App\Models\User;
 use App\Models\UserSubscription;
 use App\Services\OverageBillingService;
+use App\Services\ResellerUsageService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -229,6 +230,35 @@ class SubscriptionController extends Controller
     public function getUsage(): JsonResponse
     {
         $user = Auth::user();
+        
+        // Handle reseller admin users
+        if ($user->role === 'reseller_admin' && $user->reseller_id) {
+            $reseller = $user->reseller;
+            
+            if (!$reseller) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Reseller not found'
+                ], 404);
+            }
+            
+            $resellerUsageService = new ResellerUsageService();
+            $usage = $resellerUsageService->getUsageStatistics($reseller);
+            
+            if (!$usage['has_active_subscription']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No active subscription found'
+                ], 404);
+            }
+            
+            return response()->json([
+                'success' => true,
+                'data' => $usage
+            ]);
+        }
+        
+        // Handle regular users
         $subscription = UserSubscription::contentProtection()
             ->where('status', 'active')
             ->first();
@@ -554,6 +584,44 @@ class SubscriptionController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Package deleted successfully'
+        ]);
+    }
+
+    /**
+     * Admin: Delete a subscription
+     */
+    public function adminDeleteSubscription($id): JsonResponse
+    {
+        if (!Auth::user()->isContentAdmin()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized'
+            ], 403);
+        }
+
+        $subscription = UserSubscription::contentProtection()->findOrFail($id);
+
+        // Check if subscription is active
+        if ($subscription->status === 'active') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cannot delete active subscription. Please cancel it first.'
+            ], 422);
+        }
+
+        // Log the deletion
+        Log::info('Subscription deleted by admin', [
+            'subscription_id' => $subscription->id,
+            'user_id' => $subscription->user_id,
+            'status' => $subscription->status,
+            'admin_id' => Auth::id()
+        ]);
+
+        $subscription->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Subscription deleted successfully'
         ]);
     }
 

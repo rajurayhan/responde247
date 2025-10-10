@@ -21,7 +21,7 @@
             </div>
 
             <!-- Error Messages -->
-            <div v-if="errors.length > 0" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div v-if="errors.length > 0" class="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
               <div class="flex">
                 <div class="flex-shrink-0">
                   <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -29,7 +29,7 @@
                   </svg>
                 </div>
                 <div class="ml-3">
-                  <h3 class="text-sm font-medium text-red-800">Please fix the following errors:</h3>
+                  <h3 class="text-sm font-medium text-red-800">Please correct the following errors:</h3>
                   <div class="mt-2 text-sm text-red-700">
                     <ul class="list-disc list-inside space-y-1">
                       <li v-for="error in errors" :key="error">{{ error }}</li>
@@ -39,37 +39,31 @@
               </div>
             </div>
 
-            <!-- Stripe Integration - MOVED TO TOP -->
-            <div class="mb-6">
-              <!-- Only show Stripe integration for new subscriptions -->
-              <div v-if="!isEditing">
+            <!-- Stripe Integration Section (Only for new subscriptions) -->
+            <div v-if="!isEditing" class="mb-6">
+              <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h4 class="text-sm font-medium text-blue-900 mb-3">Subscription Type</h4>
+                <p class="text-sm text-blue-700 mb-4">Choose between creating a new subscription or syncing an existing one from Stripe</p>
+                
                 <!-- Toggle Switch -->
-                <div class="mb-6">
-                  <div class="flex items-center justify-between">
-                    <div>
-                      <h5 class="text-sm font-medium text-gray-900">Subscription Type</h5>
-                      <p class="text-sm text-gray-500">Choose between creating a new subscription or syncing an existing one from Stripe</p>
-                    </div>
-                    <div class="flex items-center">
-                      <span class="text-sm font-medium text-gray-700 mr-3">New</span>
-                      <button
-                        @click="toggleSubscriptionType"
-                        type="button"
-                        :class="[
-                          'relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
-                          isExistingSubscription ? 'bg-blue-600' : 'bg-gray-200'
-                        ]"
-                      >
-                        <span
-                          :class="[
-                            'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
-                            isExistingSubscription ? 'translate-x-6' : 'translate-x-1'
-                          ]"
-                        />
-                      </button>
-                      <span class="text-sm font-medium text-gray-700 ml-3">Existing</span>
-                    </div>
-                  </div>
+                <div class="flex items-center space-x-4 mb-4">
+                  <span :class="['text-sm font-medium', !isExistingSubscription ? 'text-blue-900' : 'text-gray-500']">New</span>
+                  <button
+                    type="button"
+                    @click="toggleSubscriptionType"
+                    :class="[
+                      'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
+                      isExistingSubscription ? 'bg-blue-600' : 'bg-gray-200'
+                    ]"
+                  >
+                    <span
+                      :class="[
+                        'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
+                        isExistingSubscription ? 'translate-x-5' : 'translate-x-0'
+                      ]"
+                    />
+                  </button>
+                  <span :class="['text-sm font-medium', isExistingSubscription ? 'text-blue-900' : 'text-gray-500']">Existing</span>
                 </div>
 
                 <!-- Existing Stripe Subscription Section -->
@@ -77,6 +71,62 @@
                   <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
                     <h5 class="text-sm font-medium text-blue-900 mb-3">Sync Existing Stripe Subscription</h5>
                     
+                    <!-- User Selection -->
+                    <div class="mb-4">
+                      <label class="block text-sm font-medium text-gray-700 mb-1">User</label>
+                      <SearchableSelect
+                        v-model="form.user_id"
+                        :options="users"
+                        :loading="false"
+                        placeholder="Search users..."
+                        value-key="id"
+                        label-key="name"
+                        description-key="email"
+                        :search-keys="['name', 'email']"
+                      >
+                        <template #default="{ option }">
+                          <div class="flex justify-between items-center">
+                            <div>
+                              <div class="font-medium">{{ option.name }}</div>
+                              <div class="text-xs text-gray-500">{{ option.email }}</div>
+                            </div>
+                            <div class="text-xs text-gray-400">
+                              ID: {{ option.id }}
+                            </div>
+                          </div>
+                        </template>
+                      </SearchableSelect>
+                      <p v-if="fieldErrors.user_id" class="mt-1 text-sm text-red-600">{{ fieldErrors.user_id }}</p>
+                    </div>
+
+                    <!-- Package Selection -->
+                    <div class="mb-4">
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Package</label>
+                      <SearchableSelect
+                        v-model="form.package_id"
+                        :options="packages"
+                        :loading="false"
+                        placeholder="Search packages..."
+                        value-key="id"
+                        label-key="name"
+                        description-key="description"
+                        :search-keys="['name', 'description']"
+                      >
+                        <template #default="{ option }">
+                          <div class="flex justify-between items-center">
+                            <div>
+                              <div class="font-medium">{{ option.name }}</div>
+                              <div class="text-xs text-gray-500">{{ option.description }}</div>
+                            </div>
+                            <div class="text-xs text-gray-400">
+                              ${{ option.price }}/mo
+                            </div>
+                          </div>
+                        </template>
+                      </SearchableSelect>
+                      <p v-if="fieldErrors.package_id" class="mt-1 text-sm text-red-600">{{ fieldErrors.package_id }}</p>
+                    </div>
+
                     <!-- Stripe Customer Selection -->
                     <div class="mb-4">
                       <label class="block text-sm font-medium text-gray-700 mb-1">Stripe Customer</label>
@@ -91,7 +141,7 @@
                         :search-keys="['name', 'email', 'id']"
                         @change="onCustomerChange"
                       >
-                        <template #default="{ option, searchQuery }">
+                        <template #default="{ option }">
                           <div class="flex justify-between items-center">
                             <div>
                               <div class="font-medium">{{ option.name || option.email }}</div>
@@ -121,7 +171,7 @@
                         :search-keys="['id', 'status']"
                         @change="onSubscriptionChange"
                       >
-                        <template #default="{ option, searchQuery }">
+                        <template #default="{ option }">
                           <div class="flex justify-between items-center">
                             <div>
                               <div class="font-medium">{{ option.id }}</div>
@@ -152,12 +202,9 @@
                         <svg class="h-5 w-5 text-green-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <div>
-                          <h6 class="text-sm font-medium text-green-900">Auto-Sync Enabled</h6>
-                          <p class="text-sm text-green-700 mt-1">
-                            Subscription data will be automatically synced from Stripe when you create the subscription.
-                          </p>
-                        </div>
+                        <p class="text-sm text-green-700">
+                          This will sync the existing Stripe subscription and all associated transactions.
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -165,121 +212,114 @@
 
                 <!-- New Subscription Section -->
                 <div v-else class="mb-6">
-                  <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                    <h5 class="text-sm font-medium text-gray-900 mb-3">Create New Subscription</h5>
-                    <p class="text-sm text-gray-600">
-                      This will create a new subscription and generate a payment link for the reseller to complete payment.
+                  <div class="p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <h5 class="text-sm font-medium text-green-900 mb-3">Create New Subscription</h5>
+                    <p class="text-sm text-green-700">
+                      This will create a new subscription and generate a payment link for the user.
                     </p>
-                  </div>
-                </div>
-                
-                <!-- Additional Stripe fields (read-only for reference when existing) -->
-                <div v-if="isExistingSubscription" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Stripe Subscription ID</label>
-                    <input
-                      v-model="form.stripe_subscription_id"
-                      type="text"
-                      readonly
-                      class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
-                      placeholder="Selected from dropdown above"
-                    />
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Stripe Customer ID</label>
-                    <input
-                      v-model="form.stripe_customer_id"
-                      type="text"
-                      readonly
-                      class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
-                      placeholder="Selected from dropdown above"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <!-- Show read-only Stripe info for existing subscriptions -->
-              <div v-else class="mb-6">
-                <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                  <h5 class="text-sm font-medium text-gray-900 mb-3">Stripe Integration (Read-Only)</h5>
-                  <p class="text-sm text-gray-600 mb-4">
-                    Stripe integration settings cannot be modified when editing existing subscriptions.
-                  </p>
-                  
-                  <!-- Read-only Stripe fields -->
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-1">Stripe Customer ID</label>
-                      <input
-                        v-model="form.stripe_customer_id"
-                        type="text"
-                        readonly
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
-                        placeholder="No Stripe customer linked"
-                      />
-                    </div>
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-1">Stripe Subscription ID</label>
-                      <input
-                        v-model="form.stripe_subscription_id"
-                        type="text"
-                        readonly
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
-                        placeholder="No Stripe subscription linked"
-                      />
-                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Form Fields -->
-            <div class="space-y-6">
-              <!-- Reseller Selection -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Reseller *</label>
-                <select
-                  v-model="form.reseller_id"
-                  required
-                  :class="[
-                    'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-                    fieldErrors.reseller_id ? 'border-red-300' : 'border-gray-300'
-                  ]"
+            <!-- Read-only Stripe info for editing -->
+            <div v-else-if="isEditing && subscription.stripe_customer_id" class="mb-6">
+              <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                <h4 class="text-sm font-medium text-gray-900 mb-3">Stripe Integration</h4>
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700">Stripe Customer ID</label>
+                    <p class="mt-1 text-sm text-gray-900 font-mono">{{ subscription.stripe_customer_id }}</p>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700">Stripe Subscription ID</label>
+                    <p class="mt-1 text-sm text-gray-900 font-mono">{{ subscription.stripe_subscription_id }}</p>
+                  </div>
+                </div>
+                <p class="mt-2 text-xs text-gray-500">Stripe integration details cannot be modified when editing.</p>
+              </div>
+            </div>
+
+            <!-- Form Fields (only show for new subscriptions or when not syncing from Stripe) -->
+            <div v-if="!isExistingSubscription || isEditing">
+              <!-- User Selection -->
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">User</label>
+                <SearchableSelect
+                  v-model="form.user_id"
+                  :options="users"
+                  :loading="false"
+                  placeholder="Search users..."
+                  value-key="id"
+                  label-key="name"
+                  description-key="email"
+                  :search-keys="['name', 'email']"
                 >
-                  <option value="">Select a reseller</option>
-                  <option v-for="reseller in resellers" :key="reseller.id" :value="reseller.id">
-                    {{ reseller.org_name }}
-                  </option>
-                </select>
-                <p v-if="fieldErrors.reseller_id" class="mt-1 text-sm text-red-600">{{ fieldErrors.reseller_id }}</p>
+                  <template #default="{ option }">
+                    <div class="flex justify-between items-center">
+                      <div>
+                        <div class="font-medium">{{ option.name }}</div>
+                        <div class="text-xs text-gray-500">{{ option.email }}</div>
+                      </div>
+                      <div class="text-xs text-gray-400">
+                        ID: {{ option.id }}
+                      </div>
+                    </div>
+                  </template>
+                </SearchableSelect>
+                <p v-if="fieldErrors.user_id" class="mt-1 text-sm text-red-600">{{ fieldErrors.user_id }}</p>
               </div>
 
               <!-- Package Selection -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Package *</label>
-                <select
-                  v-model="form.reseller_package_id"
-                  required
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Package</label>
+                <SearchableSelect
+                  v-model="form.package_id"
+                  :options="packages"
+                  :loading="false"
+                  placeholder="Search packages..."
+                  value-key="id"
+                  label-key="name"
+                  description-key="description"
+                  :search-keys="['name', 'description']"
+                >
+                  <template #default="{ option }">
+                    <div class="flex justify-between items-center">
+                      <div>
+                        <div class="font-medium">{{ option.name }}</div>
+                        <div class="text-xs text-gray-500">{{ option.description }}</div>
+                      </div>
+                      <div class="text-xs text-gray-400">
+                        ${{ option.price }}/mo
+                      </div>
+                    </div>
+                  </template>
+                </SearchableSelect>
+                <p v-if="fieldErrors.package_id" class="mt-1 text-sm text-red-600">{{ fieldErrors.package_id }}</p>
+              </div>
+
+              <!-- Custom Amount -->
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Custom Amount ($)</label>
+                <input
+                  v-model="form.custom_amount"
+                  type="number"
+                  step="0.01"
+                  min="0.01"
                   :class="[
                     'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-                    fieldErrors.reseller_package_id ? 'border-red-300' : 'border-gray-300'
+                    fieldErrors.custom_amount ? 'border-red-300' : 'border-gray-300'
                   ]"
-                >
-                  <option value="">Select a package</option>
-                  <option v-for="packageItem in packages" :key="packageItem.id" :value="packageItem.id">
-                    {{ packageItem.name }} - ${{ parseFloat(packageItem.price).toFixed(2) }}/month
-                    <span v-if="packageItem.yearly_price"> (Yearly: ${{ parseFloat(packageItem.yearly_price).toFixed(2) }})</span>
-                  </option>
-                </select>
-                <p v-if="fieldErrors.reseller_package_id" class="mt-1 text-sm text-red-600">{{ fieldErrors.reseller_package_id }}</p>
+                  placeholder="Enter custom amount"
+                />
+                <p v-if="fieldErrors.custom_amount" class="mt-1 text-sm text-red-600">{{ fieldErrors.custom_amount }}</p>
               </div>
 
               <!-- Billing Interval -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Billing Interval *</label>
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Billing Interval</label>
                 <select
                   v-model="form.billing_interval"
-                  required
                   :class="[
                     'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
                     fieldErrors.billing_interval ? 'border-red-300' : 'border-gray-300'
@@ -289,28 +329,34 @@
                   <option value="yearly">Yearly</option>
                 </select>
                 <p v-if="fieldErrors.billing_interval" class="mt-1 text-sm text-red-600">{{ fieldErrors.billing_interval }}</p>
-                <div v-if="form.billing_interval === 'yearly' && selectedPackage" class="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
-                  <div class="flex items-center">
-                    <svg class="h-5 w-5 text-green-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                    </svg>
-                    <span class="text-sm text-green-800">
-                      <strong>Save {{ yearlySavings }}%</strong> with yearly billing
-                      <span class="block text-xs text-green-600">
-                        Monthly: ${{ (selectedPackage.price * 12).toFixed(2) }} | Yearly: ${{ parseFloat(selectedPackage.yearly_price || selectedPackage.price * 10).toFixed(2) }}
-                      </span>
-                    </span>
-                  </div>
-                </div>
+              </div>
+
+              <!-- Duration -->
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Duration (months)</label>
+                <input
+                  v-model="form.duration_months"
+                  type="number"
+                  min="1"
+                  max="120"
+                  :class="[
+                    'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+                    fieldErrors.duration_months ? 'border-red-300' : 'border-gray-300'
+                  ]"
+                  placeholder="Enter duration in months"
+                />
+                <p v-if="fieldErrors.duration_months" class="mt-1 text-sm text-red-600">{{ fieldErrors.duration_months }}</p>
               </div>
 
               <!-- Status -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Status *</label>
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
                 <select
                   v-model="form.status"
-                  required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  :class="[
+                    'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+                    fieldErrors.status ? 'border-red-300' : 'border-gray-300'
+                  ]"
                 >
                   <option value="active">Active</option>
                   <option value="cancelled">Cancelled</option>
@@ -318,24 +364,11 @@
                   <option value="trial">Trial</option>
                   <option value="pending">Pending</option>
                 </select>
-              </div>
-
-              <!-- Custom Amount -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Custom Amount ($)</label>
-                <input
-                  v-model="form.custom_amount"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Leave empty to use package price"
-                />
-                <p class="text-xs text-gray-500 mt-1">Override the package price with a custom amount</p>
+                <p v-if="fieldErrors.status" class="mt-1 text-sm text-red-600">{{ fieldErrors.status }}</p>
               </div>
 
               <!-- Trial Period -->
-              <div>
+              <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Trial Ends At</label>
                 <input
                   v-model="form.trial_ends_at"
@@ -350,7 +383,7 @@
               </div>
 
               <!-- Period Dates -->
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-1">Current Period Start</label>
                   <input
@@ -378,7 +411,7 @@
               </div>
 
               <!-- Payment Link -->
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-1">Payment Link ID</label>
                   <input
@@ -413,7 +446,7 @@
               </div>
 
               <!-- Stripe Checkout Session -->
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-1">Stripe Checkout Session ID</label>
                   <input
@@ -448,7 +481,7 @@
               </div>
 
               <!-- Metadata -->
-              <div>
+              <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Metadata (JSON)</label>
                 <textarea
                   v-model="form.metadata_json"
@@ -466,13 +499,21 @@
             <button
               type="submit"
               :disabled="saving"
-              class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              :class="[
+                'w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm',
+                saving ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500'
+              ]"
             >
-              <svg v-if="saving" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              {{ saving ? 'Saving...' : (isEditing ? 'Update Subscription' : 'Create Subscription') }}
+              <span v-if="saving" class="flex items-center">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                {{ isExistingSubscription ? 'Syncing...' : 'Creating...' }}
+              </span>
+              <span v-else>
+                {{ isExistingSubscription ? 'Sync from Stripe' : (isEditing ? 'Update Subscription' : 'Create Subscription') }}
+              </span>
             </button>
             <button
               type="button"
@@ -495,7 +536,7 @@ import Swal from 'sweetalert2'
 import SearchableSelect from '../shared/SearchableSelect.vue'
 
 export default {
-  name: 'SubscriptionFormModal',
+  name: 'AdminSubscriptionFormModal',
   components: {
     SearchableSelect
   },
@@ -513,86 +554,125 @@ export default {
   setup(props, { emit }) {
     const { proxy } = getCurrentInstance()
     
-    // Debug logging
-    console.log('SubscriptionFormModal setup called with props:', props)
-    
     const saving = ref(false)
     const loadingSubscriptions = ref(false)
     const isExistingSubscription = ref(false)
     const stripeCustomers = ref([])
     const stripeSubscriptions = ref([])
-    const resellers = ref([])
+    const users = ref([])
     const packages = ref([])
     const errors = ref([])
     const fieldErrors = ref({})
 
     const form = ref({
-      reseller_id: '',
-      reseller_package_id: '',
-      billing_interval: 'monthly',
-      status: 'active',
+      user_id: '',
+      package_id: '',
       custom_amount: '',
+      billing_interval: 'monthly',
+      duration_months: 1,
+      status: 'pending',
       trial_ends_at: '',
       current_period_start: '',
       current_period_end: '',
-      stripe_subscription_id: '',
-      stripe_customer_id: '',
       payment_link_id: '',
       payment_link_url: '',
       stripe_checkout_session_id: '',
       checkout_session_url: '',
-      metadata_json: '{}'
+      metadata_json: '{}',
+      stripe_customer_id: '',
+      stripe_subscription_id: ''
     })
 
     const isEditing = computed(() => props.subscription !== null)
 
     // Watch for show prop changes
     watch(() => props.show, (newShow) => {
-      console.log('SubscriptionFormModal show prop changed to:', newShow)
-    })
-
-    // Computed properties for package and savings
-    const selectedPackage = computed(() => {
-      if (!form.value.reseller_package_id) return null
-      return packages.value.find(pkg => pkg.id == form.value.reseller_package_id)
-    })
-
-    const yearlySavings = computed(() => {
-      if (!selectedPackage.value || !selectedPackage.value.yearly_price) return 0
-      const monthlyYearlyCost = selectedPackage.value.price * 12
-      const yearlyCost = selectedPackage.value.yearly_price
-      return Math.round(((monthlyYearlyCost - yearlyCost) / monthlyYearlyCost) * 100)
-    })
-
-    // Load resellers and packages
-    const loadResellers = async () => {
-      try {
-        const response = await fetch('/api/admin/resellers', {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            'Accept': 'application/json',
-          }
-        })
-        const data = await response.json()
-        if (data.success) {
-          resellers.value = data.data.data || []
+      if (newShow) {
+        resetForm()
+        if (props.subscription) {
+          populateForm(props.subscription)
         }
-      } catch (error) {
-        console.error('Error loading resellers:', error)
+      }
+    })
+
+    // Reset form
+    const resetForm = () => {
+      form.value = {
+        user_id: '',
+        package_id: '',
+        custom_amount: '',
+        billing_interval: 'monthly',
+        duration_months: 1,
+        status: 'pending',
+        trial_ends_at: '',
+        current_period_start: '',
+        current_period_end: '',
+        payment_link_id: '',
+        payment_link_url: '',
+        stripe_checkout_session_id: '',
+        checkout_session_url: '',
+        metadata_json: '{}',
+        stripe_customer_id: '',
+        stripe_subscription_id: ''
+      }
+      errors.value = []
+      fieldErrors.value = {}
+      isExistingSubscription.value = false
+      stripeSubscriptions.value = []
+    }
+
+    // Populate form for editing
+    const populateForm = (subscription) => {
+      form.value = {
+        user_id: subscription.user_id || '',
+        package_id: subscription.subscription_package_id || '',
+        custom_amount: subscription.custom_amount || '',
+        billing_interval: subscription.billing_interval || 'monthly',
+        duration_months: subscription.duration_months || 1,
+        status: subscription.status || 'pending',
+        trial_ends_at: subscription.trial_ends_at ? formatDateForInput(subscription.trial_ends_at) : '',
+        current_period_start: subscription.current_period_start ? formatDateForInput(subscription.current_period_start) : '',
+        current_period_end: subscription.current_period_end ? formatDateForInput(subscription.current_period_end) : '',
+        payment_link_id: subscription.payment_link_id || '',
+        payment_link_url: subscription.payment_link_url || '',
+        stripe_checkout_session_id: subscription.stripe_checkout_session_id || '',
+        checkout_session_url: subscription.checkout_session_url || '',
+        metadata_json: subscription.metadata_json || '{}',
+        stripe_customer_id: subscription.stripe_customer_id || '',
+        stripe_subscription_id: subscription.stripe_subscription_id || ''
       }
     }
 
-    const loadPackages = async () => {
+    // Load users
+    const loadUsers = async () => {
       try {
-        const response = await fetch('/api/super-admin/reseller-packages', {
+        const response = await axios.get('/api/admin/users', {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            'Accept': 'application/json',
+            'Accept': 'application/json'
           }
         })
-        const data = await response.json()
-        if (data.success) {
-          packages.value = data.data.data || []
+        
+        if (response.data.success) {
+          users.value = response.data.data
+        }
+      } catch (error) {
+        console.error('Error loading users:', error)
+      }
+    }
+
+    // Load packages
+    const loadPackages = async () => {
+      try {
+        const response = await axios.get('/api/admin/subscriptions/packages', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Accept': 'application/json'
+          }
+        })
+        
+        if (response.data.success) {
+          packages.value = response.data.data
         }
       } catch (error) {
         console.error('Error loading packages:', error)
@@ -602,42 +682,41 @@ export default {
     // Load Stripe customers
     const loadStripeCustomers = async () => {
       try {
-        const response = await fetch('/api/super-admin/reseller-subscriptions/stripe-customers', {
+        const response = await axios.get('/api/admin/subscriptions/custom/stripe-customers', {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            'Accept': 'application/json',
+            'Accept': 'application/json'
           }
         })
-        const data = await response.json()
-        if (data.success) {
-          stripeCustomers.value = data.data || []
+        
+        if (response.data.success) {
+          stripeCustomers.value = response.data.data
         }
       } catch (error) {
         console.error('Error loading Stripe customers:', error)
       }
     }
 
-    // Load subscriptions for selected customer
+    // Load customer subscriptions
     const loadCustomerSubscriptions = async (customerId) => {
-      if (!customerId) {
-        stripeSubscriptions.value = []
-        return
-      }
-
+      if (!customerId) return
+      
       loadingSubscriptions.value = true
       try {
-        const response = await fetch(`/api/super-admin/reseller-subscriptions/customer-subscriptions?customer_id=${customerId}`, {
+        const response = await axios.get('/api/admin/subscriptions/custom/customer-subscriptions', {
+          params: { customer_id: customerId },
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            'Accept': 'application/json',
+            'Accept': 'application/json'
           }
         })
-        const data = await response.json()
-        if (data.success) {
-          stripeSubscriptions.value = data.data || []
+        
+        if (response.data.success) {
+          stripeSubscriptions.value = response.data.data
         }
       } catch (error) {
         console.error('Error loading customer subscriptions:', error)
+        stripeSubscriptions.value = []
       } finally {
         loadingSubscriptions.value = false
       }
@@ -682,188 +761,124 @@ export default {
     }
 
     // Format date for input fields (YYYY-MM-DDTHH:MM)
-    const formatDateForInput = (timestamp) => {
-      if (!timestamp) return ''
-      return new Date(timestamp * 1000).toISOString().slice(0, 16)
-    }
-
-    // Map Stripe status to form status
-    const mapStripeStatusToFormStatus = (stripeStatus) => {
-      const statusMap = {
-        'active': 'active',
-        'trialing': 'trial',
-        'past_due': 'pending',
-        'canceled': 'cancelled',
-        'unpaid': 'expired',
-        'incomplete': 'pending',
-        'incomplete_expired': 'expired',
-        'paused': 'pending'
-      }
-      return statusMap[stripeStatus] || 'pending'
-    }
-
-    // Format date helper for subscription dropdown
-    const formatDate = (timestamp) => {
-      if (!timestamp) return 'N/A'
-      return new Date(timestamp * 1000).toLocaleDateString()
-    }
-
-    // Watch for subscription changes to populate form
-    watch(() => props.subscription, (newSubscription) => {
-      if (newSubscription) {
-        form.value = {
-          reseller_id: newSubscription.reseller_id || '',
-          reseller_package_id: newSubscription.reseller_package_id || '',
-          billing_interval: newSubscription.billing_interval || 'monthly',
-          status: newSubscription.status || 'active',
-          custom_amount: newSubscription.custom_amount || '',
-          trial_ends_at: newSubscription.trial_ends_at ? new Date(newSubscription.trial_ends_at).toISOString().slice(0, 16) : '',
-          current_period_start: newSubscription.current_period_start ? new Date(newSubscription.current_period_start).toISOString().slice(0, 16) : '',
-          current_period_end: newSubscription.current_period_end ? new Date(newSubscription.current_period_end).toISOString().slice(0, 16) : '',
-          stripe_subscription_id: newSubscription.stripe_subscription_id || '',
-          stripe_customer_id: newSubscription.stripe_customer_id || '',
-          payment_link_id: newSubscription.payment_link_id || '',
-          payment_link_url: newSubscription.payment_link_url || '',
-          stripe_checkout_session_id: newSubscription.stripe_checkout_session_id || '',
-          checkout_session_url: newSubscription.checkout_session_url || '',
-          metadata_json: newSubscription.metadata ? JSON.stringify(newSubscription.metadata, null, 2) : '{}'
-        }
-      } else {
-        // Reset form for new subscription
-        form.value = {
-          reseller_id: '',
-          reseller_package_id: '',
-          billing_interval: 'monthly',
-          status: 'active',
-          custom_amount: '',
-          trial_ends_at: '',
-          current_period_start: '',
-          current_period_end: '',
-          stripe_subscription_id: '',
-          stripe_customer_id: '',
-          payment_link_id: '',
-          payment_link_url: '',
-          stripe_checkout_session_id: '',
-          checkout_session_url: '',
-          metadata_json: '{}'
-        }
-      }
-    }, { immediate: true })
-
-    const saveSubscription = async () => {
-      saving.value = true
-      // Clear previous errors
-      errors.value = []
-      fieldErrors.value = {}
-      
-      try {
-        // Parse metadata JSON
-        let metadata = {}
-        try {
-          metadata = JSON.parse(form.value.metadata_json)
-        } catch (e) {
-          errors.value = ['Invalid JSON format for metadata']
-          return
-        }
-
-        const subscriptionData = {
-          ...form.value,
-          metadata: metadata,
-          custom_amount: form.value.custom_amount ? parseFloat(form.value.custom_amount) : null,
-          trial_ends_at: form.value.trial_ends_at ? new Date(form.value.trial_ends_at).toISOString() : null,
-          current_period_start: form.value.current_period_start ? new Date(form.value.current_period_start).toISOString() : null,
-          current_period_end: form.value.current_period_end ? new Date(form.value.current_period_end).toISOString() : null,
-          // Only include Stripe IDs if existing subscription mode is enabled AND we're creating (not editing)
-          ...(isExistingSubscription.value && !isEditing.value && {
-            stripe_customer_id: form.value.stripe_customer_id,
-            stripe_subscription_id: form.value.stripe_subscription_id
-          })
-        }
-
-        // Remove the JSON field
-        delete subscriptionData.metadata_json
-
-        const url = isEditing.value 
-          ? `/api/super-admin/reseller-subscriptions/${props.subscription.id}`
-          : '/api/super-admin/reseller-subscriptions'
-        
-        const method = isEditing.value ? 'PUT' : 'POST'
-
-        const response = await fetch(url, {
-          method,
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(subscriptionData)
-        })
-
-        const data = await response.json()
-        if (data.success) {
-          if (proxy.$toast && proxy.$toast.success) {
-            proxy.$toast.success(`Subscription ${isEditing.value ? 'updated' : 'created'} successfully`)
-          }
-          emit('saved')
-        } else {
-          // Handle validation errors
-          if (response.status === 422 && data.errors) {
-            console.error('Validation errors:', data.errors)
-            // Set field-specific errors
-            fieldErrors.value = {}
-            errors.value = []
-            
-            Object.entries(data.errors).forEach(([field, messages]) => {
-              const errorMessage = Array.isArray(messages) ? messages.join(', ') : messages
-              fieldErrors.value[field] = errorMessage
-              errors.value.push(`${field}: ${errorMessage}`)
-            })
-          } else {
-            errors.value = [data.message || `Failed to ${isEditing.value ? 'update' : 'create'} subscription`]
-          }
-        }
-      } catch (error) {
-        console.error('Error saving subscription:', error)
-        if (error.response && error.response.status === 422 && error.response.data.errors) {
-          // Handle validation errors from catch block
-          fieldErrors.value = {}
-          errors.value = []
-          
-          Object.entries(error.response.data.errors).forEach(([field, messages]) => {
-            const errorMessage = Array.isArray(messages) ? messages.join(', ') : messages
-            fieldErrors.value[field] = errorMessage
-            errors.value.push(`${field}: ${errorMessage}`)
-          })
-        } else {
-          errors.value = [error.message || `Error ${isEditing.value ? 'updating' : 'creating'} subscription`]
-        }
-      } finally {
-        saving.value = false
-      }
+    const formatDateForInput = (dateString) => {
+      if (!dateString) return ''
+      const date = new Date(dateString)
+      return date.toISOString().slice(0, 16)
     }
 
     // Copy to clipboard function
     const copyToClipboard = async (text, label) => {
       try {
         await navigator.clipboard.writeText(text)
-        if (proxy.$toast && proxy.$toast.success) {
-          proxy.$toast.success('Copied')
-        } else {
-          // Fallback for environments without toast
-          alert('Copied')
-        }
+        Swal.fire({
+          icon: 'success',
+          title: 'Copied!',
+          text: `${label} copied to clipboard`,
+          timer: 1500,
+          showConfirmButton: false
+        })
       } catch (err) {
-        console.error('Failed to copy to clipboard:', err)
-        if (proxy.$toast && proxy.$toast.error) {
-          proxy.$toast.error('Failed to copy')
+        console.error('Failed to copy: ', err)
+        Swal.fire({
+          icon: 'error',
+          title: 'Copy Failed',
+          text: 'Failed to copy to clipboard',
+          timer: 2000,
+          showConfirmButton: false
+        })
+      }
+    }
+
+    // Map Stripe status to form status
+    const mapStripeStatusToFormStatus = (stripeStatus) => {
+      const statusMap = {
+        'active': 'active',
+        'canceled': 'cancelled',
+        'incomplete': 'pending',
+        'incomplete_expired': 'expired',
+        'past_due': 'past_due',
+        'trialing': 'trial',
+        'unpaid': 'expired'
+      }
+      return statusMap[stripeStatus] || 'pending'
+    }
+
+    // Format date
+    const formatDate = (timestamp) => {
+      if (!timestamp) return 'N/A'
+      return new Date(timestamp * 1000).toLocaleDateString()
+    }
+
+    // Save subscription
+    const saveSubscription = async () => {
+      saving.value = true
+      errors.value = []
+      fieldErrors.value = {}
+
+      try {
+        let url, data
+
+        if (isExistingSubscription.value && !isEditing.value) {
+          // Sync from Stripe
+          url = '/api/admin/subscriptions/custom/sync-from-stripe'
+          data = {
+            user_id: form.value.user_id,
+            package_id: form.value.package_id,
+            stripe_customer_id: form.value.stripe_customer_id,
+            stripe_subscription_id: form.value.stripe_subscription_id
+          }
         } else {
-          alert('Failed to copy')
+          // Create new subscription
+          url = '/api/admin/subscriptions/custom/create'
+          data = {
+            user_id: form.value.user_id,
+            package_id: form.value.package_id,
+            custom_amount: parseFloat(form.value.custom_amount),
+            billing_interval: form.value.billing_interval,
+            duration_months: parseInt(form.value.duration_months)
+          }
         }
+
+        const response = await axios.post(url, data, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+        })
+
+        if (response.data.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: response.data.message || 'Subscription created successfully',
+            timer: 2000,
+            showConfirmButton: false
+          })
+          
+          emit('saved')
+          emit('close')
+        } else {
+          errors.value = [response.data.message || 'An error occurred']
+        }
+      } catch (error) {
+        console.error('Error saving subscription:', error)
+        
+        if (error.response?.data?.errors) {
+          fieldErrors.value = error.response.data.errors
+        } else if (error.response?.data?.message) {
+          errors.value = [error.response.data.message]
+        } else {
+          errors.value = ['An unexpected error occurred']
+        }
+      } finally {
+        saving.value = false
       }
     }
 
     onMounted(() => {
-      loadResellers()
+      loadUsers()
       loadPackages()
       loadStripeCustomers()
     })
@@ -875,19 +890,19 @@ export default {
       isExistingSubscription,
       stripeCustomers,
       stripeSubscriptions,
-      isEditing,
-      resellers,
+      users,
       packages,
+      isEditing,
       errors,
       fieldErrors,
-      selectedPackage,
-      yearlySavings,
       saveSubscription,
       onCustomerChange,
       onSubscriptionChange,
       toggleSubscriptionType,
       loadCustomerSubscriptions,
       formatDate,
+      resetForm,
+      populateForm,
       copyToClipboard
     }
   }

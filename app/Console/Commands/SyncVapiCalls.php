@@ -22,7 +22,10 @@ class SyncVapiCalls extends Command
     protected $signature = 'vapi:sync-calls 
                             {--assistant-id= : Sync calls for specific assistant ID}
                             {--limit=100 : Number of calls to fetch per assistant}
-                            {--dry-run : Show what would be synced without making changes}';
+                            {--dry-run : Show what would be synced without making changes}
+                            {--check-recordings : Check and download missing recording files for existing calls}
+                            {--fix-reseller-ids : Check and update missing reseller_id fields for existing calls}
+                            {--delay=2 : Delay in seconds between assistant processing to respect rate limits}';
 
     /**
      * The console command description.
@@ -48,9 +51,24 @@ class SyncVapiCalls extends Command
         $assistantId = $this->option('assistant-id');
         $limit = (int) $this->option('limit');
         $dryRun = $this->option('dry-run');
+        $checkRecordings = $this->option('check-recordings');
+        $fixResellerIds = $this->option('fix-reseller-ids');
+        $delay = (int) $this->option('delay');
 
         if ($dryRun) {
             $this->warn('DRY RUN MODE - No changes will be made');
+        }
+
+        if ($checkRecordings) {
+            $this->info('CHECKING RECORDINGS MODE - Will check and download missing recording files');
+        }
+
+        if ($fixResellerIds) {
+            $this->info('FIXING RESELLER IDS MODE - Will check and update missing reseller_id fields');
+        }
+
+        if ($delay > 0) {
+            $this->info("Using {$delay} second delay between assistant processing to respect rate limits");
         }
 
         // Get assistants to sync
@@ -67,27 +85,68 @@ class SyncVapiCalls extends Command
         $totalSkipped = 0;
         $totalErrors = 0;
 
-        foreach ($assistants as $assistant) {
-            $this->info("\nSyncing calls for assistant: {$assistant->name} (ID: {$assistant->vapi_assistant_id})");
-            
-            try {
-                $result = $this->syncAssistantCalls($assistant, $limit, $dryRun);
-                $totalSynced += $result['synced'];
-                $totalSkipped += $result['skipped'];
-                $totalErrors += $result['errors'];
+        if ($checkRecordings) {
+            // Check recordings for existing calls
+            $this->info("\nChecking recordings for existing calls...");
+            $result = $this->checkAndDownloadMissingRecordings($assistantId, $dryRun);
+            $totalSynced += $result['downloaded'];
+            $totalSkipped += $result['skipped'];
+            $totalErrors += $result['errors'];
+        } elseif ($fixResellerIds) {
+            // Fix missing reseller IDs for existing calls
+            $this->info("\nFixing missing reseller_id fields for existing calls...");
+            $result = $this->fixMissingResellerIds($assistantId, $dryRun);
+            $totalSynced += $result['updated'];
+            $totalSkipped += $result['skipped'];
+            $totalErrors += $result['errors'];
+        } else {
+            // Normal sync process
+            foreach ($assistants as $index => $assistant) {
+                $this->info("\nSyncing calls for assistant: {$assistant->name} (ID: {$assistant->vapi_assistant_id})");
                 
-                $this->info("Assistant {$assistant->name}: {$result['synced']} synced, {$result['skipped']} skipped, {$result['errors']} errors");
-            } catch (\Exception $e) {
-                $this->error("Error syncing assistant {$assistant->name}: " . $e->getMessage());
-                $totalErrors++;
+                try {
+                    $result = $this->syncAssistantCalls($assistant, $limit, $dryRun);
+                    $totalSynced += $result['synced'];
+                    $totalSkipped += $result['skipped'];
+                    $totalErrors += $result['errors'];
+                    
+                    $this->info("Assistant {$assistant->name}: {$result['synced']} synced, {$result['skipped']} skipped, {$result['errors']} errors");
+                    
+                    // Add delay between assistants (except for the last one)
+                    if ($delay > 0 && $index < $assistants->count() - 1) {
+                        $this->line("Waiting {$delay} seconds before processing next assistant...");
+                        sleep($delay);
+                    }
+                } catch (\Exception $e) {
+                    $this->error("Error syncing assistant {$assistant->name}: " . $e->getMessage());
+                    $totalErrors++;
+                    
+                    // Still add delay even on error to respect rate limits
+                    if ($delay > 0 && $index < $assistants->count() - 1) {
+                        $this->line("Waiting {$delay} seconds before processing next assistant...");
+                        sleep($delay);
+                    }
+                }
             }
         }
 
         $this->info("\n" . str_repeat('=', 50));
-        $this->info("SYNC SUMMARY:");
-        $this->info("Total Synced: {$totalSynced}");
-        $this->info("Total Skipped: {$totalSkipped}");
-        $this->info("Total Errors: {$totalErrors}");
+        if ($checkRecordings) {
+            $this->info("RECORDINGS CHECK SUMMARY:");
+            $this->info("Total Downloaded: {$totalSynced}");
+            $this->info("Total Skipped: {$totalSkipped}");
+            $this->info("Total Errors: {$totalErrors}");
+        } elseif ($fixResellerIds) {
+            $this->info("RESELLER IDS FIX SUMMARY:");
+            $this->info("Total Updated: {$totalSynced}");
+            $this->info("Total Skipped: {$totalSkipped}");
+            $this->info("Total Errors: {$totalErrors}");
+        } else {
+            $this->info("SYNC SUMMARY:");
+            $this->info("Total Synced: {$totalSynced}");
+            $this->info("Total Skipped: {$totalSkipped}");
+            $this->info("Total Errors: {$totalErrors}");
+        }
         
         if ($dryRun) {
             $this->warn('This was a dry run - no actual changes were made');
@@ -156,32 +215,50 @@ class SyncVapiCalls extends Command
     }
 
     /**
-     * Fetch calls from Vapi API
+     * Fetch calls from Vapi API with retry logic for rate limits
      */
     private function fetchVapiCalls(string $assistantId, int $limit)
     {
         $vapiToken = config('services.vapi.token');
         $baseUrl = config('services.vapi.base_url', 'https://api.vapi.ai');
+        
+        $maxRetries = 3;
+        $baseDelay = 5; // Base delay in seconds
+        
+        for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
+            $response = Http::withHeaders([
+                'Authorization' => "Bearer {$vapiToken}",
+                'Content-Type' => 'application/json',
+            ])->get("{$baseUrl}/call", [
+                'assistantId' => $assistantId,
+                'limit' => $limit,
+            ]);
 
-        $response = Http::withHeaders([
-            'Authorization' => "Bearer {$vapiToken}",
-            'Content-Type' => 'application/json',
-        ])->get("{$baseUrl}/call", [
-            'assistantId' => $assistantId,
-            'limit' => $limit,
-        ]);
+            if ($response->successful()) {
+                $data = $response->json();
+                
+                if (!is_array($data)) {
+                    throw new \Exception("Invalid response format from Vapi API");
+                }
 
-        if (!$response->successful()) {
+                return $data;
+            }
+            
+            // Handle rate limit errors (429) with exponential backoff
+            if ($response->status() === 429) {
+                if ($attempt < $maxRetries) {
+                    $delay = $baseDelay * pow(2, $attempt - 1); // Exponential backoff
+                    $this->warn("Rate limit exceeded (429). Retrying in {$delay} seconds... (Attempt {$attempt}/{$maxRetries})");
+                    sleep($delay);
+                    continue;
+                } else {
+                    throw new \Exception("Rate limit exceeded (429) after {$maxRetries} attempts. Please try again later.");
+                }
+            }
+            
+            // For other errors, throw immediately
             throw new \Exception("Vapi API error: " . $response->status() . " - " . $response->body());
         }
-
-        $data = $response->json();
-        
-        if (!is_array($data)) {
-            throw new \Exception("Invalid response format from Vapi API");
-        }
-
-        return $data;
     }
 
     /**
@@ -199,6 +276,25 @@ class SyncVapiCalls extends Command
                 $this->line("Would skip existing call: {$callId}");
             } else {
                 $this->line("Skipped existing call: {$callId}");
+                
+                // Check and update reseller_id if missing
+                if (!$existingCall->reseller_id && $assistant->user->reseller_id) {
+                    $existingCall->reseller_id = $assistant->user->reseller_id;
+                    $existingCall->save();
+                    $this->line("Updated reseller_id for call: {$callId}");
+                    
+                    Log::info('Updated reseller_id for existing call', [
+                        'call_id' => $callId,
+                        'assistant_id' => $assistant->id,
+                        'reseller_id' => $assistant->user->reseller_id,
+                        'user_id' => $assistant->user_id
+                    ]);
+                }
+                
+                // Check if recording file exists and download if missing
+                if ($existingCall->call_record_file_name && $existingCall->status === 'completed') {
+                    $this->checkAndDownloadCallRecording($existingCall, false);
+                }
             }
             return 'skipped';
         }
@@ -250,66 +346,88 @@ class SyncVapiCalls extends Command
      */
     private function mapCallData(CallLog $callLog, array $call, Assistant $assistant)
     {
-        // Basic call information
-        $callLog->call_id = $call['id'];
-        $callLog->assistant_id = $assistant->id;
-        $callLog->user_id = $assistant->user_id;
+        try {
+            // Basic call information
+            $callLog->call_id = $call['id'] ?? 'unknown';
+            $callLog->assistant_id = $assistant->id;
+            $callLog->user_id = $assistant->user_id;
+            $callLog->reseller_id = $assistant->user->reseller_id;
         
-        // Phone numbers
-        $callLog->phone_number = $call['phoneNumber']['number'] ?? null;
-        $callLog->caller_number = $call['customer']['number'] ?? null;
+            // Phone numbers - with proper null checks
+            $callLog->phone_number = $call['phoneNumber']['number'] ?? null;
+            $callLog->caller_number = $call['customer']['number'] ?? null;
+            
+            // Timing - with proper null checks
+            $callLog->start_time = isset($call['startedAt']) && $call['startedAt'] ? Carbon::parse($call['startedAt']) : null;
+            $callLog->end_time = isset($call['endedAt']) && $call['endedAt'] ? Carbon::parse($call['endedAt']) : null;
         
-        // Timing
-        $callLog->start_time = $call['startedAt'] ? Carbon::parse($call['startedAt']) : null;
-        $callLog->end_time = $call['endedAt'] ? Carbon::parse($call['endedAt']) : null;
+            // Calculate duration from timestamps (fallback)
+            if ($callLog->start_time && $callLog->end_time) {
+                $duration = $callLog->end_time->diffInSeconds($callLog->start_time);
+                $callLog->duration = max(0, $duration); // Ensure non-negative duration
+            }
         
-        // Calculate duration from timestamps (fallback)
-        if ($callLog->start_time && $callLog->end_time) {
-            $duration = $callLog->end_time->diffInSeconds($callLog->start_time);
-            $callLog->duration = max(0, $duration); // Ensure non-negative duration
-        }
+            // Note: Duration will be updated from audio file if available during download
+            
+            // Status mapping - with proper null checks
+            $callLog->status = $this->mapVapiStatus($call['status'] ?? null);
+            $callLog->direction = $this->mapVapiDirection($call['type'] ?? null);
         
-        // Note: Duration will be updated from audio file if available during download
+            // Cost information
+            $callLog->cost = $call['cost'] ?? null;
+            $callLog->currency = 'USD'; // Vapi costs are in USD
+            
+            // Store full webhook data
+            $callLog->webhook_data = $call;
+            
+            // Extract transcript if available
+            if (isset($call['artifact']['transcript'])) {
+                $callLog->transcript = $call['artifact']['transcript'];
+            }
+            
+            // Extract summary if available
+            if (isset($call['analysis']['summary'])) {
+                $callLog->summary = $call['analysis']['summary'];
+            }
         
-        // Status mapping
-        $callLog->status = $this->mapVapiStatus($call['status']);
-        $callLog->direction = $this->mapVapiDirection($call['type']);
-        
-        // Cost information
-        $callLog->cost = $call['cost'] ?? null;
-        $callLog->currency = 'USD'; // Vapi costs are in USD
-        
-        // Store full webhook data
-        $callLog->webhook_data = $call;
-        
-        // Extract transcript if available
-        if (isset($call['artifact']['transcript'])) {
-            $callLog->transcript = $call['artifact']['transcript'];
-        }
-        
-        // Extract summary if available
-        if (isset($call['analysis']['summary'])) {
-            $callLog->summary = $call['analysis']['summary'];
-        }
-        
-        // Extract metadata
-        $metadata = [];
-        if (isset($call['assistant']['metadata'])) {
-            $metadata['assistant_metadata'] = $call['assistant']['metadata'];
-        }
-        if (isset($call['endedReason'])) {
-            $metadata['ended_reason'] = $call['endedReason'];
-        }
-        if (isset($call['costBreakdown'])) {
-            $metadata['cost_breakdown'] = $call['costBreakdown'];
-        }
-        
-        if (!empty($metadata)) {
-            $callLog->metadata = $metadata;
-        }
+            // Extract metadata
+            $metadata = [];
+            if (isset($call['assistant']['metadata'])) {
+                $metadata['assistant_metadata'] = $call['assistant']['metadata'];
+            }
+            if (isset($call['endedReason'])) {
+                $metadata['ended_reason'] = $call['endedReason'];
+            }
+            if (isset($call['costBreakdown'])) {
+                $metadata['cost_breakdown'] = $call['costBreakdown'];
+            }
+            
+            if (!empty($metadata)) {
+                $callLog->metadata = $metadata;
+            }
 
-        // Download call recording if available
-        $this->downloadCallRecording($callLog, $call);
+            // Download call recording if available
+            $this->downloadCallRecording($callLog, $call);
+            
+        } catch (\Exception $e) {
+            $callId = $call['id'] ?? 'unknown';
+            $this->error("Error mapping call data for call {$callId}: " . $e->getMessage());
+            Log::error('Error mapping call data', [
+                'call_id' => $call['id'] ?? 'unknown',
+                'assistant_id' => $assistant->id,
+                'error' => $e->getMessage(),
+                'call_data_keys' => array_keys($call)
+            ]);
+            
+            // Set minimal required fields to prevent complete failure
+            $callLog->call_id = $call['id'] ?? 'unknown';
+            $callLog->assistant_id = $assistant->id;
+            $callLog->user_id = $assistant->user_id;
+            $callLog->reseller_id = $assistant->user->reseller_id;
+            $callLog->status = 'initiated';
+            $callLog->direction = 'inbound';
+            $callLog->webhook_data = $call;
+        }
     }
 
     /**
@@ -544,5 +662,269 @@ class SyncVapiCalls extends Command
         }
 
         return null;
+    }
+
+    /**
+     * Check and download missing recording files for existing calls
+     */
+    private function checkAndDownloadMissingRecordings($assistantId = null, bool $dryRun = false): array
+    {
+        $downloaded = 0;
+        $skipped = 0;
+        $errors = 0;
+
+        try {
+            // Get calls that have recording file names but files might be missing
+            $query = CallLog::with('assistant.user') // Load assistant and user relationships
+                          ->whereNotNull('call_record_file_name')
+                          ->where('status', 'completed'); // Only check completed calls
+
+            if ($assistantId) {
+                $query->where('assistant_id', $assistantId);
+            }
+
+            $calls = $query->get();
+
+            if ($calls->isEmpty()) {
+                $this->warn('No calls with recording file names found');
+                return ['downloaded' => 0, 'skipped' => 0, 'errors' => 0];
+            }
+
+            $this->info("Found {$calls->count()} calls with recording file names to check");
+
+            foreach ($calls as $callLog) {
+                try {
+                    $result = $this->checkAndDownloadCallRecording($callLog, $dryRun);
+                    
+                    if ($result === 'downloaded') {
+                        $downloaded++;
+                    } elseif ($result === 'skipped') {
+                        $skipped++;
+                    } else {
+                        $errors++;
+                    }
+                } catch (\Exception $e) {
+                    $this->error("Error checking recording for call {$callLog->call_id}: " . $e->getMessage());
+                    $errors++;
+                }
+            }
+
+        } catch (\Exception $e) {
+            $this->error("Error checking recordings: " . $e->getMessage());
+            $errors++;
+        }
+
+        return ['downloaded' => $downloaded, 'skipped' => $skipped, 'errors' => $errors];
+    }
+
+    /**
+     * Check if recording file exists and download if missing
+     */
+    private function checkAndDownloadCallRecording(CallLog $callLog, bool $dryRun = false): string
+    {
+        $fileName = $callLog->call_record_file_name;
+        $filePath = 'recordings/' . $fileName;
+
+        // Check and update reseller_id if missing
+        if (!$dryRun && !$callLog->reseller_id && $callLog->assistant && $callLog->assistant->user->reseller_id) {
+            $callLog->reseller_id = $callLog->assistant->user->reseller_id;
+            $callLog->save();
+            $this->line("Updated reseller_id for call: {$callLog->call_id}");
+            
+            Log::info('Updated reseller_id for call during recording check', [
+                'call_id' => $callLog->call_id,
+                'assistant_id' => $callLog->assistant_id,
+                'reseller_id' => $callLog->assistant->user->reseller_id,
+                'user_id' => $callLog->user_id
+            ]);
+        }
+
+        // Check if file exists in storage
+        if (Storage::disk('public')->exists($filePath)) {
+            if ($dryRun) {
+                $this->line("Would skip existing recording file: {$fileName}");
+            } else {
+                $this->line("Recording file exists: {$fileName}");
+            }
+            return 'skipped';
+        }
+
+        // File doesn't exist, try to download it
+        if ($dryRun) {
+            $this->line("Would download missing recording: {$fileName}");
+            return 'downloaded';
+        }
+
+        // Get recording URL from webhook data
+        $recordingUrl = $this->extractRecordingUrlFromWebhookData($callLog->webhook_data);
+        
+        if (!$recordingUrl) {
+            $this->warn("No recording URL found in webhook data for call: {$callLog->call_id}");
+            return 'error';
+        }
+
+        try {
+            // Create recordings directory if it doesn't exist
+            $directory = 'recordings';
+            if (!Storage::disk('public')->exists($directory)) {
+                Storage::disk('public')->makeDirectory($directory);
+            }
+
+            // Download the file
+            $fileContent = file_get_contents($recordingUrl);
+            if ($fileContent === false) {
+                $this->warn("Failed to download recording for call: {$callLog->call_id}");
+                return 'error';
+            }
+
+            // Store the file
+            $stored = Storage::disk('public')->put($filePath, $fileContent);
+            if (!$stored) {
+                $this->warn("Failed to store recording for call: {$callLog->call_id}");
+                return 'error';
+            }
+
+            // Extract duration from audio file and update call log if not set
+            if (!$callLog->duration) {
+                $duration = $this->extractAudioDuration($filePath);
+                if ($duration !== null) {
+                    $callLog->duration = $duration;
+                    $callLog->save();
+                    $this->line("Updated duration from audio: {$duration} seconds");
+                }
+            }
+
+            $this->line("Downloaded missing recording: {$fileName}");
+            
+            Log::info('Downloaded missing call recording', [
+                'call_id' => $callLog->call_id,
+                'filename' => $fileName,
+                'file_path' => $filePath,
+                'file_size' => strlen($fileContent)
+            ]);
+
+            return 'downloaded';
+
+        } catch (\Exception $e) {
+            $this->error("Error downloading recording for call {$callLog->call_id}: " . $e->getMessage());
+            Log::error('Error downloading missing call recording', [
+                'call_id' => $callLog->call_id,
+                'filename' => $fileName,
+                'error' => $e->getMessage()
+            ]);
+            return 'error';
+        }
+    }
+
+    /**
+     * Extract recording URL from webhook data
+     */
+    private function extractRecordingUrlFromWebhookData(array $webhookData): ?string
+    {
+        // Check for recording URL in different possible locations
+        return $webhookData['recordingUrl'] ?? 
+               $webhookData['artifact']['recordingUrl'] ?? 
+               $webhookData['messages'][0]['artifact']['recordingUrl'] ?? 
+               null;
+    }
+
+    /**
+     * Fix missing reseller_id fields for existing calls
+     */
+    private function fixMissingResellerIds($assistantId = null, bool $dryRun = false): array
+    {
+        $updated = 0;
+        $skipped = 0;
+        $errors = 0;
+
+        try {
+            // Get calls that are missing reseller_id
+            $query = CallLog::with('assistant.user') // Load assistant and user relationships
+                          ->whereNull('reseller_id');
+
+            if ($assistantId) {
+                $query->where('assistant_id', $assistantId);
+            }
+
+            $calls = $query->get();
+
+            if ($calls->isEmpty()) {
+                $this->warn('No calls with missing reseller_id found');
+                return ['updated' => 0, 'skipped' => 0, 'errors' => 0];
+            }
+
+            $this->info("Found {$calls->count()} calls with missing reseller_id to fix");
+
+            foreach ($calls as $callLog) {
+                try {
+                    $result = $this->fixCallResellerId($callLog, $dryRun);
+                    
+                    if ($result === 'updated') {
+                        $updated++;
+                    } elseif ($result === 'skipped') {
+                        $skipped++;
+                    } else {
+                        $errors++;
+                    }
+                } catch (\Exception $e) {
+                    $this->error("Error fixing reseller_id for call {$callLog->call_id}: " . $e->getMessage());
+                    $errors++;
+                }
+            }
+
+        } catch (\Exception $e) {
+            $this->error("Error fixing reseller IDs: " . $e->getMessage());
+            $errors++;
+        }
+
+        return ['updated' => $updated, 'skipped' => $skipped, 'errors' => $errors];
+    }
+
+    /**
+     * Fix reseller_id for a single call
+     */
+    private function fixCallResellerId(CallLog $callLog, bool $dryRun = false): string
+    {
+        // Check if assistant and user exist and have reseller_id
+        if (!$callLog->assistant || !$callLog->assistant->user || !$callLog->assistant->user->reseller_id) {
+            if ($dryRun) {
+                $this->line("Would skip call {$callLog->call_id} - no reseller_id available from assistant user");
+            } else {
+                $this->warn("Skipped call {$callLog->call_id} - no reseller_id available from assistant user");
+            }
+            return 'skipped';
+        }
+
+        $resellerId = $callLog->assistant->user->reseller_id;
+
+        if ($dryRun) {
+            $this->line("Would update reseller_id for call {$callLog->call_id} to {$resellerId}");
+            return 'updated';
+        }
+
+        try {
+            $callLog->reseller_id = $resellerId;
+            $callLog->save();
+
+            $this->line("Updated reseller_id for call {$callLog->call_id} to {$resellerId}");
+            
+            Log::info('Fixed missing reseller_id for call', [
+                'call_id' => $callLog->call_id,
+                'assistant_id' => $callLog->assistant_id,
+                'reseller_id' => $resellerId,
+                'user_id' => $callLog->user_id
+            ]);
+
+            return 'updated';
+
+        } catch (\Exception $e) {
+            $this->error("Error updating reseller_id for call {$callLog->call_id}: " . $e->getMessage());
+            Log::error('Error fixing reseller_id for call', [
+                'call_id' => $callLog->call_id,
+                'assistant_id' => $callLog->assistant_id,
+                'error' => $e->getMessage()
+            ]);
+            return 'error';
+        }
     }
 } 

@@ -51,19 +51,20 @@ class VapiWebhookController extends Controller
                 return response()->json(['success' => false, 'message' => 'Assistant not found'], 404);
             }
 
-            // Handle different event types
+            // Handle different event types and get call log data
+            $callLog = null;
             switch ($eventType) {
                 case 'call-start':
-                    $this->handleCallStart($payload, $assistant);
+                    $callLog = $this->handleCallStart($payload, $assistant);
                     break;
                 case 'call-end':
-                    $this->handleCallEnd($payload, $assistant);
+                    $callLog = $this->handleCallEnd($payload, $assistant);
                     break;
                 case 'call-update':
-                    $this->handleCallUpdate($payload, $assistant);
+                    $callLog = $this->handleCallUpdate($payload, $assistant);
                     break;
                 case 'end-of-call-report':
-                    $this->handleEndOfCallReport($payload, $assistant);
+                    $callLog = $this->handleEndOfCallReport($payload, $assistant);
                     break;
                 default:
                     Log::warning('Unknown event type', [
@@ -82,7 +83,13 @@ class VapiWebhookController extends Controller
                 'assistant_name' => $assistant->name
             ]);
             
-            return response()->json(['success' => true]);
+            return response()->json([
+                'success' => true,
+                'data' => $callLog ? $this->formatCallLogResponse($callLog) : null,
+                'event_type' => $eventType,
+                'call_id' => $callId,
+                'assistant_id' => $assistantId
+            ]);
 
         } catch (\Exception $e) {
             Log::error('Error processing webhook', [
@@ -96,7 +103,7 @@ class VapiWebhookController extends Controller
     /**
      * Handle call start event
      */
-    private function handleCallStart(array $payload, Assistant $assistant)
+    private function handleCallStart(array $payload, Assistant $assistant): ?CallLog
     {
         $callLog = CallLog::updateOrCreate(
             ['call_id' => $payload['callId']],
@@ -118,12 +125,14 @@ class VapiWebhookController extends Controller
             'call_id' => $callLog->call_id,
             'assistant_id' => $assistant->id
         ]);
+
+        return $callLog;
     }
 
     /**
      * Handle call end event
      */
-    private function handleCallEnd(array $payload, Assistant $assistant)
+    private function handleCallEnd(array $payload, Assistant $assistant): ?CallLog
     {
         $callLog = CallLog::where('call_id', $payload['callId'])->first();
 
@@ -167,12 +176,14 @@ class VapiWebhookController extends Controller
             'status' => $callLog->status,
             'duration' => $callLog->duration
         ]);
+
+        return $callLog;
     }
 
     /**
      * Handle call update event
      */
-    private function handleCallUpdate(array $payload, Assistant $assistant)
+    private function handleCallUpdate(array $payload, Assistant $assistant): ?CallLog
     {
         $callLog = CallLog::where('call_id', $payload['callId'])->first();
 
@@ -187,12 +198,14 @@ class VapiWebhookController extends Controller
                 'status' => $callLog->status
             ]);
         }
+
+        return $callLog;
     }
 
     /**
      * Handle end-of-call-report event
      */
-    private function handleEndOfCallReport(array $payload, Assistant $assistant)
+    private function handleEndOfCallReport(array $payload, Assistant $assistant): ?CallLog
     {
         $processor = new VapiCallReportProcessor();
         $callLog = $processor->processEndCallReport($payload);
@@ -224,6 +237,43 @@ class VapiWebhookController extends Controller
                 'payload_keys' => array_keys($payload)
             ]);
         }
+
+        return $callLog;
+    }
+
+    /**
+     * Format call log data for API response
+     */
+    private function formatCallLogResponse(CallLog $callLog): array
+    {
+        return [
+            'id' => $callLog->id,
+            'call_id' => $callLog->call_id,
+            'assistant_id' => $callLog->assistant_id,
+            'user_id' => $callLog->user_id,
+            'reseller_id' => $callLog->reseller_id,
+            'phone_number' => $callLog->phone_number,
+            'caller_number' => $callLog->caller_number,
+            'status' => $callLog->status,
+            'direction' => $callLog->direction,
+            'start_time' => $callLog->start_time?->toISOString(),
+            'end_time' => $callLog->end_time?->toISOString(),
+            'duration' => $callLog->duration,
+            'formatted_duration' => $callLog->formatted_duration,
+            // 'transcript' => $callLog->transcript,
+            // 'summary' => $callLog->summary,
+            'cost' => $callLog->cost,
+            'currency' => $callLog->currency,
+            'formatted_cost' => $callLog->formatted_cost,
+            'call_record_file_name' => $callLog->call_record_file_name,
+            'has_recording' => $callLog->has_recording,
+            'public_audio_url' => $callLog->public_audio_url,
+            'public_audio_player_url' => $callLog->public_audio_player_url,
+            // 'metadata' => $callLog->metadata,
+            // 'webhook_data' => $callLog->webhook_data,
+            'created_at' => $callLog->created_at?->toISOString(),
+            'updated_at' => $callLog->updated_at?->toISOString(),
+        ];
     }
 
     /**

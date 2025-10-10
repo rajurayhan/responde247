@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Assistant;
+use App\Models\Reseller;
 use App\Models\User;
 use App\Services\VapiService;
 use Illuminate\Console\Command;
@@ -212,15 +213,10 @@ class SyncAssistants extends Command
         }
 
         if ($localAssistant) {
-            // Update existing assistant
-            if ($force || $this->shouldUpdate($localAssistant, $vapiAssistant)) {
-                $this->updateAssistant($localAssistant, $vapiAssistant);
-                $this->info("Updated assistant: {$vapiAssistant['name']} (ID: {$assistantId})");
-                return 'updated';
-            } else {
-                $this->line("Assistant {$vapiAssistant['name']} (ID: {$assistantId}) is up to date");
-                return 'up-to-date';
-            }
+            // Always update existing assistant
+            $this->updateAssistant($localAssistant, $vapiAssistant);
+            $this->info("Updated assistant: {$vapiAssistant['name']} (ID: {$assistantId})");
+            return 'updated';
         } else {
             // Create new assistant
             $this->createAssistant($vapiAssistant);
@@ -238,7 +234,39 @@ class SyncAssistants extends Command
         $updateData = $this->mapVapiDataToAssistantFields($vapiAssistant);
         
         // Preserve existing user_id and created_by
-        unset($updateData['user_id'], $updateData['created_by']);
+        unset($updateData['created_by']);
+
+        // Try to find the user by email in metadata
+        $userEmail = $vapiAssistant['metadata']['user_email'] ?? null;
+        $userId = null;
+        $createdBy = null;
+
+        if ($userEmail) {
+            $user = User::where('email', $userEmail)->first();
+            if ($user) {
+                $userId = $user->id;
+                $resellerId = $user->reseller_id;
+                $createdBy = $user->id;
+            }
+        }
+
+        // If no user found, use the first admin user as fallback
+        if (!$userId) {
+            $adminUser = User::where('role', 'admin')->first();
+            if ($adminUser) {
+                $userId = $adminUser->id;
+                $resellerId = $adminUser->reseller_id;
+                $createdBy = $adminUser->id;
+            }
+        }
+
+        if(!$resellerId){
+            $resellerId = Reseller::first()->id;
+        }
+
+        $updateData['reseller_id'] = $resellerId;
+        $updateData['created_by'] = $createdBy;
+        $updateData['user_id'] = $userId;
         
         $localAssistant->update($updateData);
         
@@ -264,6 +292,7 @@ class SyncAssistants extends Command
             $user = User::where('email', $userEmail)->first();
             if ($user) {
                 $userId = $user->id;
+                $resellerId = $user->reseller_id;
                 $createdBy = $user->id;
             }
         }
@@ -273,14 +302,21 @@ class SyncAssistants extends Command
             $adminUser = User::where('role', 'admin')->first();
             if ($adminUser) {
                 $userId = $adminUser->id;
+                $resellerId = $adminUser->reseller_id;
                 $createdBy = $adminUser->id;
             }
         }
+
+        if(!$resellerId){
+            $resellerId = Reseller::first()->id;
+        }
+        
 
         $createData = $this->mapVapiDataToAssistantFields($vapiAssistant);
         
         // Override with determined user assignments
         $createData['user_id'] = $userId;
+        $createData['reseller_id'] = $resellerId;
         $createData['created_by'] = $createdBy;
 
         $assistant = Assistant::create($createData);
@@ -307,6 +343,7 @@ class SyncAssistants extends Command
         return [
             // Basic fields
             'name' => $vapiAssistant['name'],
+            'user_id' => $metadata['user_id'] ?? null,
             'vapi_assistant_id' => $vapiAssistant['id'],
             'type' => $metadata['type'] ?? 'demo',
             'phone_number' => $metadata['assistant_phone_number'] ?? null,

@@ -24,16 +24,62 @@ class ResellerController extends Controller
     /**
      * Display a listing of resellers
      */
-    public function index()
+    public function index(Request $request)
     {
-        $resellers = Reseller::with(['adminUser', 'activeSubscription'])
-            ->withCount(['users', 'assistants'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $includeDeleted = $request->boolean('include_deleted', false);
+        $perPage = $request->get('per_page', 15);
+        $search = $request->get('search', '');
+        
+        $query = Reseller::with(['adminUser', 'activeSubscription'])
+            ->withCount(['users', 'assistants']);
+
+        // Apply search filter
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('org_name', 'like', "%{$search}%")
+                  ->orWhere('company_email', 'like', "%{$search}%")
+                  ->orWhere('domain', 'like', "%{$search}%");
+            });
+        }
+
+        // Apply soft delete filter
+        if ($includeDeleted) {
+            $query->withTrashed();
+        }
+
+        $resellers = $query->orderBy('created_at', 'desc')->paginate($perPage);
+
+        // Transform the data to include is_deleted property
+        $transformedData = $resellers->getCollection()->map(function ($reseller) {
+            return [
+                'id' => $reseller->id,
+                'org_name' => $reseller->org_name,
+                'company_email' => $reseller->company_email,
+                'domain' => $reseller->domain,
+                'status' => $reseller->status,
+                'logo_address' => $reseller->logo_address,
+                'created_at' => $reseller->created_at,
+                'updated_at' => $reseller->updated_at,
+                'deleted_at' => $reseller->deleted_at,
+                'is_deleted' => !is_null($reseller->deleted_at),
+                'admin_user' => $reseller->adminUser,
+                'active_subscription' => $reseller->activeSubscription,
+                'users_count' => $reseller->users_count,
+                'assistants_count' => $reseller->assistants_count,
+            ];
+        });
 
         return response()->json([
             'success' => true,
-            'data' => $resellers
+            'data' => $transformedData,
+            'meta' => [
+                'current_page' => $resellers->currentPage(),
+                'last_page' => $resellers->lastPage(),
+                'per_page' => $resellers->perPage(),
+                'total' => $resellers->total(),
+                'from' => $resellers->firstItem(),
+                'to' => $resellers->lastItem(),
+            ]
         ]);
     }
 
@@ -519,5 +565,68 @@ class ResellerController extends Controller
                 'to' => $users->lastItem(),
             ]
         ];
+    }
+
+    /**
+     * Soft delete the specified reseller
+     */
+    public function destroy($id)
+    {
+        try {
+            $reseller = Reseller::findOrFail($id);
+            $reseller->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Reseller soft deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting reseller: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Restore the specified soft deleted reseller
+     */
+    public function restore($id)
+    {
+        try {
+            $reseller = Reseller::onlyTrashed()->findOrFail($id);
+            $reseller->restore();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Reseller restored successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error restoring reseller: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Permanently delete the specified reseller
+     */
+    public function forceDelete($id)
+    {
+        try {
+            $reseller = Reseller::onlyTrashed()->findOrFail($id);
+            $reseller->forceDelete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Reseller permanently deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error permanently deleting reseller: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

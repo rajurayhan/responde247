@@ -23,7 +23,15 @@ class PublicAudioController extends Controller
             // Check if file exists
             $filePath = 'recordings/' . $fileName;
             if (!Storage::disk('public')->exists($filePath)) {
-                abort(404, 'Audio file not found');
+                // File doesn't exist, try to download it
+                Log::info('Audio file not found, attempting to download', [
+                    'file_name' => $fileName
+                ]);
+                
+                $downloaded = $this->downloadMissingFile($fileName);
+                if (!$downloaded) {
+                    abort(404, 'Audio file not found and could not be downloaded');
+                }
             }
 
             // Get file info
@@ -105,6 +113,86 @@ class PublicAudioController extends Controller
                 'error' => $e->getMessage()
             ]);
             abort(500, 'Error retrieving call information');
+        }
+    }
+
+    /**
+     * Download missing audio file from Vapi
+     */
+    private function downloadMissingFile(string $fileName): bool
+    {
+        try {
+            // Find call log by recording filename
+            $callLog = CallLog::where('call_record_file_name', $fileName)->first();
+            
+            if (!$callLog) {
+                Log::warning('Call log not found for filename', [
+                    'file_name' => $fileName
+                ]);
+                return false;
+            }
+
+            // Get recording URL from metadata
+            $recordingUrl = $callLog->metadata['recording_url'] ?? null;
+            if (!$recordingUrl) {
+                Log::warning('No recording URL found in call log metadata', [
+                    'call_id' => $callLog->call_id,
+                    'file_name' => $fileName
+                ]);
+                return false;
+            }
+
+            Log::info('Attempting to download missing recording', [
+                'call_id' => $callLog->call_id,
+                'file_name' => $fileName,
+                'recording_url' => $recordingUrl
+            ]);
+
+            // Create recordings directory if it doesn't exist
+            $directory = 'recordings';
+            if (!Storage::disk('public')->exists($directory)) {
+                Storage::disk('public')->makeDirectory($directory);
+            }
+
+            $filePath = $directory . '/' . $fileName;
+
+            // Download the file
+            $fileContent = file_get_contents($recordingUrl);
+            if ($fileContent === false) {
+                Log::error('Failed to download recording from Vapi', [
+                    'url' => $recordingUrl,
+                    'call_id' => $callLog->call_id,
+                    'file_name' => $fileName
+                ]);
+                return false;
+            }
+
+            // Store the file
+            $stored = Storage::disk('public')->put($filePath, $fileContent);
+            if (!$stored) {
+                Log::error('Failed to store downloaded recording', [
+                    'file_path' => $filePath,
+                    'call_id' => $callLog->call_id,
+                    'file_name' => $fileName
+                ]);
+                return false;
+            }
+
+            Log::info('Missing recording downloaded successfully', [
+                'file_name' => $fileName,
+                'file_path' => $filePath,
+                'call_id' => $callLog->call_id,
+                'file_size' => strlen($fileContent)
+            ]);
+
+            return true;
+
+        } catch (\Exception $e) {
+            Log::error('Error downloading missing recording', [
+                'error' => $e->getMessage(),
+                'file_name' => $fileName
+            ]);
+            return false;
         }
     }
 } 

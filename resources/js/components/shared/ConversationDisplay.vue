@@ -14,37 +14,29 @@
     <div v-if="conversationData && conversationData.conversation.length > 0" 
          :class="['bg-gray-50 p-4 rounded-md', maxHeightClass]">
       <div class="space-y-4">
-        <div
-          v-for="message in conversationData.conversation"
-          :key="message.id"
-          :class="[
-            'flex items-start space-x-3 p-4 rounded-lg shadow-sm transition-colors duration-150',
-            message.speaker === 'Customer' ? 'bg-blue-50 border-l-4 border-blue-400 hover:bg-blue-100' : 'bg-green-50 border-l-4 border-green-400 hover:bg-green-100'
-          ]"
-        >
-          <!-- Avatar -->
-          <div :class="[
-            'flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium',
-            message.speaker === 'Customer' ? 'bg-blue-500' : 'bg-green-500'
-          ]">
-            {{ message.speaker === 'Customer' ? 'C' : 'A' }}
-          </div>
-          
-          <!-- Message Content -->
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center justify-between mb-1">
-              <span :class="[
-                'text-sm font-medium',
-                message.speaker === 'Customer' ? 'text-blue-700' : 'text-green-700'
-              ]">
+        <div v-for="message in normalizedConversation" :key="message.id" 
+             :class="['flex', message.isCaller ? 'justify-end' : 'justify-start']">
+          <div class="max-w-xs lg:max-w-md">
+            <!-- Speaker Label -->
+            <div :class="['flex items-center mb-1', message.isCaller ? 'justify-end' : 'justify-start']">
+              <span :class="['text-xs font-medium', message.isCaller ? 'text-green-600' : 'text-blue-600']">
                 {{ message.speaker }}
               </span>
-              <span class="text-xs text-gray-500">
+              <span v-if="formatMessageInfo(message)" class="text-xs text-gray-500 ml-2">
                 {{ formatMessageInfo(message) }}
               </span>
             </div>
-            <div class="text-sm text-gray-900 leading-relaxed">
-              {{ message.message }}
+            
+            <!-- Message Bubble -->
+            <div class="relative">
+              <div :class="['px-4 py-2 rounded-lg', message.isCaller ? 'bg-green-100 text-green-900' : 'bg-blue-100 text-blue-900']">
+                <p class="text-sm whitespace-pre-wrap">{{ message.message }}</p>
+              </div>
+              
+              <!-- Tail -->
+              <div :class="['absolute top-2', message.isCaller ? 'right-0 -mr-1' : 'left-0 -ml-1']">
+                <div :class="['w-2 h-2 transform rotate-45', message.isCaller ? 'bg-green-100' : 'bg-blue-100']"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -90,11 +82,35 @@ export default {
     showTimestamps: {
       type: Boolean,
       default: false
+    },
+    assistantName: {
+      type: String,
+      default: 'Assistant'
     }
   },
   computed: {
     maxHeightClass() {
       return this.maxHeight === 'none' ? '' : `overflow-y-auto ${this.maxHeight}`
+    },
+    normalizedConversation() {
+      if (!this.conversationData?.conversation) return []
+      
+      return this.conversationData.conversation.map(message => {
+        let normalizedSpeaker = message.speaker
+        
+        // Normalize speaker names
+        if (message.speaker === 'Customer') {
+          normalizedSpeaker = 'Caller'
+        } else if (message.speaker === 'Assistant') {
+          normalizedSpeaker = this.assistantName
+        }
+        
+        return {
+          ...message,
+          speaker: normalizedSpeaker,
+          isCaller: normalizedSpeaker === 'Caller'
+        }
+      })
     }
   },
   methods: {

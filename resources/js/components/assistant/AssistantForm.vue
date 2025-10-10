@@ -1040,8 +1040,9 @@ You embody the highest standards of customer service that {{company_name}} would
     })
 
     // Watch for type changes to handle template loading
-    watch(() => form.value.type, (newType) => {
-      if (newType === 'demo' && templates.value.system_prompt) {
+    watch(() => form.value.type, (newType, oldType) => {
+      // Only proceed if type actually changed and we're creating a new assistant
+      if (newType === 'demo' && newType !== oldType && isCreating.value && templates.value.system_prompt) {
         // Auto-load templates for demo assistants
         loadDefaultTemplate()
         loadDefaultFirstMessage()
@@ -1049,21 +1050,25 @@ You embody the highest standards of customer service that {{company_name}} would
       }
     })
 
-    // Watch for company information changes to update templated data
-    watch([() => form.value.metadata.company_name, () => form.value.metadata.industry, () => form.value.metadata.services_products], () => {
-      updateTemplatedData()
-    }, { deep: true })
-
-    // Watch for company name changes to auto-populate agent name
-    watch(() => form.value.metadata.company_name, (newCompanyName) => {
-      if (newCompanyName && newCompanyName.trim()) {
-        // Auto-populate agent name based on company name for both create and edit
-        form.value.name = `${newCompanyName.trim()} Assistant`
-      } else if (!newCompanyName || !newCompanyName.trim()) {
-        // Clear agent name if company name is empty
-        form.value.name = ''
+    // Watch for company information changes to update templated data and auto-populate agent name
+    watch([() => form.value.metadata.company_name, () => form.value.metadata.industry, () => form.value.metadata.services_products], ([newCompanyName, newIndustry, newServices], [oldCompanyName, oldIndustry, oldServices]) => {
+      // Only update if values actually changed
+      if (newCompanyName !== oldCompanyName || newIndustry !== oldIndustry || newServices !== oldServices) {
+        // Update templated data first
+        updateTemplatedData()
+        
+        // Auto-populate agent name based on company name changes (only if company name changed)
+        if (newCompanyName !== oldCompanyName) {
+          if (newCompanyName && newCompanyName.trim()) {
+            // Auto-populate agent name based on company name for both create and edit
+            form.value.name = `${newCompanyName.trim()} Assistant`
+          } else if (!newCompanyName || !newCompanyName.trim()) {
+            // Clear agent name if company name is empty
+            form.value.name = ''
+          }
+        }
       }
-    })
+    }, { deep: true })
 
     // Watch for country changes to reset available numbers
     watch(() => form.value.metadata.country, (newCountry, oldCountry) => {
@@ -1122,10 +1127,21 @@ You embody the highest standards of customer service that {{company_name}} would
           form.value.model.presencePenalty = assistant.vapi_data.model.presencePenalty || 0
           form.value.model.stop = assistant.vapi_data.model.stop || []
           form.value.model.tools = assistant.vapi_data.model.tools || []
+          form.value.model.apiVersion = assistant.vapi_data.model.apiVersion || ''
+          
+          // Handle messages array properly
           if (assistant.vapi_data.model.messages && assistant.vapi_data.model.messages.length > 0) {
-            form.value.model.messages[0].content = actualSulusData.value.systemPrompt
+            // Update the entire messages array structure
+            form.value.model.messages = assistant.vapi_data.model.messages.map(msg => ({
+              role: msg.role || 'system',
+              content: msg.content || '',
+              contentType: msg.contentType || 'text',
+              imageUrl: msg.imageUrl || ''
+            }))
           }
         }
+        
+        console.log('AssistantForm: Final form.model after mapping:', form.value.model)
         
                     // Map voice configuration
             if (assistant.vapi_data?.voice) {
@@ -1136,6 +1152,7 @@ You embody the highest standards of customer service that {{company_name}} would
             }
             
             // Map transcriber configuration
+            console.log('AssistantForm: VAPI transcriber data:', assistant.vapi_data?.transcriber)
             if (assistant.vapi_data?.transcriber) {
               form.value.transcriber.provider = assistant.vapi_data.transcriber.provider || 'deepgram'
               form.value.transcriber.language = assistant.vapi_data.transcriber.language || 'en'
@@ -1170,6 +1187,7 @@ You embody the highest standards of customer service that {{company_name}} would
                 fallbackPlan: null
               }
             }
+            console.log('AssistantForm: Final form.transcriber after mapping:', form.value.transcriber)
             
             // Map analysis plan (check both direct field and metadata location)
             const analysisPlan = assistant.vapi_data?.analysisPlan || assistant.vapi_data?.metadata?.analysisPlan
@@ -1368,7 +1386,7 @@ You embody the highest standards of customer service that {{company_name}} would
 
     const saveAssistant = async () => {
       try {
-        submitting.value = true
+        
         error.value = null
         success.value = null
         
@@ -1426,6 +1444,7 @@ You embody the highest standards of customer service that {{company_name}} would
           focusFirstErrorField()
           return
         }
+        
         
         // Process the system prompt with company information before saving
         const processedPrompt = processedSystemPrompt.value
@@ -1502,7 +1521,6 @@ You embody the highest standards of customer service that {{company_name}} would
             case 422:
               // Validation errors - map to specific fields
               if (data.errors) {
-                console.log('Server validation errors:', data.errors)
                 Object.entries(data.errors).forEach(([field, messages]) => {
                   const fieldName = field.replace(/\./g, '_') // Convert metadata.company_name to metadata_company_name
                   const errorMessage = Array.isArray(messages) ? messages.join(', ') : messages

@@ -446,7 +446,7 @@
 </template>
 
 <script>
-import { ref, watch } from 'vue'
+import { ref, watch } from 'vue' // Fixed nextTick import
 
 export default {
   name: 'AnalysisConfiguration',
@@ -462,6 +462,9 @@ export default {
   },
   emits: ['update:analysisPlan', 'update:artifactPlan'],
   setup(props, { emit }) {
+    console.log('AnalysisConfiguration: Component loaded, nextTick available:', typeof nextTick)
+    console.log('AnalysisConfiguration: Props received:', props)
+    const isUpdatingFromProps = ref(false)
     const analysisConfig = ref({
       summary: false,
       summaryPrompt: 'You are an expert note-taker. You will be given a transcript of a call. Summarize the call in 2-3 sentences, if applicable.',
@@ -504,13 +507,19 @@ export default {
       analysis: false
     })
 
-    // Watch for changes and emit updates
+    // Watch for changes and emit updates (but not when updating from props)
     watch(analysisConfig, (newConfig) => {
-      emit('update:analysisPlan', newConfig)
+      // Only emit if this change didn't come from props
+      if (!isUpdatingFromProps.value) {
+        emit('update:analysisPlan', newConfig)
+      }
     }, { deep: true })
 
     watch(artifactConfig, (newConfig) => {
-      emit('update:artifactPlan', newConfig)
+      // Only emit if this change didn't come from props
+      if (!isUpdatingFromProps.value) {
+        emit('update:artifactPlan', newConfig)
+      }
     }, { deep: true })
 
     // Checklist methods
@@ -544,6 +553,7 @@ export default {
 
     // Initialize with props
     if (props.analysisPlan && Object.keys(props.analysisPlan).length > 0) {
+      isUpdatingFromProps.value = true
       analysisConfig.value = { ...analysisConfig.value, ...props.analysisPlan }
       // Ensure checklist is an array
       if (!Array.isArray(analysisConfig.value.checklist)) {
@@ -566,10 +576,19 @@ export default {
           }
         ]
       }
+      // Reset flag after a tick to allow the emit watcher to work again
+      setTimeout(() => {
+        isUpdatingFromProps.value = false
+      }, 0)
     }
 
     if (props.artifactPlan && Object.keys(props.artifactPlan).length > 0) {
+      isUpdatingFromProps.value = true
       artifactConfig.value = { ...artifactConfig.value, ...props.artifactPlan }
+      // Reset flag after a tick to allow the emit watcher to work again
+      setTimeout(() => {
+        isUpdatingFromProps.value = false
+      }, 0)
     }
 
     return {

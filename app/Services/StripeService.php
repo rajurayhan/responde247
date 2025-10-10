@@ -17,6 +17,7 @@ use Stripe\Product;
 use Stripe\PaymentMethod;
 use Stripe\PaymentLink;
 use Stripe\Checkout\Session;
+use Stripe\Invoice;
 use Stripe\Exception\ApiErrorException;
 use Carbon\Carbon;
 
@@ -390,6 +391,201 @@ class StripeService
             ];
         } catch (\Exception $e) {
             Log::error('Error updating reseller subscription: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Get all Stripe customers
+     */
+    public function getAllCustomers(): array
+    {
+        try {
+            $customers = Customer::all(['limit' => 100]);
+            
+            return array_map(function($customer) {
+                return [
+                    'id' => $customer->id,
+                    'email' => $customer->email,
+                    'name' => $customer->name,
+                    'display_name' => $customer->name ?: $customer->email,
+                    'created' => $customer->created,
+                    'description' => $customer->description,
+                    'metadata' => $customer->metadata
+                ];
+            }, $customers->data);
+        } catch (ApiErrorException $e) {
+            Log::error('Stripe customers retrieval failed: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Get transactions/invoices for a specific subscription
+     */
+    public function getSubscriptionTransactions(string $subscriptionId): array
+    {
+        try {
+            $invoices = Invoice::all([
+                'subscription' => $subscriptionId,
+                'limit' => 100
+            ]);
+            
+            return array_map(function($invoice) {
+                try {
+                    return [
+                        'id' => $invoice->id,
+                        'subscription_id' => $invoice->subscription,
+                        'customer_id' => $invoice->customer,
+                        'amount_paid' => $invoice->amount_paid,
+                        'amount_due' => $invoice->amount_due,
+                        'currency' => $invoice->currency,
+                        'status' => $invoice->status,
+                        'paid' => $invoice->paid,
+                        'created' => $invoice->created,
+                        'period_start' => $invoice->period_start,
+                        'period_end' => $invoice->period_end,
+                        'hosted_invoice_url' => $invoice->hosted_invoice_url,
+                        'invoice_pdf' => $invoice->invoice_pdf,
+                        'metadata' => $invoice->metadata,
+                        'payment_intent' => $invoice->payment_intent,
+                        // Enhanced billing details
+                        'billing_reason' => $invoice->billing_reason ?? null,
+                        'collection_method' => $invoice->collection_method ?? null,
+                        'due_date' => $invoice->due_date ?? null,
+                        'subtotal' => $invoice->subtotal ?? null,
+                        'total' => $invoice->total ?? null,
+                        'tax' => $invoice->tax ?? null,
+                        'discount' => $invoice->discount ?? null,
+                        'customer_email' => $invoice->customer_email ?? null,
+                        'customer_name' => $invoice->customer_name ?? null,
+                        'customer_address' => $invoice->customer_address ?? null,
+                        'customer_shipping' => $invoice->customer_shipping ?? null,
+                        'customer_tax_exempt' => $invoice->customer_tax_exempt ?? null,
+                        'lines' => $invoice->lines->data ?? [],
+                        'payment_intent_details' => $invoice->payment_intent ? [
+                            'id' => is_string($invoice->payment_intent) ? $invoice->payment_intent : $invoice->payment_intent->id,
+                            'status' => is_string($invoice->payment_intent) ? null : ($invoice->payment_intent->status ?? null),
+                            'payment_method' => is_string($invoice->payment_intent) ? null : ($invoice->payment_intent->payment_method ?? null),
+                            'charges' => is_string($invoice->payment_intent) ? null : ($invoice->payment_intent->charges->data ?? null)
+                        ] : null
+                    ];
+                } catch (\Exception $e) {
+                    Log::error('Error processing Stripe invoice', [
+                        'invoice_id' => $invoice->id ?? 'unknown',
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
+                    ]);
+                    
+                    // Return minimal data if processing fails
+                    return [
+                        'id' => $invoice->id ?? null,
+                        'subscription_id' => $invoice->subscription ?? null,
+                        'customer_id' => $invoice->customer ?? null,
+                        'amount_paid' => $invoice->amount_paid ?? 0,
+                        'amount_due' => $invoice->amount_due ?? 0,
+                        'currency' => $invoice->currency ?? 'usd',
+                        'status' => $invoice->status ?? 'unknown',
+                        'paid' => $invoice->paid ?? false,
+                        'created' => $invoice->created ?? null,
+                        'period_start' => $invoice->period_start ?? null,
+                        'period_end' => $invoice->period_end ?? null,
+                        'hosted_invoice_url' => $invoice->hosted_invoice_url ?? null,
+                        'invoice_pdf' => $invoice->invoice_pdf ?? null,
+                        'metadata' => $invoice->metadata ?? [],
+                        'payment_intent' => $invoice->payment_intent ?? null,
+                        'error' => 'Failed to process invoice data: ' . $e->getMessage()
+                    ];
+                }
+            }, $invoices->data);
+        } catch (ApiErrorException $e) {
+            Log::error('Stripe subscription transactions retrieval failed: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Get subscriptions for a specific customer
+     */
+    public function getCustomerSubscriptions(string $customerId): array
+    {
+        try {
+            $subscriptions = Subscription::all([
+                'customer' => $customerId,
+                'limit' => 100
+            ]);
+            
+            return array_map(function($subscription) {
+                return [
+                    'id' => $subscription->id,
+                    'status' => $subscription->status,
+                    'current_period_start' => $subscription->current_period_start,
+                    'current_period_end' => $subscription->current_period_end,
+                    'trial_end' => $subscription->trial_end,
+                    'cancel_at_period_end' => $subscription->cancel_at_period_end,
+                    'created' => $subscription->created,
+                    'metadata' => $subscription->metadata,
+                    'items' => $subscription->items->data
+                ];
+            }, $subscriptions->data);
+        } catch (ApiErrorException $e) {
+            Log::error('Stripe customer subscriptions retrieval failed: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Get a Stripe customer
+     */
+    public function getCustomer(string $customerId): ?array
+    {
+        try {
+            $customer = Customer::retrieve($customerId);
+            
+            return [
+                'id' => $customer->id,
+                'email' => $customer->email,
+                'name' => $customer->name,
+                'created' => $customer->created,
+                'metadata' => $customer->metadata,
+                // Enhanced billing details
+                'description' => $customer->description ?? null,
+                'phone' => $customer->phone ?? null,
+                'address' => $customer->address ? [
+                    'line1' => $customer->address->line1 ?? null,
+                    'line2' => $customer->address->line2 ?? null,
+                    'city' => $customer->address->city ?? null,
+                    'state' => $customer->address->state ?? null,
+                    'country' => $customer->address->country ?? null,
+                    'postal_code' => $customer->address->postal_code ?? null,
+                ] : null,
+                'shipping' => $customer->shipping ? [
+                    'name' => $customer->shipping->name ?? null,
+                    'phone' => $customer->shipping->phone ?? null,
+                    'address' => $customer->shipping->address ? [
+                        'line1' => $customer->shipping->address->line1 ?? null,
+                        'line2' => $customer->shipping->address->line2 ?? null,
+                        'city' => $customer->shipping->address->city ?? null,
+                        'state' => $customer->shipping->address->state ?? null,
+                        'country' => $customer->shipping->address->country ?? null,
+                        'postal_code' => $customer->shipping->address->postal_code ?? null,
+                    ] : null
+                ] : null,
+                'tax_exempt' => $customer->tax_exempt ?? null,
+                'default_source' => $customer->default_source ?? null,
+                'currency' => $customer->currency ?? null,
+                'balance' => $customer->balance ?? null,
+                'delinquent' => $customer->delinquent ?? null,
+                'discount' => $customer->discount ?? null,
+                'invoice_prefix' => $customer->invoice_prefix ?? null,
+                'invoice_settings' => $customer->invoice_settings ?? null,
+                'next_invoice_sequence' => $customer->next_invoice_sequence ?? null,
+                'preferred_locales' => $customer->preferred_locales ?? null,
+                'subscriptions' => $customer->subscriptions ?? null,
+                'tax_ids' => $customer->tax_ids ?? null
+            ];
+        } catch (ApiErrorException $e) {
+            Log::error('Stripe customer retrieval failed: ' . $e->getMessage());
             return null;
         }
     }

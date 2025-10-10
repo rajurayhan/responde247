@@ -18,14 +18,14 @@ class ResellerSeeder extends Seeder
     {
         // Use database transaction to ensure data consistency
         DB::transaction(function () {
-            // Create the Responde247.com reseller
+            // Create the Sulus.ai reseller
             $reseller = Reseller::firstOrCreate(
-                ['org_name' => 'Responde247.com'],
+                ['org_name' => 'Sulus.ai'],
                 [
-                    'org_name' => 'Responde247.com',
+                    'org_name' => 'Sulus.ai',
                     'logo_address' => null, // Can be updated later
-                    'company_email' => 'info@Responde247.com',
-                    'domain' => 'responde247.com',
+                    'company_email' => 'info@sulus.ai',
+                    'domain' => 'sulus.ai',
                     'status' => 'active',
                 ]
             );
@@ -34,31 +34,15 @@ class ResellerSeeder extends Seeder
 
             // Create the admin user for the reseller
             $adminUser = User::firstOrCreate(
-                ['email' => 'send2raju.bd@gmail.com'],
+                ['email' => 'raju@sulus.ai'],
                 [
                     'name' => 'Raju',
-                    'email' => 'send2raju.bd@gmail.com',
-                    'password' => Hash::make('raju@2025'), // Default password, should be changed
-                    'role' => 'admin',
-                    'phone' => null,
-                    'company' => 'Responde247.com',
-                    'bio' => 'Admin user for Responde247.com reseller',
-                    'status' => 'active',
-                    'reseller_id' => $reseller->id,
-                    'email_verified_at' => now(),
-                ]
-            );
-
-            $resellerAdminUser = User::firstOrCreate(
-                ['email' => 'hello@responde247.com'],
-                [
-                    'name' => 'Alex',
-                    'email' => 'hello@responde247.com',
-                    'password' => Hash::make('hola@2025'), // Default password, should be changed
+                    'email' => 'raju@sulus.ai',
+                    'password' => Hash::make('password123'), // Default password, should be changed
                     'role' => 'reseller_admin',
                     'phone' => null,
-                    'company' => 'Responde247.com',
-                    'bio' => 'Admin user for Responde247.com reseller',
+                    'company' => 'Sulus.ai',
+                    'bio' => 'Admin user for Sulus.ai reseller',
                     'status' => 'active',
                     'reseller_id' => $reseller->id,
                     'email_verified_at' => now(),

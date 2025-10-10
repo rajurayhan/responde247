@@ -130,21 +130,36 @@
               max-height="max-h-96"
               :show-message-numbers="true"
               :show-timestamps="false"
+              :assistant-name="callLog.assistant?.name || 'Assistant'"
             />
           </div>
 
-          <!-- Fallback: Raw Transcript -->
+          <!-- Fallback: Chat Bubble Transcript -->
           <div v-else-if="callLog.transcript" class="p-6 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">Call Transcript (Raw)</h3>
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Call Transcript</h3>
             <div class="bg-gray-50 p-4 rounded-md max-h-96 overflow-y-auto">
               <div class="space-y-4">
-                <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-                  <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm font-medium text-gray-700">Call Transcript</span>
-                    <span class="text-xs text-gray-500">Raw Format</span>
-                  </div>
-                  <div class="text-sm text-gray-900 leading-relaxed whitespace-pre-wrap bg-gray-50 p-3 rounded">
-                    {{ callLog.transcript }}
+                <div v-for="(message, index) in parsedChatMessages" :key="index" 
+                     :class="['flex', message.isAssistant ? 'justify-start' : 'justify-end']">
+                  <div class="max-w-xs lg:max-w-md">
+                    <!-- Speaker Label -->
+                    <div :class="['flex items-center mb-1', message.isAssistant ? 'justify-start' : 'justify-end']">
+                      <span :class="['text-xs font-medium', message.isAssistant ? 'text-blue-600' : 'text-green-600']">
+                        {{ message.speaker }}
+                      </span>
+                    </div>
+                    
+                    <!-- Message Bubble -->
+                    <div class="relative">
+                      <div :class="['px-4 py-2 rounded-lg', message.isAssistant ? 'bg-blue-100 text-blue-900' : 'bg-green-100 text-green-900']">
+                        <p class="text-sm whitespace-pre-wrap">{{ message.message }}</p>
+                      </div>
+                      
+                      <!-- Tail -->
+                      <div :class="['absolute top-2', message.isAssistant ? 'left-0 -ml-1' : 'right-0 -mr-1']">
+                        <div :class="['w-2 h-2 transform rotate-45', message.isAssistant ? 'bg-blue-100' : 'bg-green-100']"></div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -255,6 +270,74 @@ export default {
       } catch {
         return []
       }
+    },
+    parsedChatMessages() {
+      if (!this.callLog?.transcript) return []
+      
+      // Get assistant name from callLog data
+      const assistantName = this.callLog.assistant?.name || 'Assistant'
+      
+      // Parse transcript into chat bubbles
+      const lines = this.callLog.transcript.split('\n')
+      const messages = []
+      let currentSpeaker = null
+      let currentMessage = ''
+      
+      lines.forEach(line => {
+        line = line.trim()
+        if (!line) return
+        
+        // Check if line starts with speaker name (common patterns)
+        const speakerMatch = line.match(/^(Assistant|AI|Bot|Caller|Customer|User|Human):\s*(.*)$/i)
+        if (speakerMatch) {
+          // Save previous message if exists
+          if (currentSpeaker && currentMessage) {
+            messages.push({
+              speaker: currentSpeaker,
+              message: currentMessage.trim(),
+              isAssistant: currentSpeaker === assistantName
+            })
+          }
+          
+          // Normalize speaker names
+          const speaker = speakerMatch[1]
+          const speakerLower = speaker.toLowerCase()
+          
+          // Map speaker names to display names
+          if (['assistant', 'ai', 'bot'].includes(speakerLower)) {
+            currentSpeaker = assistantName
+          } else if (['user', 'customer', 'human'].includes(speakerLower)) {
+            currentSpeaker = 'Caller'
+          } else {
+            currentSpeaker = speaker
+          }
+          
+          currentMessage = speakerMatch[2]
+        } else {
+          // Continue current message
+          currentMessage += (currentMessage ? '\n' : '') + line
+        }
+      })
+      
+      // Add last message
+      if (currentSpeaker && currentMessage) {
+        messages.push({
+          speaker: currentSpeaker,
+          message: currentMessage.trim(),
+          isAssistant: currentSpeaker === assistantName
+        })
+      }
+      
+      // If no structured messages found, treat as single message
+      if (messages.length === 0 && this.callLog.transcript) {
+        messages.push({
+          speaker: assistantName,
+          message: this.callLog.transcript,
+          isAssistant: true
+        })
+      }
+      
+      return messages
     }
   },
   async mounted() {

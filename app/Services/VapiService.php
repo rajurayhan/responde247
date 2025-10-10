@@ -320,6 +320,7 @@ class VapiService
         try {
             // First, get the current assistant data from Vapi to preserve existing values
             $currentAssistant = $this->getAssistant($assistantId);
+            $data['metadata']['user_email'] = User::find($data['user_id'])->email ?? null;
             
             // Build update data with only the fields that Vapi accepts for updates
             $updateData = [
@@ -850,7 +851,7 @@ class VapiService
      */
     private function cleanTranscriberConfiguration(array $transcriberConfig)
     {
-        $provider = $transcriberConfig['provider'] ?? 'assembly-ai';
+        $provider = $transcriberConfig['provider'] ?? 'deepgram';
         $cleaned = $transcriberConfig;
 
         // Only allow essential fields for all transcriber providers

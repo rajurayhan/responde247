@@ -452,6 +452,7 @@ export default {
   },
   emits: ['update:model', 'replaceWithTemplate', 'replaceWithActual'],
   setup(props, { emit }) {
+    const isUpdatingFromProps = ref(false)
     const modelConfig = ref({
       provider: 'openai',
       model: 'gpt-4o',
@@ -555,14 +556,37 @@ export default {
       emit('replaceWithActual', field)
     }
 
-    // Initialize with props
-    if (props.model && Object.keys(props.model).length > 0) {
-      modelConfig.value = { ...modelConfig.value, ...props.model }
+    // Initialize with props and watch for prop changes
+    const initializeModelConfig = () => {
+      if (props.model && Object.keys(props.model).length > 0) {
+        modelConfig.value = { ...modelConfig.value, ...props.model }
+      }
     }
 
-    // Watch for changes and emit updates
+    // Initialize immediately
+    initializeModelConfig()
+
+    // Watch for prop changes to update modelConfig
+    watch(() => props.model, (newModel) => {
+      console.log('ModelConfiguration: Received model props:', newModel)
+      if (newModel && Object.keys(newModel).length > 0) {
+        console.log('ModelConfiguration: Updating modelConfig with:', newModel)
+        isUpdatingFromProps.value = true
+        modelConfig.value = { ...modelConfig.value, ...newModel }
+        console.log('ModelConfiguration: Updated modelConfig:', modelConfig.value)
+        // Reset flag after a tick to allow the emit watcher to work again
+        setTimeout(() => {
+          isUpdatingFromProps.value = false
+        }, 0)
+      }
+    }, { deep: true, immediate: true })
+
+    // Watch for changes and emit updates (but not when updating from props)
     watch(modelConfig, (newConfig) => {
-      emit('update:model', newConfig)
+      // Only emit if this change didn't come from props
+      if (!isUpdatingFromProps.value) {
+        emit('update:model', newConfig)
+      }
     }, { deep: true })
 
     return {

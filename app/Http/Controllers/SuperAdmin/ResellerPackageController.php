@@ -37,6 +37,11 @@ class ResellerPackageController extends Controller
                 }
             }
 
+            // Apply reseller filter
+            if ($request->has('reseller_id') && !empty($request->reseller_id)) {
+                $query->where('reseller_id', $request->reseller_id);
+            }
+
             $packages = $query->orderBy('created_at', 'desc')->paginate(15);
             
             return response()->json([

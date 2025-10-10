@@ -34,6 +34,7 @@ Route::post('/stripe/webhook', [App\Http\Controllers\StripeWebhookController::cl
 
 // Vapi webhook route (no auth required)
 Route::post('/vapi/webhook', [App\Http\Controllers\VapiWebhookController::class, 'handleWebhook']);
+Route::post('/core/webhook', [App\Http\Controllers\VapiWebhookController::class, 'handleWebhook']); // Same as Vapi webhook
 
 // Email verification route
 Route::get('/verify-email/{hash}', [App\Http\Controllers\Auth\VerifyEmailController::class, '__invoke'])
@@ -199,6 +200,7 @@ Route::middleware(['auth:sanctum', 'admin', 'reseller'])->group(function () {
         Route::post('/packages/initialize-defaults', [SubscriptionController::class, 'adminInitializeDefaultPackages']);
         Route::put('/packages/{id}', [SubscriptionController::class, 'adminUpdatePackage']);
         Route::delete('/packages/{id}', [SubscriptionController::class, 'adminDeletePackage']);
+        Route::delete('/{id}', [SubscriptionController::class, 'adminDeleteSubscription']);
         
         // Custom subscription routes
         Route::prefix('custom')->group(function () {
@@ -206,6 +208,11 @@ Route::middleware(['auth:sanctum', 'admin', 'reseller'])->group(function () {
             Route::get('/', [App\Http\Controllers\CustomSubscriptionController::class, 'getCustomSubscriptions']);
             Route::post('/activate', [App\Http\Controllers\CustomSubscriptionController::class, 'activateSubscription']);
             Route::post('/resend-payment-link', [App\Http\Controllers\CustomSubscriptionController::class, 'resendPaymentLink']);
+            
+            // Stripe integration routes
+            Route::get('/stripe-customers', [App\Http\Controllers\CustomSubscriptionController::class, 'getStripeCustomers']);
+            Route::get('/customer-subscriptions', [App\Http\Controllers\CustomSubscriptionController::class, 'getCustomerSubscriptions']);
+            Route::post('/sync-from-stripe', [App\Http\Controllers\CustomSubscriptionController::class, 'syncFromStripe']);
         });
     });
     
@@ -249,6 +256,9 @@ Route::middleware(['auth:sanctum', 'super_admin'])->group(function () {
     Route::prefix('super-admin/resellers')->group(function () {
         Route::get('/', [App\Http\Controllers\SuperAdmin\ResellerController::class, 'index']);
         Route::get('/{resellerId}', [App\Http\Controllers\SuperAdmin\ResellerController::class, 'show']);
+        Route::delete('/{id}', [App\Http\Controllers\SuperAdmin\ResellerController::class, 'destroy']);
+        Route::patch('/{id}/restore', [App\Http\Controllers\SuperAdmin\ResellerController::class, 'restore']);
+        Route::delete('/{id}/force', [App\Http\Controllers\SuperAdmin\ResellerController::class, 'forceDelete']);
     });
 
     // Reseller Packages Management
@@ -265,8 +275,12 @@ Route::middleware(['auth:sanctum', 'super_admin'])->group(function () {
     Route::prefix('super-admin/reseller-subscriptions')->group(function () {
         Route::get('/', [App\Http\Controllers\SuperAdmin\ResellerSubscriptionController::class, 'index']);
         Route::post('/', [App\Http\Controllers\SuperAdmin\ResellerSubscriptionController::class, 'store']);
+        Route::post('/sync-from-stripe', [App\Http\Controllers\SuperAdmin\ResellerSubscriptionController::class, 'syncFromStripe']);
+        Route::get('/stripe-customers', [App\Http\Controllers\SuperAdmin\ResellerSubscriptionController::class, 'getStripeCustomers']);
+        Route::get('/customer-subscriptions', [App\Http\Controllers\SuperAdmin\ResellerSubscriptionController::class, 'getCustomerSubscriptions']);
         Route::get('/{resellerSubscription}', [App\Http\Controllers\SuperAdmin\ResellerSubscriptionController::class, 'show']);
         Route::put('/{resellerSubscription}', [App\Http\Controllers\SuperAdmin\ResellerSubscriptionController::class, 'update']);
+        Route::delete('/{resellerSubscription}', [App\Http\Controllers\SuperAdmin\ResellerSubscriptionController::class, 'destroy']);
         Route::patch('/{resellerSubscription}/cancel', [App\Http\Controllers\SuperAdmin\ResellerSubscriptionController::class, 'cancel']);
         Route::patch('/{resellerSubscription}/reactivate', [App\Http\Controllers\SuperAdmin\ResellerSubscriptionController::class, 'reactivate']);
         Route::post('/{resellerSubscription}/resend-payment-link', [App\Http\Controllers\SuperAdmin\ResellerSubscriptionController::class, 'resendPaymentLink']);
@@ -293,6 +307,18 @@ Route::middleware(['auth:sanctum', 'super_admin'])->group(function () {
         Route::post('/subscription/update', [App\Http\Controllers\ResellerStripeController::class, 'updateSubscription']);
         Route::get('/subscription/details', [App\Http\Controllers\ResellerStripeController::class, 'getSubscriptionDetails']);
         Route::post('/payment-link', [App\Http\Controllers\ResellerStripeController::class, 'createPaymentLink']);
+    });
+
+    // User Management
+    Route::prefix('super-admin/users')->group(function () {
+        Route::get('/', [App\Http\Controllers\SuperAdmin\UserController::class, 'index']);
+        Route::post('/', [App\Http\Controllers\SuperAdmin\UserController::class, 'store']);
+        Route::get('/statistics', [App\Http\Controllers\SuperAdmin\UserController::class, 'statistics']);
+        Route::get('/{id}', [App\Http\Controllers\SuperAdmin\UserController::class, 'show']);
+        Route::put('/{id}', [App\Http\Controllers\SuperAdmin\UserController::class, 'update']);
+        Route::delete('/{id}', [App\Http\Controllers\SuperAdmin\UserController::class, 'destroy']);
+        Route::patch('/{id}/restore', [App\Http\Controllers\SuperAdmin\UserController::class, 'restore']);
+        Route::delete('/{id}/force', [App\Http\Controllers\SuperAdmin\UserController::class, 'forceDelete']);
     });
 
     // Usage Reports
@@ -368,6 +394,7 @@ Route::middleware(['auth:sanctum', 'admin', 'reseller'])->prefix('admin')->group
             Route::get('/search', [App\Http\Controllers\ResellerController::class, 'search']);
             Route::get('/{reseller}', [App\Http\Controllers\ResellerController::class, 'show']);
             Route::put('/{reseller}', [App\Http\Controllers\ResellerController::class, 'update']);
+            Route::delete('/{reseller}', [App\Http\Controllers\ResellerController::class, 'destroy']);
             Route::put('/{reseller}/toggle-status', [App\Http\Controllers\ResellerController::class, 'toggleStatus']);
         });
     });

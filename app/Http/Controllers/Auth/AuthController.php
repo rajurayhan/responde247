@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use App\Services\ResellerMailManager;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -59,19 +60,28 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
+        $resellerId = config('reseller.id');
+        \Log::info('Reseller ID from login: ' . $resellerId);
 
         $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string',
         ]);
 
-        if (!Auth::attempt($request->only('email', 'password'))) {
+        // Attempt authentication with reseller condition
+        if (!Auth::attempt([
+            'email' => $request->email,
+            'password' => $request->password,
+            'reseller_id' => $resellerId
+        ])) {
+            Log::error("Login failed for the resellerId $resellerId,  email $request->email");
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
         }
 
         $user = User::where('email', $request->email)->reseller()->firstOrFail();
+        \Log::info('User: ' . $user);
 
         if (!$user->isActive()) {
             throw ValidationException::withMessages([

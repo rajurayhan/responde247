@@ -21,6 +21,7 @@ const AdminAssistants = () => import('./components/admin/Assistants.vue');
 const AdminFeatures = () => import('./components/admin/Features.vue');
 const AdminPackages = () => import('./components/admin/Packages.vue');
 const AdminSubscriptions = () => import('./components/admin/Subscriptions.vue');
+const SuperAdminResellerSubscriptions = () => import('./components/admin/SuperAdminResellerSubscriptions.vue');
 const UsageOverview = () => import('./components/admin/UsageOverview.vue');
 const Templates = () => import('./components/admin/Templates.vue');
 import LandingPage from './components/landing/LandingPage.vue';
@@ -170,9 +171,15 @@ const router = createRouter({
     {
         path: '/super-admin/reseller-subscriptions',
         name: 'super-admin-reseller-subscriptions',
-        component: () => import('./components/admin/ResellerSubscriptions.vue'),
+        component: SuperAdminResellerSubscriptions,
         meta: { requiresAuth: true, requiresSuperAdmin: true }
     },
+        {
+            path: '/super-admin/users',
+            name: 'super-admin-users',
+            component: () => import('./components/admin/SuperAdminUsers.vue'),
+            meta: { requiresAuth: true, requiresSuperAdmin: true }
+        },
         {
             path: '/super-admin/reseller-transactions',
             name: 'super-admin-reseller-transactions',
@@ -375,7 +382,7 @@ router.beforeEach((to, from, next) => {
     // Check hostname restriction for reseller registration
     if (to.name === 'reseller-registration') {
         const hostname = window.location.hostname;
-        const allowedHosts = ['localhost', 'responde247.com'];
+        const allowedHosts = ['localhost', 'app.sulus.ai'];
         
         console.log('Reseller registration access check:', {
             hostname,

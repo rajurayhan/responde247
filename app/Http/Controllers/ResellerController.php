@@ -267,6 +267,56 @@ class ResellerController extends Controller
 
 
     /**
+     * Remove the specified reseller from storage.
+     */
+    public function destroy(Reseller $reseller): JsonResponse
+    {
+        try {
+            // Check if reseller has any users or subscriptions
+            $userCount = $reseller->users()->count();
+            
+            $subscriptionCount = $reseller->subscriptions()->count();
+            
+            if ($userCount > 0 || $subscriptionCount > 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cannot delete reseller with existing users or subscriptions. Please remove all users and subscriptions first.',
+                    'data' => [
+                        'userCount' => $userCount,
+                        'subscriptionCount' => $subscriptionCount
+                    ]
+                ], 422);
+            }
+
+            // Log the deletion
+            Log::info('Reseller deleted', [
+                'reseller_id' => $reseller->id,
+                'org_name' => $reseller->org_name,
+                'user_id' => Auth::id() ?? 'unknown'
+            ]);
+
+            // Delete the reseller
+            $reseller->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Reseller deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error deleting reseller', [
+                'error' => $e->getMessage(),
+                'reseller_id' => $reseller->id,
+                'user_id' => Auth::id() ?? 'unknown'
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting reseller'
+            ], 500);
+        }
+    }
+
+    /**
      * Toggle the status of the specified reseller.
      */
     public function toggleStatus(Reseller $reseller): JsonResponse

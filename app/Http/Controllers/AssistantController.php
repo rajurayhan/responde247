@@ -142,7 +142,6 @@ class AssistantController extends Controller
      */
     public function store(VapiAssistantRequest $request): JsonResponse
     {
-
         $user = Auth::user();
         
         // Check if user can create more assistants (skip for super admin users only)
@@ -344,13 +343,14 @@ class AssistantController extends Controller
         if (!$vapiData) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update assistant in Vapi'
+                'messag e' => 'Failed to update assistant in Cloud'
             ], 500);
         }
 
         // Prepare update data for local database
         $updateData = [
             'name' => $request->name,
+            'user_id' => $request->user_id,
         ];
         
         // Synchronize webhook URL from Vapi response

@@ -102,6 +102,7 @@ export default {
   },
   emits: ['update:voice'],
   setup(props, { emit }) {
+    const isUpdatingFromProps = ref(false)
     const voiceConfig = ref({
       provider: 'vapi',
       voiceId: 'spencer',
@@ -534,14 +535,22 @@ export default {
       voiceConfig.value.speed = 1
     }
 
-    // Watch for changes and emit updates
+    // Watch for changes and emit updates (but not when updating from props)
     watch(voiceConfig, (newConfig) => {
-      emit('update:voice', newConfig)
+      // Only emit if this change didn't come from props
+      if (!isUpdatingFromProps.value) {
+        emit('update:voice', newConfig)
+      }
     }, { deep: true })
 
     // Initialize with props
     if (props.voice && Object.keys(props.voice).length > 0) {
+      isUpdatingFromProps.value = true
       voiceConfig.value = { ...voiceConfig.value, ...props.voice }
+      // Reset flag after a tick to allow the emit watcher to work again
+      setTimeout(() => {
+        isUpdatingFromProps.value = false
+      }, 0)
     }
 
     return {

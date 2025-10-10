@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -15,7 +16,7 @@ use App\Traits\ResellerMailTrait;
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable, ResellerMailTrait;
+    use HasApiTokens, HasFactory, Notifiable, ResellerMailTrait, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -312,7 +313,7 @@ class User extends Authenticatable implements MustVerifyEmail
             }
 
             if (!$reseller->hasActiveSubscription()) {
-                return 'Your reseller does not have an active subscription. Please contact your reseller administrator.';
+                return 'No active subscription found. Please contact your reseller administrator.';
             }
         }
 

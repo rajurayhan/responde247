@@ -13,32 +13,10 @@ class DetectTenantByDomain
     {
         $domain = $request->getHost();
 
-        // Allow logo endpoint to work without reseller
-        if ($request->is('api/saas-public/logo.png')) {
-            // Set null reseller for logo endpoint
-            app()->instance('currentReseller', null);
-            app()->instance('currentResellerSettings', null);
-            return $next($request);
-        }
-
         // Cache reseller lookup for 5 minutes
         $cacheKey = "reseller_domain_{$domain}";
         $reseller = cache()->remember($cacheKey, 300, function () use ($domain) {
-            // First try exact match
-            $reseller = Reseller::where('domain', $domain)->active()->first();
-            
-            // If no exact match, try without .com extension
-            if (!$reseller && str_ends_with($domain, '.com')) {
-                $domainWithoutCom = str_replace('.com', '', $domain);
-                $reseller = Reseller::where('domain', $domainWithoutCom)->active()->first();
-            }
-            
-            // If still no match, try with .com extension
-            if (!$reseller && !str_ends_with($domain, '.com')) {
-                $reseller = Reseller::where('domain', $domain . '.com')->active()->first();
-            }
-            
-            return $reseller;
+            return Reseller::where('domain', $domain)->active()->first();
         });
 
         if (! $reseller) {
@@ -58,7 +36,7 @@ class DetectTenantByDomain
 
         // Optional: set reseller in config or auth logic
         config(['reseller.id' => $reseller->id]);
-
+        \Log::info('Reseller ID: ' . $reseller->id);
         return $next($request);
     }
 }

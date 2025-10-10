@@ -43,7 +43,7 @@
                 No Active Subscription
               </h3>
               <div class="mt-2 text-sm text-red-700">
-                <p>Your reseller does not have an active subscription. You need an active subscription to create and manage voice assistants.</p>
+                <p>No active subscription found. You need an active subscription to create and manage voice assistants.</p>
               </div>
               <div class="mt-4">
                 <router-link :to="isResellerAdmin ? '/reseller-billing' : '/subscription'" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-red-800 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">

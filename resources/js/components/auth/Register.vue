@@ -185,7 +185,7 @@ export default {
     // Check if reseller block should be shown based on hostname
     const showResellerBlock = computed(() => {
       const hostname = window.location.hostname
-      return hostname === 'localhost' || hostname === 'responde247.com'
+      return hostname === 'localhost' || hostname === 'app.sulus.ai'
     })
     
     return {

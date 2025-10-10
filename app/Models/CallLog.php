@@ -45,6 +45,7 @@ class CallLog extends Model
     protected $appends = [
         'has_recording',
         'public_audio_url',
+        'public_audio_player_url',
     ];
 
     /**
@@ -214,7 +215,35 @@ class CallLog extends Model
             return null;
         }
 
-        return url('/p/' . $this->call_record_file_name);
+        // Get reseller domain for SMS links
+        $resellerDomain = $this->reseller?->domain;
+        
+        if ($resellerDomain) {
+            // Use reseller's domain for SMS links
+            $protocol = request()->isSecure() ? 'https' : 'http';
+            return $protocol . '://' . $resellerDomain . '/p/' . $this->call_record_file_name;
+        }
+        
+        // Fallback to current domain if no reseller domain
+        return url('/play/' . $this->call_record_file_name);
+    }
+    public function getPublicAudioPlayerUrlAttribute(): ?string
+    {
+        if (!$this->call_record_file_name) {
+            return null;
+        }
+
+        // Get reseller domain for SMS links
+        $resellerDomain = $this->reseller?->domain;
+        
+        if ($resellerDomain) {
+            // Use reseller's domain for SMS links
+            $protocol = request()->isSecure() ? 'https' : 'http';
+            return $protocol . '://' . $resellerDomain . '/play/' . $this->call_record_file_name;
+        }
+        
+        // Fallback to current domain if no reseller domain
+        return url('/play/' . $this->call_record_file_name);
     }
 
     /**

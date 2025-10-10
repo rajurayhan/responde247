@@ -119,6 +119,7 @@ export default {
   },
   emits: ['update:transcriber'],
   setup(props, { emit }) {
+    const isUpdatingFromProps = ref(false)
     const transcriberConfig = ref({
       provider: 'deepgram',
       language: 'en',
@@ -166,7 +167,6 @@ export default {
     // Get available models for current provider
     const getAvailableModels = () => {
       const models = modelOptions[transcriberConfig.value.provider] || [];
-      transcriberConfig.value.model = models?.[0]?.value || '';
       return models;
     }
 
@@ -187,24 +187,56 @@ export default {
       }
     }
 
-    // Watch for changes and emit updates
+    // Watch for changes and emit updates (but not when updating from props)
     watch(transcriberConfig, (newConfig) => {
-      emit('update:transcriber', newConfig)
+      // Only emit if this change didn't come from props
+      if (!isUpdatingFromProps.value) {
+        emit('update:transcriber', newConfig)
+      }
     }, { deep: true })
 
-    // Initialize with props or use default Deepgram configuration
-    if (props.transcriber && Object.keys(props.transcriber).length > 0) {
-      transcriberConfig.value = { ...transcriberConfig.value, ...props.transcriber }
-    } else {
-      // Use default Deepgram configuration when no transcriber value exists
-      transcriberConfig.value = {
-        provider: 'deepgram',
-        language: 'en',
-        model: 'nova-2',
-        confidenceThreshold: 0.4,
-        formatTurns: true
+    // Initialize with props and watch for prop changes
+    const initializeTranscriberConfig = () => {
+      if (props.transcriber && Object.keys(props.transcriber).length > 0) {
+        transcriberConfig.value = { ...transcriberConfig.value, ...props.transcriber }
+      } else {
+        // Use default Deepgram configuration when no transcriber value exists
+        transcriberConfig.value = {
+          provider: 'deepgram',
+          language: 'en',
+          model: 'nova-2',
+          confidenceThreshold: 0.4,
+          formatTurns: true,
+          endOfTurnConfidenceThreshold: 0.7,
+          minEndOfTurnSilenceWhenConfident: 160,
+          wordFinalizationMaxWaitTime: 160,
+          maxTurnSilence: 400,
+          realtimeUrl: '',
+          wordBoost: [],
+          endUtteranceSilenceThreshold: 1.1,
+          disablePartialTranscripts: false,
+          fallbackPlan: null
+        }
       }
     }
+
+    // Initialize immediately
+    initializeTranscriberConfig()
+
+    // Watch for prop changes to update transcriberConfig
+    watch(() => props.transcriber, (newTranscriber) => {
+      console.log('TranscriberConfiguration: Received transcriber props:', newTranscriber)
+      if (newTranscriber && Object.keys(newTranscriber).length > 0) {
+        console.log('TranscriberConfiguration: Updating transcriberConfig with:', newTranscriber)
+        isUpdatingFromProps.value = true
+        transcriberConfig.value = { ...transcriberConfig.value, ...newTranscriber }
+        console.log('TranscriberConfiguration: Updated transcriberConfig:', transcriberConfig.value)
+        // Reset flag after a tick to allow the emit watcher to work again
+        setTimeout(() => {
+          isUpdatingFromProps.value = false
+        }, 0)
+      }
+    }, { deep: true, immediate: true })
 
     return {
       transcriberConfig,

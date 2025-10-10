@@ -117,6 +117,24 @@
               </ul>
             </li>
 
+            <!-- User Management -->
+            <li>
+              <router-link
+                to="/super-admin/users"
+                :class="[
+                  $route.path.startsWith('/super-admin/users')
+                    ? 'bg-purple-50 text-purple-700 border-r-2 border-purple-600'
+                    : 'text-gray-700 hover:text-purple-700 hover:bg-purple-50',
+                  'group flex gap-x-3 rounded-md p-3 text-sm leading-6 font-medium transition-colors'
+                ]"
+              >
+                <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                </svg>
+                Users
+              </router-link>
+            </li>
+
             <!-- Usage Reports -->
             <li>
               <router-link
