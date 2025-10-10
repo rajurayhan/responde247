@@ -497,7 +497,7 @@ class TwilioService
         $addressSids = config('services.twilio.address_sids', []);
         
         // Countries that require address verification
-        $countriesRequiringAddress = ['AU', 'CA', 'GB', 'NZ', 'IE'];
+        $countriesRequiringAddress = ['AU', 'CA', 'GB', 'NZ', 'IE', 'MX'];
         
         if (in_array($countryCode, $countriesRequiringAddress) && isset($addressSids[$countryCode])) {
             return $addressSids[$countryCode];
