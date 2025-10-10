@@ -16,14 +16,25 @@ class ResellerEmailService
     {
         // Get reseller from user relationship or provided reseller
         if (!$reseller && $user) {
+            // Try to load the reseller relationship if not already loaded
+            if (!$user->relationLoaded('reseller')) {
+                $user->load('reseller');
+            }
             $reseller = $user->reseller;
+        }
+        
+        // If still no reseller, try to get from current context
+        if (!$reseller) {
+            $reseller = app('currentReseller');
         }
         
         // Fallback to default if no reseller found
         if (!$reseller) {
             Log::warning('No reseller found for branding, using default', [
                 'user_id' => $user?->id,
-                'user_email' => $user?->email
+                'user_email' => $user?->email,
+                'user_reseller_id' => $user?->reseller_id,
+                'current_reseller_id' => config('reseller.id')
             ]);
             return self::getDefaultBranding();
         }

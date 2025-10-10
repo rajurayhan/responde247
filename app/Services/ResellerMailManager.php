@@ -23,6 +23,17 @@ class ResellerMailManager
 
         // If still no reseller, use default mail config
         if (!$reseller) {
+            Log::info('No reseller provided, using default mail configuration');
+            return;
+        }
+        
+        // Validate reseller exists and is active
+        if (!$reseller->exists || !$reseller->isActive()) {
+            Log::warning('Invalid or inactive reseller provided, using default mail configuration', [
+                'reseller_id' => $reseller->id ?? 'unknown',
+                'reseller_exists' => $reseller->exists ?? false,
+                'reseller_active' => $reseller->isActive() ?? false
+            ]);
             return;
         }
 
@@ -52,8 +63,27 @@ class ResellerMailManager
         }
 
         // Set mail configuration at runtime
-        // Validate that the mailer is supported
-        $supportedMailers = ['smtp', 'sendmail', 'mailgun', 'log'];
+        // Validate that the mailer is supported and properly configured
+        $supportedMailers = ['smtp', 'sendmail', 'log'];
+        
+        // Check if Mailgun is available and properly configured
+        if ($mailMailer === 'mailgun') {
+            $mailgunDomain = config('services.mailgun.domain');
+            $mailgunSecret = config('services.mailgun.secret');
+            
+            if (empty($mailgunDomain) || empty($mailgunSecret)) {
+                Log::warning('Mailgun configured but credentials missing, falling back to SMTP', [
+                    'reseller_id' => $reseller->id,
+                    'domain' => $reseller->domain,
+                    'mailgun_domain_set' => !empty($mailgunDomain),
+                    'mailgun_secret_set' => !empty($mailgunSecret)
+                ]);
+                $mailMailer = 'smtp';
+            } else {
+                $supportedMailers[] = 'mailgun';
+            }
+        }
+        
         if (!in_array($mailMailer, $supportedMailers)) {
             Log::warning('Unsupported mailer configured, falling back to SMTP', [
                 'reseller_id' => $reseller->id,

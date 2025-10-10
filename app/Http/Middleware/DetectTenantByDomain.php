@@ -6,6 +6,7 @@ use App\Models\Reseller;
 use App\Models\ResellerSetting;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class DetectTenantByDomain
 {
@@ -20,7 +21,22 @@ class DetectTenantByDomain
         });
 
         if (! $reseller) {
+            // Clear cache if reseller not found to prevent stale data
+            cache()->forget($cacheKey);
             // abort(404, 'Reseller not found');
+            return response()->view('errors.404_reseller_not_found', [], 200);
+        }
+        
+        // Double-check that reseller still exists and is active
+        if (!$reseller->exists || !$reseller->isActive()) {
+            // Clear cache and return 404
+            cache()->forget($cacheKey);
+            Log::warning('Cached reseller is invalid or inactive', [
+                'reseller_id' => $reseller->id ?? 'unknown',
+                'domain' => $domain,
+                'exists' => $reseller->exists ?? false,
+                'active' => $reseller->isActive() ?? false
+            ]);
             return response()->view('errors.404_reseller_not_found', [], 200);
         }
         
@@ -36,7 +52,7 @@ class DetectTenantByDomain
 
         // Optional: set reseller in config or auth logic
         config(['reseller.id' => $reseller->id]);
-        \Log::info('Reseller ID: ' . $reseller->id);
+        Log::info('Reseller ID: ' . $reseller->id);
         return $next($request);
     }
 }

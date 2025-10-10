@@ -44,10 +44,33 @@ class AuthController extends Controller
                 'reseller_id' => $resellerId,
             ]);
 
+            // Debug: Log user creation details
+            Log::info('User created successfully', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'reseller_id' => $user->reseller_id,
+                'reseller_id_from_config' => $resellerId,
+                'timestamp' => now()->toISOString()
+            ]);
+
             // Set reseller mail configuration before sending welcome email
             $reseller = app('currentReseller');
             if ($reseller) {
-                ResellerMailManager::setMailConfig($reseller);
+                try {
+                    ResellerMailManager::setMailConfig($reseller);
+                    Log::info('Reseller mail config set successfully', [
+                        'reseller_id' => $reseller->id,
+                        'reseller_domain' => $reseller->domain,
+                        'timestamp' => now()->toISOString()
+                    ]);
+                } catch (\Exception $e) {
+                    Log::warning('Failed to set reseller mail config, using default', [
+                        'reseller_id' => $reseller->id,
+                        'reseller_domain' => $reseller->domain,
+                        'error' => $e->getMessage(),
+                        'timestamp' => now()->toISOString()
+                    ]);
+                }
             }
 
             // Send welcome email with verification link
