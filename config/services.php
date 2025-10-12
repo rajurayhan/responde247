@@ -59,7 +59,8 @@ return [
         ],
         'bundle_sids' => [
             'GB' => env('TWILIO_UK_BUNDLE_SID', 'AD4c3f06239dbde51132ce10dc187822e6'),
-            'MX' => env('TWILIO_MEXICO_BUNDLE_SID', 'BUe391fdf5853e3981061a5b30720d1b59'),
+            // 'MX' => env('TWILIO_MEXICO_BUNDLE_SID', 'BUe391fdf5853e3981061a5b30720d1b59'),
+            'MX' => env('TWILIO_MEXICO_BUNDLE_SID', 'ADc7ce5e8a422016644c9a50dc55ee01f1'),
         ],
     ],
 
