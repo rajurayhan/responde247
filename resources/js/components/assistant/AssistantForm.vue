@@ -170,7 +170,8 @@
                   : 'border-gray-300 focus:border-green-500 bg-white'
               ]"
             >
-              <option value="Mexico" selected>Mexico</option>
+              <option value="United States" selected>United States</option>
+              <option value="Mexico" disabled>Mexico (Coming Soon)</option>
             </select>
             <p v-if="fieldErrors.country" class="text-xs text-red-600 mt-1">{{ fieldErrors.country }}</p>
             <p v-else class="text-xs text-gray-500 mt-1">Country for phone number search</p>
@@ -868,7 +869,7 @@ You embody the highest standards of customer service that {{company_name}} would
       metadata: {
         company_name: '',
         industry: '',
-        country: 'Mexico', // Default to Mexico
+        country: 'United States', // Default to United States
         services_products: '',
         sms_phone_number: '',
         assistant_phone_number: '',
@@ -1032,7 +1033,7 @@ You embody the highest standards of customer service that {{company_name}} would
 
     // Computed property to check if area code is supported for the selected country
     const isAreaCodeSupported = computed(() => {
-      return ['Mexico'].includes(form.value.metadata.country)
+      return ['United States', 'Mexico'].includes(form.value.metadata.country)
     })
 
     // Computed property for webhook URL from reseller data
@@ -1238,7 +1239,7 @@ You embody the highest standards of customer service that {{company_name}} would
         if (assistant.vapi_data?.metadata) {
           form.value.metadata.company_name = assistant.vapi_data.metadata.company_name || ''
           form.value.metadata.industry = assistant.vapi_data.metadata.industry || ''
-          form.value.metadata.country = assistant.vapi_data.metadata.country || 'Mexico'
+          form.value.metadata.country = assistant.vapi_data.metadata.country || 'United States'
           form.value.metadata.services_products = assistant.vapi_data.metadata.services_products || ''
           form.value.metadata.sms_phone_number = assistant.vapi_data.metadata.sms_phone_number || ''
           form.value.metadata.assistant_phone_number = assistant.vapi_data.metadata.assistant_phone_number || ''
