@@ -71,6 +71,7 @@ class CustomSubscriptionController extends Controller
         // Create the subscription with pending status
         $subscription = UserSubscription::create([
             'user_id' => $user->id,
+            'reseller_id' => Auth::user()->reseller_id,
             'subscription_package_id' => $package->id,
             'status' => 'pending',
             'current_period_start' => $currentPeriodStart,
