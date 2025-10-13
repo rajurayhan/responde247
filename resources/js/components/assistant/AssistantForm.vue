@@ -1044,11 +1044,13 @@ You embody the highest standards of customer service that {{company_name}} would
     // Watch for type changes to handle template loading
     watch(() => form.value.type, (newType, oldType) => {
       // Only proceed if type actually changed and we're creating a new assistant
-      if (newType === 'demo' && newType !== oldType && isCreating.value && templates.value.system_prompt) {
-        // Auto-load templates for demo assistants
-        loadDefaultTemplate()
-        loadDefaultFirstMessage()
-        loadDefaultEndCallMessage()
+      if (newType === 'demo' && newType !== oldType && isCreating.value) {
+        // Auto-load templates for demo assistants if templates are available
+        if (templates.value.system_prompt) {
+          loadDefaultTemplate()
+          loadDefaultFirstMessage()
+          loadDefaultEndCallMessage()
+        }
       }
     })
 
@@ -1622,6 +1624,13 @@ You embody the highest standards of customer service that {{company_name}} would
           templates.value = response.data.data
           // Update templated data with current company info
           updateTemplatedData()
+          
+          // Apply templates to form fields if creating a demo assistant
+          if (isCreating.value && form.value.type === 'demo') {
+            loadDefaultTemplate()
+            loadDefaultFirstMessage()
+            loadDefaultEndCallMessage()
+          }
         }
       } catch (error) {
         // Handle error silently
