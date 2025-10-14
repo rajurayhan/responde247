@@ -18,12 +18,12 @@
             </div>
           </div>
           <nav class="hidden md:flex space-x-8">
-            <a href="#features" class="text-gray-600 hover:text-primary-600 transition-colors duration-200 font-medium">Features</a>
-            <a v-if="featureFlags.showPricing" href="#pricing" class="text-gray-600 hover:text-primary-600 transition-colors duration-200 font-medium">Pricing</a>
-            <a href="#testimonials" class="text-gray-600 hover:text-primary-600 transition-colors duration-200 font-medium">Testimonials</a>
-            <a v-if="featureFlags.showContactForm" href="#contact" class="text-gray-600 hover:text-primary-600 transition-colors duration-200 font-medium">Contact</a>
-            <router-link v-if="!isAuthenticated" to="/login" class="text-gray-600 hover:text-primary-600 transition-colors duration-200 font-medium">Login</router-link>
-            <router-link v-else to="/dashboard" class="text-gray-600 hover:text-primary-600 transition-colors duration-200 font-medium">Dashboard</router-link>
+            <a href="#features" class="text-gray-600 hover:text-slate-600 transition-colors duration-200 font-medium">Features</a>
+            <a v-if="featureFlags.showPricing" href="#pricing" class="text-gray-600 hover:text-slate-600 transition-colors duration-200 font-medium">Pricing</a>
+            <a href="#testimonials" class="text-gray-600 hover:text-slate-600 transition-colors duration-200 font-medium">Testimonials</a>
+            <a v-if="featureFlags.showContactForm" href="#contact" class="text-gray-600 hover:text-slate-600 transition-colors duration-200 font-medium">Contact</a>
+            <router-link v-if="!isAuthenticated" to="/login" class="text-gray-600 hover:text-slate-600 transition-colors duration-200 font-medium">Login</router-link>
+            <router-link v-else to="/dashboard" class="text-gray-600 hover:text-slate-600 transition-colors duration-200 font-medium">Dashboard</router-link>
           </nav>
           <div class="hidden md:flex items-center space-x-4">
             <router-link v-if="!isAuthenticated" to="/register" class="bg-primary-600 hover:bg-primary-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 shadow-lg hover:shadow-xl">
@@ -31,7 +31,7 @@
             </router-link>
           </div>
           <div class="md:hidden">
-            <button @click="mobileMenuOpen = !mobileMenuOpen" class="text-gray-600 hover:text-primary-600 transition-colors duration-200">
+            <button @click="mobileMenuOpen = !mobileMenuOpen" class="text-gray-600 hover:text-slate-600 transition-colors duration-200">
               <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
@@ -44,84 +44,101 @@
     <!-- Mobile menu -->
     <div v-if="mobileMenuOpen" class="md:hidden">
       <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-b border-gray-200">
-        <a href="#features" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50">Features</a>
-        <a v-if="featureFlags.showPricing" href="#pricing" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50">Pricing</a>
-        <a href="#testimonials" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50">Testimonials</a>
-        <a v-if="featureFlags.showContactForm" href="#contact" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50">Contact</a>
-        <router-link v-if="!isAuthenticated" to="/login" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50">Login</router-link>
-        <router-link v-else to="/dashboard" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50">Dashboard</router-link>
+        <a href="#features" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-slate-600 hover:bg-gray-50">Features</a>
+        <a v-if="featureFlags.showPricing" href="#pricing" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-slate-600 hover:bg-gray-50">Pricing</a>
+        <a href="#testimonials" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-slate-600 hover:bg-gray-50">Testimonials</a>
+        <a v-if="featureFlags.showContactForm" href="#contact" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-slate-600 hover:bg-gray-50">Contact</a>
+        <router-link v-if="!isAuthenticated" to="/login" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-slate-600 hover:bg-gray-50">Login</router-link>
+        <router-link v-else to="/dashboard" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-slate-600 hover:bg-gray-50">Dashboard</router-link>
         <router-link v-if="!isAuthenticated" to="/register" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-white bg-primary-600 hover:bg-primary-700">Get Started</router-link>
       </div>
     </div>
 
     <div class="flex-1">
       <!-- Hero Section -->
-      <div class="relative bg-gradient-to-br from-gray-50 to-white overflow-hidden">
-        <!-- Background Pattern -->
+      <div class="relative bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-hidden">
+        <!-- Animated Background Elements -->
+        <div class="absolute inset-0">
+          <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-pink-600/20"></div>
+          <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+          <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-pink-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
+        </div>
+        
+        <!-- Grid Pattern Overlay -->
         <div class="absolute inset-0 bg-grid-pattern opacity-5"></div>
         
         <div class="max-w-7xl mx-auto">
-          <div class="relative z-10 pb-6 sm:pb-8 md:pb-10 lg:max-w-2xl lg:w-full lg:pb-12 xl:pb-16">
-            <main class="mt-6 mx-auto max-w-7xl px-4 sm:mt-8 sm:px-6 md:mt-10 lg:mt-12 lg:px-8 xl:mt-16">
-              <div class="sm:text-center lg:text-left">
+          <div class="relative z-10 pb-4 sm:pb-6 md:pb-8 lg:pb-10 xl:pb-12">
+            <main class="mt-4 mx-auto max-w-7xl px-4 sm:mt-6 sm:px-6 md:mt-8 lg:mt-10 lg:px-8 xl:mt-12">
+              <div class="text-center">
                 <!-- Trust Badge -->
-                <div class="mb-8">
-                  <div class="inline-flex items-center px-4 py-2 rounded-full bg-primary-50 border border-primary-200">
-                    <svg class="h-5 w-5 text-primary-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                    </svg>
-                    <span class="text-sm font-medium text-primary-700">Trusted by 10,000+ businesses worldwide</span>
+                <div class="mb-6">
+                  <div class="inline-flex items-center px-6 py-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20">
+                    <div class="flex items-center space-x-2">
+                      <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                      <svg class="h-5 w-5 text-white mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                      </svg>
+                      <span class="text-sm font-medium text-white">Trusted by 10,000+ businesses worldwide</span>
+                    </div>
                   </div>
                 </div>
 
-                <h1 class="text-3xl tracking-tight font-extrabold text-gray-900 sm:text-4xl md:text-5xl lg:text-6xl"> 
-                  <span class="block xl:inline">{{ branding.slogan }}</span>
-                  <span class="block text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-blue-600 xl:inline"> {{ branding.appName }} answers 24x7!</span> 
+                <h1 class="text-3xl tracking-tight font-extrabold text-white sm:text-4xl md:text-5xl lg:text-6xl"> 
+                  <span class="block xl:inline">{{ branding.slogan }}</span> 
+                  <span class="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 xl:inline">&nbsp;{{ branding.appName }} answers 24x7!</span> 
                 </h1>
-                <p class="mt-4 text-lg text-gray-600 sm:text-xl sm:max-w-2xl sm:mx-auto md:mt-6 md:text-xl lg:mx-0 leading-relaxed">
+                <p class="mt-4 text-lg text-gray-300 sm:text-xl sm:max-w-2xl sm:mx-auto md:mt-6 md:text-xl lg:mx-0 leading-relaxed">
                   {{ branding.description }}
                 </p>
                 
                 <!-- Key Benefits -->
-                <div class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-6">
-                  <div class="flex items-center">
-                    <svg class="h-6 w-6 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                    </svg>
-                    <span class="text-sm font-medium text-gray-700">24/7 Availability</span>
+                <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-8">
+                  <div class="flex items-center group">
+                    <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                      <svg class="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                      </svg>
+                    </div>
+                    <span class="ml-4 text-lg font-medium text-white group-hover:text-gray-200 transition-colors duration-300">24/7 Availability</span>
                   </div>
-                  <div class="flex items-center">
-                    <svg class="h-6 w-6 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                    </svg>
-                    <span class="text-sm font-medium text-gray-700">Instant Setup</span>
+                  <div class="flex items-center group">
+                    <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                      <svg class="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                      </svg>
+                    </div>
+                    <span class="ml-4 text-lg font-medium text-white group-hover:text-gray-200 transition-colors duration-300">Instant Setup</span>
                   </div>
-                  <div class="flex items-center">
-                    <svg class="h-6 w-6 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                    </svg>
-                    <span class="text-sm font-medium text-gray-700">No Coding Required</span>
+                  <div class="flex items-center group">
+                    <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                      <svg class="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                      </svg>
+                    </div>
+                    <span class="ml-4 text-lg font-medium text-white group-hover:text-gray-200 transition-colors duration-300">No Coding Required</span>
                   </div>
                 </div>
 
-                <div class="mt-8 sm:mt-10 sm:flex sm:justify-center lg:justify-start space-y-3 sm:space-y-0 sm:space-x-3">
-                  <div class="rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
-                    <router-link v-if="!isAuthenticated" to="/register" class="w-full flex items-center justify-center px-6 py-3 border border-transparent text-base font-semibold rounded-lg text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 transition-all duration-300">
-                      <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div class="mt-10 sm:mt-12 flex justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+                  <div class="group">
+                    <router-link v-if="!isAuthenticated" to="/register" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 border border-transparent text-lg font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105">
+                      <svg class="h-5 w-5 mr-3 group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                       </svg>
                       Start Free Trial
                     </router-link>
-                    <router-link v-else to="/dashboard" class="w-full flex items-center justify-center px-6 py-3 border border-transparent text-base font-semibold rounded-lg text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 transition-all duration-300">
-                      <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <router-link v-else to="/dashboard" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 border border-transparent text-lg font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105">
+                      <svg class="h-5 w-5 mr-3 group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                       </svg>
                       Go to Dashboard
                     </router-link>
                   </div>
-                  <div v-if="featureFlags.showDemoRequest" class="rounded-lg border-2 border-primary-200 hover:border-primary-300 transition-colors duration-300">
-                    <router-link to="/demo-request" class="w-full flex items-center justify-center px-6 py-3 text-base font-semibold rounded-lg text-primary-700 bg-white hover:bg-primary-50 transition-all duration-300">
-                      <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div v-if="featureFlags.showDemoRequest" class="group">
+                    <router-link to="/demo-request" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 border-2 border-white/30 text-lg font-semibold rounded-xl text-white hover:bg-white/10 hover:border-white/50 transition-all duration-300 backdrop-blur-sm">
+                      <svg class="h-5 w-5 mr-3 group-hover:scale-110 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h8m-5-10V3a2 2 0 00-2-2H6a2 2 0 00-2 2v1m12 0V3a2 2 0 012-2h2a2 2 0 012 2v1m-4 0H8m0 0V3a2 2 0 012-2h2a2 2 0 012 2v1" />
                       </svg>
                       Request Demo
@@ -138,151 +155,141 @@
             </main>
           </div>
         </div>
-        <div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
-          <div v-if="branding.bannerUrl" class="h-56 w-full sm:h-72 md:h-96 lg:w-full lg:h-full rounded-2xl shadow-2xl overflow-hidden">
-            <img :src="branding.bannerUrl" :alt="branding.appName" class="w-full h-full object-cover" @error="handleBannerError" @load="handleBannerLoad">
-          </div>
-          <div v-else class="h-56 w-full sm:h-72 md:h-96 lg:w-full lg:h-full bg-gradient-to-br from-primary-400 via-primary-500 to-blue-600 rounded-2xl shadow-2xl relative overflow-hidden">
-            <!-- Animated background elements -->
-            <div class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
-            <div class="absolute top-10 right-10 w-20 h-20 bg-white/10 rounded-full animate-pulse"></div>
-            <div class="absolute bottom-20 left-10 w-16 h-16 bg-white/10 rounded-full animate-pulse delay-1000"></div>
-            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              <svg class="h-32 w-32 text-white/30" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-              </svg>
-            </div>
-          </div>
-        </div>
       </div>
 
       <!-- Statistics Section -->
-      <div class="bg-gradient-to-r from-primary-600 to-blue-600 py-8 mt-8">
+      <div class="bg-gradient-to-r from-slate-800 to-slate-900 py-12 mt-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="grid grid-cols-2 gap-6 md:grid-cols-4">
-            <div class="text-center">
-              <div class="text-3xl font-bold text-white sm:text-4xl">10K+</div>
-              <div class="mt-1 text-sm text-primary-100">Active Users</div>
+          <div class="grid grid-cols-2 gap-8 md:grid-cols-4">
+            <div class="text-center group">
+              <div class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 sm:text-4xl group-hover:scale-110 transition-transform duration-300">10K+</div>
+              <div class="mt-2 text-sm font-medium text-gray-300 uppercase tracking-wide">Active Users</div>
             </div>
-            <div class="text-center">
-              <div class="text-3xl font-bold text-white sm:text-4xl">99.9%</div>
-              <div class="mt-1 text-sm text-primary-100">Uptime</div>
+            <div class="text-center group">
+              <div class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 sm:text-4xl group-hover:scale-110 transition-transform duration-300">99.9%</div>
+              <div class="mt-2 text-sm font-medium text-gray-300 uppercase tracking-wide">Uptime</div>
             </div>
-            <div class="text-center">
-              <div class="text-3xl font-bold text-white sm:text-4xl">24/7</div>
-              <div class="mt-1 text-sm text-primary-100">Support</div>
+            <div class="text-center group">
+              <div class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-400 sm:text-4xl group-hover:scale-110 transition-transform duration-300">24/7</div>
+              <div class="mt-2 text-sm font-medium text-gray-300 uppercase tracking-wide">Support</div>
             </div>
-            <div class="text-center">
-              <div class="text-3xl font-bold text-white sm:text-4xl">50+</div>
-              <div class="mt-1 text-sm text-primary-100">Countries</div>
+            <div class="text-center group">
+              <div class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-400 sm:text-4xl group-hover:scale-110 transition-transform duration-300">50+</div>
+              <div class="mt-2 text-sm font-medium text-gray-300 uppercase tracking-wide">Countries</div>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Features Section -->
-      <div id="features" class="py-12 bg-white">
+      <div id="features" class="py-16 bg-gradient-to-b from-gray-50 to-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="text-center">
-            <h2 class="text-base text-primary-600 font-semibold tracking-wide uppercase">Features</h2>
-            <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-              Everything you need for {{ branding.appName }}
-            </p>
-            <p class="mt-4 max-w-3xl text-xl text-gray-600 mx-auto">
-              Our platform provides all the tools you need to create, deploy, and manage intelligent voice agents that work around the clock.
+          <div class="text-center mb-16">
+            <h2 class="text-4xl font-extrabold text-gray-900 sm:text-5xl">
+              Powerful AI Features
+            </h2>
+            <p class="mt-4 text-xl text-gray-600 max-w-3xl mx-auto">
+              Everything you need to create, manage, and scale your AI voice assistant
             </p>
           </div>
 
           <div class="mt-12">
-            <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
               <div
                 v-for="feature in features"
                 :key="feature.id"
-                class="relative group bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 hover:border-primary-200"
+                class="group relative bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border border-gray-100"
               >
-                <div class="absolute -top-3 left-6">
-                  <div class="flex items-center justify-center h-10 w-10 rounded-lg bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-md group-hover:scale-105 transition-transform duration-300">
-                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div class="absolute inset-0 bg-gradient-to-br from-slate-50 to-gray-50 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div class="relative z-10">
+                  <div class="w-14 h-14 bg-gradient-to-r from-slate-600 to-slate-700 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <svg class="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="feature.icon" />
                     </svg>
                   </div>
-                </div>
-                <div class="pt-3">
-                  <h3 class="text-lg font-bold text-gray-900 mb-2">{{ feature.title }}</h3>
-                  <p class="text-gray-600 leading-relaxed text-sm">
+                  <h3 class="text-xl font-bold text-gray-900 mb-3">{{ feature.title }}</h3>
+                  <p class="text-gray-600 leading-relaxed">
                     {{ feature.description }}
                   </p>
-                </div>
-                <div class="mt-6 flex items-center text-primary-600 font-medium group-hover:text-primary-700 transition-colors duration-300">
-                  <span class="text-sm">Learn more</span>
-                  <svg class="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                  </svg>
                 </div>
               </div>
             </div>
           </div>
 
           <!-- Additional Feature Highlights -->
-          <div class="mt-12">
-            <div class="bg-gradient-to-r from-gray-50 to-primary-50 rounded-3xl p-8 md:p-12">
-              <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div class="mt-16">
+            <div class="bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 rounded-3xl p-8 md:p-12 relative overflow-hidden">
+              <!-- Background Elements -->
+              <div class="absolute inset-0">
+                <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-pink-600/10"></div>
+                <div class="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl"></div>
+                <div class="absolute bottom-1/4 right-1/4 w-64 h-64 bg-purple-500/5 rounded-full blur-3xl"></div>
+              </div>
+              
+              <div class="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <div>
-                  <h3 class="text-3xl font-bold text-gray-900 mb-6">Why Choose {{ branding.appName }}?</h3>
+                  <h3 class="text-3xl font-bold text-white mb-6">Why Choose {{ branding.appName }}?</h3>
                   <div class="space-y-6">
-                    <div class="flex items-start">
+                    <div class="flex items-start group">
                       <div class="flex-shrink-0">
-                        <div class="flex items-center justify-center h-8 w-8 rounded-full bg-green-100">
-                          <svg class="h-5 w-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                        <div class="flex items-center justify-center h-10 w-10 rounded-xl bg-gradient-to-r from-slate-600 to-slate-700 group-hover:scale-110 transition-transform duration-300">
+                          <svg class="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                           </svg>
                         </div>
                       </div>
                       <div class="ml-4">
-                        <h4 class="text-lg font-semibold text-gray-900">Enterprise-Grade Security</h4>
-                        <p class="text-gray-600">Bank-level encryption and compliance with industry standards</p>
+                        <h4 class="text-lg font-semibold text-white group-hover:text-gray-200 transition-colors duration-300">Enterprise-Grade Security</h4>
+                        <p class="text-gray-300">Bank-level encryption and compliance with industry standards</p>
                       </div>
                     </div>
-                    <div class="flex items-start">
+                    <div class="flex items-start group">
                       <div class="flex-shrink-0">
-                        <div class="flex items-center justify-center h-8 w-8 rounded-full bg-blue-100">
-                          <svg class="h-5 w-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                        <div class="flex items-center justify-center h-10 w-10 rounded-xl bg-gradient-to-r from-slate-600 to-slate-700 group-hover:scale-110 transition-transform duration-300">
+                          <svg class="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                           </svg>
                         </div>
                       </div>
                       <div class="ml-4">
-                        <h4 class="text-lg font-semibold text-gray-900">Scalable Infrastructure</h4>
-                        <p class="text-gray-600">Handle thousands of concurrent calls with zero downtime</p>
+                        <h4 class="text-lg font-semibold text-white group-hover:text-gray-200 transition-colors duration-300">Scalable Infrastructure</h4>
+                        <p class="text-gray-300">Handle thousands of concurrent calls with zero downtime</p>
                       </div>
                     </div>
-                    <div class="flex items-start">
+                    <div class="flex items-start group">
                       <div class="flex-shrink-0">
-                        <div class="flex items-center justify-center h-8 w-8 rounded-full bg-purple-100">
-                          <svg class="h-5 w-5 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                        <div class="flex items-center justify-center h-10 w-10 rounded-xl bg-gradient-to-r from-slate-600 to-slate-700 group-hover:scale-110 transition-transform duration-300">
+                          <svg class="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                           </svg>
                         </div>
                       </div>
                       <div class="ml-4">
-                        <h4 class="text-lg font-semibold text-gray-900">Advanced Analytics</h4>
-                        <p class="text-gray-600">Detailed insights and reporting to optimize your operations</p>
+                        <h4 class="text-lg font-semibold text-white group-hover:text-gray-200 transition-colors duration-300">Advanced Analytics</h4>
+                        <p class="text-gray-300">Detailed insights and reporting to optimize your operations</p>
                       </div>
                     </div>
                   </div>
                 </div>
                 <div class="relative">
-                  <div class="bg-gradient-to-br from-primary-500 to-blue-600 rounded-2xl p-8 text-white">
-                    <div class="text-center">
+                  <div class="bg-gradient-to-br from-slate-600 via-slate-700 to-slate-800 rounded-2xl p-8 text-white relative overflow-hidden">
+                    <!-- Background Elements -->
+                    <div class="absolute inset-0">
+                      <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/10 to-transparent"></div>
+                      <div class="absolute top-10 right-10 w-20 h-20 bg-white/10 rounded-full animate-pulse"></div>
+                      <div class="absolute bottom-20 left-10 w-16 h-16 bg-white/10 rounded-full animate-pulse delay-1000"></div>
+                    </div>
+                    
+                    <div class="relative z-10 text-center">
                       <svg class="h-16 w-16 mx-auto mb-4 text-white/80" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                       </svg>
                       <h4 class="text-2xl font-bold mb-2">Ready to Get Started?</h4>
-                      <p class="text-primary-100 mb-6">Join thousands of businesses already using our platform</p>
-                      <router-link v-if="!isAuthenticated" to="/register" class="inline-flex items-center px-6 py-3 bg-white text-primary-600 font-semibold rounded-lg hover:bg-gray-50 transition-colors duration-300">
+                      <p class="text-white/80 mb-6">Join thousands of businesses already using our platform</p>
+                      <router-link v-if="!isAuthenticated" to="/register" class="inline-flex items-center px-6 py-3 bg-white text-gray-900 font-semibold rounded-xl hover:bg-gray-50 transition-all duration-300 hover:scale-105 shadow-lg">
                         Start Free Trial
                       </router-link>
-                      <router-link v-else to="/dashboard" class="inline-flex items-center px-6 py-3 bg-white text-primary-600 font-semibold rounded-lg hover:bg-gray-50 transition-colors duration-300">
+                      <router-link v-else to="/dashboard" class="inline-flex items-center px-6 py-3 bg-white text-gray-900 font-semibold rounded-xl hover:bg-gray-50 transition-all duration-300 hover:scale-105 shadow-lg">
                         Go to Dashboard
                       </router-link>
                     </div>
@@ -295,10 +302,10 @@
       </div>
 
       <!-- Testimonials Section -->
-      <div id="testimonials" class="py-12 bg-gray-50">
+      <div id="testimonials" class="py-12 bg-gradient-to-b from-gray-50 to-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="text-center">
-            <h2 class="text-base text-primary-600 font-semibold tracking-wide uppercase">Testimonials</h2>
+            <h2 class="text-base text-slate-600 font-semibold tracking-wide uppercase">Testimonials</h2>
             <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
               What our customers say
             </p>
@@ -417,7 +424,7 @@
       <div v-if="featureFlags.showPricing" id="pricing" class="py-12 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="text-center">
-            <h2 class="text-base text-primary-600 font-semibold tracking-wide uppercase">Pricing</h2>
+            <h2 class="text-base text-slate-600 font-semibold tracking-wide uppercase">Pricing</h2>
             <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
               Simple, transparent pricing
             </p>
@@ -562,31 +569,31 @@
               <div class="space-y-6">
                 <div class="flex items-center">
                   <div class="flex-shrink-0">
-                    <svg class="h-6 w-6 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg class="h-6 w-6 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                     </svg>
                   </div>
                   <div class="ml-4">
                     <p class="text-sm font-medium text-gray-900">Phone</p>
-                    <a :href="`tel:${branding.companyPhone}`" class="text-lg text-primary-600 hover:text-primary-700 font-medium">{{ branding.companyPhone }}</a>
+                    <a :href="`tel:${branding.companyPhone}`" class="text-lg text-slate-600 hover:text-primary-700 font-medium">{{ branding.companyPhone }}</a>
                   </div>
                 </div>
                 
                 <div class="flex items-center">
                   <div class="flex-shrink-0">
-                    <svg class="h-6 w-6 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg class="h-6 w-6 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                   </div>
                   <div class="ml-4">
                     <p class="text-sm font-medium text-gray-900">Email</p>
-                    <a :href="`mailto:${branding.supportEmail}`" class="text-lg text-primary-600 hover:text-primary-700 font-medium">{{ branding.supportEmail }}</a>
+                    <a :href="`mailto:${branding.supportEmail}`" class="text-lg text-slate-600 hover:text-primary-700 font-medium">{{ branding.supportEmail }}</a>
                   </div>
                 </div>
                 
                 <div class="flex items-center">
                   <div class="flex-shrink-0">
-                    <svg class="h-6 w-6 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg class="h-6 w-6 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
@@ -725,7 +732,7 @@
       </div>
 
       <!-- CTA Section -->
-      <div class="bg-gradient-to-r from-primary-600 via-primary-700 to-blue-600 py-12 relative overflow-hidden">
+      <div class="bg-gradient-to-r from-slate-600 via-slate-700 to-slate-800 py-12 relative overflow-hidden">
         <!-- Background Pattern -->
         <div class="absolute inset-0 bg-grid-pattern opacity-10"></div>
         <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/10 to-transparent"></div>
@@ -744,7 +751,7 @@
             <span class="block">Ready to transform</span>
             <span class="block text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-300">your business?</span>
           </h2>
-          <p class="mt-4 text-lg leading-7 text-primary-100 max-w-2xl mx-auto">
+          <p class="mt-4 text-lg leading-7 text-gray-200 max-w-2xl mx-auto">
             Start your free trial today and see how {{ branding.appName }} can revolutionize your customer service operations.
           </p>
           
@@ -752,7 +759,7 @@
             <router-link 
               v-if="!isAuthenticated" 
               to="/register" 
-              class="group w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-semibold rounded-lg text-primary-600 bg-white hover:bg-gray-50 transition-all duration-300 shadow-lg hover:shadow-xl"
+              class="group w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-semibold rounded-lg text-slate-600 bg-white hover:bg-gray-50 transition-all duration-300 shadow-lg hover:shadow-xl"
             >
               <svg class="h-5 w-5 mr-2 group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -765,7 +772,7 @@
             <router-link 
               v-else 
               to="/dashboard" 
-              class="group w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-semibold rounded-lg text-primary-600 bg-white hover:bg-gray-50 transition-all duration-300 shadow-lg hover:shadow-xl"
+              class="group w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-semibold rounded-lg text-slate-600 bg-white hover:bg-gray-50 transition-all duration-300 shadow-lg hover:shadow-xl"
             >
               <svg class="h-5 w-5 mr-2 group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -779,7 +786,7 @@
             <router-link 
               v-if="featureFlags.showDemoRequest" 
               to="/demo-request" 
-              class="group w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border-2 border-white text-base font-semibold rounded-lg text-white hover:bg-white hover:text-primary-600 transition-all duration-300"
+              class="group w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border-2 border-white text-base font-semibold rounded-lg text-white hover:bg-white hover:text-slate-600 transition-all duration-300"
             >
               <svg class="h-5 w-5 mr-2 group-hover:scale-110 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h8m-5-10V3a2 2 0 00-2-2H6a2 2 0 00-2 2v1m12 0V3a2 2 0 012-2h2a2 2 0 012 2v1m-4 0H8m0 0V3a2 2 0 012-2h2a2 2 0 012 2v1" />
