@@ -18,16 +18,18 @@
             </div>
           </div>
           <nav class="hidden md:flex space-x-8">
-            <a href="#features" class="text-gray-600 hover:text-slate-600 transition-colors duration-200 font-medium">Features</a>
-            <a v-if="featureFlags.showPricing" href="#pricing" class="text-gray-600 hover:text-slate-600 transition-colors duration-200 font-medium">Pricing</a>
-            <a href="#testimonials" class="text-gray-600 hover:text-slate-600 transition-colors duration-200 font-medium">Testimonials</a>
-            <a v-if="featureFlags.showContactForm" href="#contact" class="text-gray-600 hover:text-slate-600 transition-colors duration-200 font-medium">Contact</a>
-            <router-link v-if="!isAuthenticated" to="/login" class="text-gray-600 hover:text-slate-600 transition-colors duration-200 font-medium">Login</router-link>
-            <router-link v-else to="/dashboard" class="text-gray-600 hover:text-slate-600 transition-colors duration-200 font-medium">Dashboard</router-link>
+            <a href="#features" class="text-gray-600 hover:text-slate-600 transition-colors duration-200 font-medium">{{ t('nav.features') }}</a>
+            <a v-if="featureFlags.showPricing" href="#pricing" class="text-gray-600 hover:text-slate-600 transition-colors duration-200 font-medium">{{ t('nav.pricing') }}</a>
+            <a href="#testimonials" class="text-gray-600 hover:text-slate-600 transition-colors duration-200 font-medium">{{ t('nav.testimonials') }}</a>
+            <a v-if="featureFlags.showContactForm" href="#contact" class="text-gray-600 hover:text-slate-600 transition-colors duration-200 font-medium">{{ t('nav.contact') }}</a>
+            <router-link v-if="!isAuthenticated" to="/login" class="text-gray-600 hover:text-slate-600 transition-colors duration-200 font-medium">{{ t('nav.login') }}</router-link>
+            <router-link v-else to="/dashboard" class="text-gray-600 hover:text-slate-600 transition-colors duration-200 font-medium">{{ t('nav.dashboard') }}</router-link>
           </nav>
           <div class="hidden md:flex items-center space-x-4">
+            <!-- Language Switcher -->
+            <LanguageSwitcher />
             <router-link v-if="!isAuthenticated" to="/register" class="bg-primary-600 hover:bg-primary-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 shadow-lg hover:shadow-xl">
-              Get Started
+              {{ t('nav.getStarted') }}
             </router-link>
           </div>
           <div class="md:hidden">
@@ -44,13 +46,17 @@
     <!-- Mobile menu -->
     <div v-if="mobileMenuOpen" class="md:hidden">
       <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-b border-gray-200">
-        <a href="#features" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-slate-600 hover:bg-gray-50">Features</a>
-        <a v-if="featureFlags.showPricing" href="#pricing" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-slate-600 hover:bg-gray-50">Pricing</a>
-        <a href="#testimonials" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-slate-600 hover:bg-gray-50">Testimonials</a>
-        <a v-if="featureFlags.showContactForm" href="#contact" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-slate-600 hover:bg-gray-50">Contact</a>
-        <router-link v-if="!isAuthenticated" to="/login" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-slate-600 hover:bg-gray-50">Login</router-link>
-        <router-link v-else to="/dashboard" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-slate-600 hover:bg-gray-50">Dashboard</router-link>
-        <router-link v-if="!isAuthenticated" to="/register" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-white bg-primary-600 hover:bg-primary-700">Get Started</router-link>
+        <!-- Mobile Language Switcher -->
+        <div class="px-3 py-2">
+          <LanguageSwitcher />
+        </div>
+        <a href="#features" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-slate-600 hover:bg-gray-50">{{ t('nav.features') }}</a>
+        <a v-if="featureFlags.showPricing" href="#pricing" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-slate-600 hover:bg-gray-50">{{ t('nav.pricing') }}</a>
+        <a href="#testimonials" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-slate-600 hover:bg-gray-50">{{ t('nav.testimonials') }}</a>
+        <a v-if="featureFlags.showContactForm" href="#contact" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-slate-600 hover:bg-gray-50">{{ t('nav.contact') }}</a>
+        <router-link v-if="!isAuthenticated" to="/login" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-slate-600 hover:bg-gray-50">{{ t('nav.login') }}</router-link>
+        <router-link v-else to="/dashboard" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-slate-600 hover:bg-gray-50">{{ t('nav.dashboard') }}</router-link>
+        <router-link v-if="!isAuthenticated" to="/register" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-white bg-primary-600 hover:bg-primary-700">{{ t('nav.getStarted') }}</router-link>
       </div>
     </div>
 
@@ -80,17 +86,17 @@
                       <svg class="h-5 w-5 text-white mr-2" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                       </svg>
-                      <span class="text-sm font-medium text-white">Trusted by 10,000+ businesses worldwide</span>
+                      <span class="text-sm font-medium text-white">{{ t('hero.trustBadge') }}</span>
                     </div>
                   </div>
                 </div>
 
                 <h1 class="text-3xl tracking-tight font-extrabold text-white sm:text-4xl md:text-5xl lg:text-6xl"> 
-                  <span class="block xl:inline">{{ branding.slogan }}</span> 
-                  <span class="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 xl:inline">&nbsp;{{ branding.appName }} answers 24x7!</span> 
+                  <span class="block xl:inline">{{ t('hero.title') }}</span> 
+                  <span class="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 xl:inline">&nbsp;{{ branding.appName }} {{ t('hero.subtitle') }}</span> 
                 </h1>
                 <p class="mt-4 text-lg text-gray-300 sm:text-xl sm:max-w-2xl sm:mx-auto md:mt-6 md:text-xl lg:mx-0 leading-relaxed">
-                  {{ branding.description }}
+                  {{ t('hero.description') }}
                 </p>
                 
                 <!-- Key Benefits -->
@@ -101,7 +107,7 @@
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                       </svg>
                     </div>
-                    <span class="ml-4 text-lg font-medium text-white group-hover:text-gray-200 transition-colors duration-300">24/7 Availability</span>
+                    <span class="ml-4 text-lg font-medium text-white group-hover:text-gray-200 transition-colors duration-300">{{ t('hero.benefits.availability') }}</span>
                   </div>
                   <div class="flex items-center group">
                     <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -109,7 +115,7 @@
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                       </svg>
                     </div>
-                    <span class="ml-4 text-lg font-medium text-white group-hover:text-gray-200 transition-colors duration-300">Instant Setup</span>
+                    <span class="ml-4 text-lg font-medium text-white group-hover:text-gray-200 transition-colors duration-300">{{ t('hero.benefits.instantSetup') }}</span>
                   </div>
                   <div class="flex items-center group">
                     <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -117,7 +123,7 @@
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                       </svg>
                     </div>
-                    <span class="ml-4 text-lg font-medium text-white group-hover:text-gray-200 transition-colors duration-300">No Coding Required</span>
+                    <span class="ml-4 text-lg font-medium text-white group-hover:text-gray-200 transition-colors duration-300">{{ t('hero.benefits.noCoding') }}</span>
                   </div>
                 </div>
 
@@ -127,13 +133,13 @@
                       <svg class="h-5 w-5 mr-3 group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                       </svg>
-                      Start Free Trial
+                      {{ t('hero.startFreeTrial') }}
                     </router-link>
                     <router-link v-else to="/dashboard" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 border border-transparent text-lg font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105">
                       <svg class="h-5 w-5 mr-3 group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                       </svg>
-                      Go to Dashboard
+                      {{ t('hero.goToDashboard') }}
                     </router-link>
                   </div>
                   <div v-if="featureFlags.showDemoRequest" class="group">
@@ -141,7 +147,7 @@
                       <svg class="h-5 w-5 mr-3 group-hover:scale-110 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h8m-5-10V3a2 2 0 00-2-2H6a2 2 0 00-2 2v1m12 0V3a2 2 0 012-2h2a2 2 0 012 2v1m-4 0H8m0 0V3a2 2 0 012-2h2a2 2 0 012 2v1" />
                       </svg>
-                      Request Demo
+                      {{ t('hero.requestDemo') }}
                     </router-link>
                   </div>
                 </div>
@@ -163,19 +169,19 @@
           <div class="grid grid-cols-2 gap-8 md:grid-cols-4">
             <div class="text-center group">
               <div class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 sm:text-4xl group-hover:scale-110 transition-transform duration-300">10K+</div>
-              <div class="mt-2 text-sm font-medium text-gray-300 uppercase tracking-wide">Active Users</div>
+              <div class="mt-2 text-sm font-medium text-gray-300 uppercase tracking-wide">{{ t('stats.activeUsers') }}</div>
             </div>
             <div class="text-center group">
               <div class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 sm:text-4xl group-hover:scale-110 transition-transform duration-300">99.9%</div>
-              <div class="mt-2 text-sm font-medium text-gray-300 uppercase tracking-wide">Uptime</div>
+              <div class="mt-2 text-sm font-medium text-gray-300 uppercase tracking-wide">{{ t('stats.uptime') }}</div>
             </div>
             <div class="text-center group">
               <div class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-400 sm:text-4xl group-hover:scale-110 transition-transform duration-300">24/7</div>
-              <div class="mt-2 text-sm font-medium text-gray-300 uppercase tracking-wide">Support</div>
+              <div class="mt-2 text-sm font-medium text-gray-300 uppercase tracking-wide">{{ t('stats.support') }}</div>
             </div>
             <div class="text-center group">
               <div class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-400 sm:text-4xl group-hover:scale-110 transition-transform duration-300">50+</div>
-              <div class="mt-2 text-sm font-medium text-gray-300 uppercase tracking-wide">Countries</div>
+              <div class="mt-2 text-sm font-medium text-gray-300 uppercase tracking-wide">{{ t('stats.countries') }}</div>
             </div>
           </div>
         </div>
@@ -186,10 +192,10 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="text-center mb-16">
             <h2 class="text-4xl font-extrabold text-gray-900 sm:text-5xl">
-              Powerful AI Features
+              {{ t('features.title') }}
             </h2>
             <p class="mt-4 text-xl text-gray-600 max-w-3xl mx-auto">
-              Everything you need to create, manage, and scale your AI voice assistant
+              {{ t('features.subtitle') }}
             </p>
           </div>
 
@@ -228,7 +234,7 @@
               
               <div class="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <div>
-                  <h3 class="text-3xl font-bold text-white mb-6">Why Choose {{ branding.appName }}?</h3>
+                  <h3 class="text-3xl font-bold text-white mb-6">{{ t('features.whyChoose') }} {{ branding.appName }}?</h3>
                   <div class="space-y-6">
                     <div class="flex items-start group">
                       <div class="flex-shrink-0">
@@ -239,8 +245,8 @@
                         </div>
                       </div>
                       <div class="ml-4">
-                        <h4 class="text-lg font-semibold text-white group-hover:text-gray-200 transition-colors duration-300">Enterprise-Grade Security</h4>
-                        <p class="text-gray-300">Bank-level encryption and compliance with industry standards</p>
+                        <h4 class="text-lg font-semibold text-white group-hover:text-gray-200 transition-colors duration-300">{{ t('features.highlights.security.title') }}</h4>
+                        <p class="text-gray-300">{{ t('features.highlights.security.description') }}</p>
                       </div>
                     </div>
                     <div class="flex items-start group">
@@ -252,8 +258,8 @@
                         </div>
                       </div>
                       <div class="ml-4">
-                        <h4 class="text-lg font-semibold text-white group-hover:text-gray-200 transition-colors duration-300">Scalable Infrastructure</h4>
-                        <p class="text-gray-300">Handle thousands of concurrent calls with zero downtime</p>
+                        <h4 class="text-lg font-semibold text-white group-hover:text-gray-200 transition-colors duration-300">{{ t('features.highlights.scalable.title') }}</h4>
+                        <p class="text-gray-300">{{ t('features.highlights.scalable.description') }}</p>
                       </div>
                     </div>
                     <div class="flex items-start group">
@@ -265,8 +271,8 @@
                         </div>
                       </div>
                       <div class="ml-4">
-                        <h4 class="text-lg font-semibold text-white group-hover:text-gray-200 transition-colors duration-300">Advanced Analytics</h4>
-                        <p class="text-gray-300">Detailed insights and reporting to optimize your operations</p>
+                        <h4 class="text-lg font-semibold text-white group-hover:text-gray-200 transition-colors duration-300">{{ t('features.highlights.analytics.title') }}</h4>
+                        <p class="text-gray-300">{{ t('features.highlights.analytics.description') }}</p>
                       </div>
                     </div>
                   </div>
@@ -284,13 +290,13 @@
                       <svg class="h-16 w-16 mx-auto mb-4 text-white/80" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                       </svg>
-                      <h4 class="text-2xl font-bold mb-2">Ready to Get Started?</h4>
-                      <p class="text-white/80 mb-6">Join thousands of businesses already using our platform</p>
+                      <h4 class="text-2xl font-bold mb-2">{{ t('features.readyToStart') }}</h4>
+                      <p class="text-white/80 mb-6">{{ t('features.readyToStartSubtitle') }}</p>
                       <router-link v-if="!isAuthenticated" to="/register" class="inline-flex items-center px-6 py-3 bg-white text-gray-900 font-semibold rounded-xl hover:bg-gray-50 transition-all duration-300 hover:scale-105 shadow-lg">
-                        Start Free Trial
+                        {{ t('hero.startFreeTrial') }}
                       </router-link>
                       <router-link v-else to="/dashboard" class="inline-flex items-center px-6 py-3 bg-white text-gray-900 font-semibold rounded-xl hover:bg-gray-50 transition-all duration-300 hover:scale-105 shadow-lg">
-                        Go to Dashboard
+                        {{ t('hero.goToDashboard') }}
                       </router-link>
                     </div>
                   </div>
@@ -305,12 +311,12 @@
       <div id="testimonials" class="py-12 bg-gradient-to-b from-gray-50 to-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="text-center">
-            <h2 class="text-base text-slate-600 font-semibold tracking-wide uppercase">Testimonials</h2>
+            <h2 class="text-base text-slate-600 font-semibold tracking-wide uppercase">{{ t('testimonials.title') }}</h2>
             <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-              What our customers say
+              {{ t('testimonials.subtitle') }}
             </p>
             <p class="mt-4 max-w-2xl text-xl text-gray-600 mx-auto">
-              Don't just take our word for it. Here's what businesses like yours are saying about {{ branding.appName }}.
+              {{ t('testimonials.description') }} {{ branding.appName }}.
             </p>
           </div>
 
@@ -336,15 +342,15 @@
                 </div>
               </div>
               <blockquote class="text-gray-600 mb-6">
-                "{{ branding.appName }} has revolutionized our customer service. We've seen a 40% increase in customer satisfaction and our team can focus on more complex issues."
+                "{{ branding.appName }} {{ t('testimonials.testimonials.0.text') }}"
               </blockquote>
               <div class="flex items-center">
                 <div class="h-12 w-12 bg-gradient-to-r from-primary-500 to-blue-500 rounded-full flex items-center justify-center">
                   <span class="text-white font-semibold text-lg">SM</span>
                 </div>
                 <div class="ml-4">
-                  <div class="font-semibold text-gray-900">Sarah Mitchell</div>
-                  <div class="text-sm text-gray-500">CEO, TechStart Inc.</div>
+                  <div class="font-semibold text-gray-900">{{ t('testimonials.testimonials.0.author') }}</div>
+                  <div class="text-sm text-gray-500">{{ t('testimonials.testimonials.0.position') }}</div>
                 </div>
               </div>
             </div>
@@ -370,15 +376,15 @@
                 </div>
               </div>
               <blockquote class="text-gray-600 mb-6">
-                "The setup was incredibly easy. Within 30 minutes, we had our AI assistant handling customer inquiries. The analytics dashboard gives us insights we never had before."
+                "{{ t('testimonials.testimonials.1.text') }}"
               </blockquote>
               <div class="flex items-center">
                 <div class="h-12 w-12 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center">
                   <span class="text-white font-semibold text-lg">MJ</span>
                 </div>
                 <div class="ml-4">
-                  <div class="font-semibold text-gray-900">Michael Johnson</div>
-                  <div class="text-sm text-gray-500">Operations Manager, RetailPlus</div>
+                  <div class="font-semibold text-gray-900">{{ t('testimonials.testimonials.1.author') }}</div>
+                  <div class="text-sm text-gray-500">{{ t('testimonials.testimonials.1.position') }}</div>
                 </div>
               </div>
             </div>
@@ -404,15 +410,15 @@
                 </div>
               </div>
               <blockquote class="text-gray-600 mb-6">
-                "Our customer support costs have decreased by 60% while improving response times. The ROI was evident within the first month of implementation."
+                "{{ t('testimonials.testimonials.2.text') }}"
               </blockquote>
               <div class="flex items-center">
                 <div class="h-12 w-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full flex items-center justify-center">
                   <span class="text-white font-semibold text-lg">AL</span>
                 </div>
                 <div class="ml-4">
-                  <div class="font-semibold text-gray-900">Anna Lee</div>
-                  <div class="text-sm text-gray-500">CTO, FinanceFlow</div>
+                  <div class="font-semibold text-gray-900">{{ t('testimonials.testimonials.2.author') }}</div>
+                  <div class="text-sm text-gray-500">{{ t('testimonials.testimonials.2.position') }}</div>
                 </div>
               </div>
             </div>
@@ -828,12 +834,15 @@ import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import { updateDocumentTitle } from '../../utils/systemSettings.js'
 import { useResellerData } from '../../composables/useResellerData.js'
+import { useLanguage } from '../../composables/useLanguage.js'
 import Footer from '../shared/Footer.vue'
+import LanguageSwitcher from '../shared/LanguageSwitcher.vue'
 
 export default {
   name: 'LandingPage',
   components: {
-    Footer
+    Footer,
+    LanguageSwitcher
   },
   setup() {
     const packages = ref([])
@@ -854,6 +863,9 @@ export default {
 
     // Get reseller data - available immediately
     const { branding, features: featureFlags, isLoaded } = useResellerData()
+
+    // Get language support
+    const { t } = useLanguage()
 
     // Check if user is authenticated
     const isAuthenticated = computed(() => {
@@ -966,7 +978,8 @@ export default {
       handleLogoError,
       handleLogoLoad,
       handleBannerError,
-      handleBannerLoad
+      handleBannerLoad,
+      t
     }
   }
 }
