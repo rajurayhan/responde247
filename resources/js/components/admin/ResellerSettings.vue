@@ -106,6 +106,17 @@
                   />
                   <p class="mt-1 text-sm text-gray-500">Email address for customer support</p>
                 </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Business Hours</label>
+                  <input
+                    v-model="settings.business_hours"
+                    type="text"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="e.g., Monday - Friday: 9:00 AM - 6:00 PM EST"
+                  />
+                  <p class="mt-1 text-sm text-gray-500">Business hours displayed on contact page</p>
+                </div>
               </div>
 
               <!-- SEO Settings -->
@@ -403,6 +414,7 @@ export default {
       company_phone: '',
       company_address: '',
       support_email: '',
+      business_hours: '',
       primary_color: '#3B82F6',
       secondary_color: '#1E40AF',
       // Mail configuration fields
@@ -633,6 +645,7 @@ export default {
         'company_phone': 'contact',
         'company_address': 'contact',
         'support_email': 'contact',
+        'business_hours': 'contact',
         'meta_description': 'seo',
         'logo_url': 'branding',
         'homepage_banner': 'branding',
@@ -660,6 +673,7 @@ export default {
         'company_phone': 'Company Phone',
         'company_address': 'Company Address',
         'support_email': 'Support Email',
+        'business_hours': 'Business Hours',
         'meta_description': 'Meta Description',
         'logo_url': 'Logo URL',
         'homepage_banner': 'Homepage Banner',
@@ -687,6 +701,7 @@ export default {
         'company_phone': 'Primary contact phone number for your company',
         'company_address': 'Physical address of your company',
         'support_email': 'Email address for customer support',
+        'business_hours': 'Business hours displayed on contact page',
         'meta_description': 'Description for search engines (SEO)',
         'logo_url': 'Company logo URL',
         'homepage_banner': 'Homepage banner image URL',

@@ -24,6 +24,7 @@ export function useResellerData() {
     const secondaryColor = computed(() => resellerState.value.secondary_color || '#10B981');
     const websiteUrl = computed(() => resellerState.value.website_url || window.location.origin);
     const supportEmail = computed(() => resellerState.value.support_email || companyEmail.value);
+    const businessHours = computed(() => resellerState.value.business_hours || 'Monday - Friday: 9:00 AM - 6:00 PM EST');
     const footerText = computed(() => resellerState.value.footer_text || `© ${new Date().getFullYear()} ${companyName.value}. All rights reserved.`);
 
     // Feature flags
@@ -64,6 +65,7 @@ export function useResellerData() {
         companyPhone: companyPhone.value,
         websiteUrl: websiteUrl.value,
         supportEmail: supportEmail.value,
+        businessHours: businessHours.value,
         footerText: footerText.value
     }));
 
@@ -111,6 +113,7 @@ export function useResellerData() {
         secondaryColor,
         websiteUrl,
         supportEmail,
+        businessHours,
         footerText,
 
         // Grouped properties

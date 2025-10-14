@@ -299,7 +299,7 @@
                       placeholder="Describe your services or products"
                     ></textarea>
                     <p class="text-xs text-gray-500 mt-1">
-                      Tell us about your business and how you think {{ settings.company_name || 'sulus.ai' }} could help
+                      Tell us about your business and how you think {{ branding.appName || 'sulus.ai' }} could help
                     </p>
                   </div>
                 </div>
@@ -366,7 +366,7 @@
               </div>
               <div class="ml-4">
                 <h4 class="text-sm font-medium text-gray-900">Live Demo</h4>
-                <p class="text-sm text-gray-600 mt-1">See our {{ settings.company_name || 'sulus.ai' }} platform in action with real examples</p>
+                <p class="text-sm text-gray-600 mt-1">See our {{ branding.appName || 'sulus.ai' }} platform in action with real examples</p>
               </div>
             </div>
             <div class="flex items-start">
@@ -412,6 +412,7 @@ export default {
     const checking = ref(true)
     const hasRequestedDemo = ref(false)
     const existingRequest = ref(null)
+    const settings = ref({})
     // Get reseller data - available immediately
     const { branding, isLoaded } = useResellerData()
     
@@ -546,6 +547,7 @@ export default {
       submitDemoRequest,
       formatDate,
       branding,
+      settings,
       isLoaded
     }
   }

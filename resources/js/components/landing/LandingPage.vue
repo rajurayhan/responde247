@@ -61,8 +61,8 @@
         <div class="absolute inset-0 bg-grid-pattern opacity-5"></div>
         
         <div class="max-w-7xl mx-auto">
-          <div class="relative z-10 pb-8 sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
-            <main class="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
+          <div class="relative z-10 pb-6 sm:pb-8 md:pb-10 lg:max-w-2xl lg:w-full lg:pb-12 xl:pb-16">
+            <main class="mt-6 mx-auto max-w-7xl px-4 sm:mt-8 sm:px-6 md:mt-10 lg:mt-12 lg:px-8 xl:mt-16">
               <div class="sm:text-center lg:text-left">
                 <!-- Trust Badge -->
                 <div class="mb-8">
@@ -74,11 +74,11 @@
                   </div>
                 </div>
 
-                <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl lg:text-7xl"> 
+                <h1 class="text-3xl tracking-tight font-extrabold text-gray-900 sm:text-4xl md:text-5xl lg:text-6xl"> 
                   <span class="block xl:inline">{{ branding.slogan }}</span>
                   <span class="block text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-blue-600 xl:inline"> {{ branding.appName }} answers 24x7!</span> 
                 </h1>
-                <p class="mt-6 text-lg text-gray-600 sm:text-xl sm:max-w-2xl sm:mx-auto md:mt-8 md:text-2xl lg:mx-0 leading-relaxed">
+                <p class="mt-4 text-lg text-gray-600 sm:text-xl sm:max-w-2xl sm:mx-auto md:mt-6 md:text-xl lg:mx-0 leading-relaxed">
                   {{ branding.description }}
                 </p>
                 
@@ -104,49 +104,36 @@
                   </div>
                 </div>
 
-                <div class="mt-10 sm:mt-12 sm:flex sm:justify-center lg:justify-start space-y-4 sm:space-y-0 sm:space-x-4">
-                  <div class="rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
-                    <router-link v-if="!isAuthenticated" to="/register" class="w-full flex items-center justify-center px-8 py-4 border border-transparent text-lg font-semibold rounded-lg text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 transition-all duration-300 transform hover:scale-105">
-                      <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div class="mt-8 sm:mt-10 sm:flex sm:justify-center lg:justify-start space-y-3 sm:space-y-0 sm:space-x-3">
+                  <div class="rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                    <router-link v-if="!isAuthenticated" to="/register" class="w-full flex items-center justify-center px-6 py-3 border border-transparent text-base font-semibold rounded-lg text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 transition-all duration-300">
+                      <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                       </svg>
                       Start Free Trial
                     </router-link>
-                    <router-link v-else to="/dashboard" class="w-full flex items-center justify-center px-8 py-4 border border-transparent text-lg font-semibold rounded-lg text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 transition-all duration-300 transform hover:scale-105">
-                      <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <router-link v-else to="/dashboard" class="w-full flex items-center justify-center px-6 py-3 border border-transparent text-base font-semibold rounded-lg text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 transition-all duration-300">
+                      <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                       </svg>
                       Go to Dashboard
                     </router-link>
                   </div>
                   <div v-if="featureFlags.showDemoRequest" class="rounded-lg border-2 border-primary-200 hover:border-primary-300 transition-colors duration-300">
-                    <router-link to="/demo-request" class="w-full flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-lg text-primary-700 bg-white hover:bg-primary-50 transition-all duration-300">
-                      <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <router-link to="/demo-request" class="w-full flex items-center justify-center px-6 py-3 text-base font-semibold rounded-lg text-primary-700 bg-white hover:bg-primary-50 transition-all duration-300">
+                      <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h8m-5-10V3a2 2 0 00-2-2H6a2 2 0 00-2 2v1m12 0V3a2 2 0 012-2h2a2 2 0 012 2v1m-4 0H8m0 0V3a2 2 0 012-2h2a2 2 0 012 2v1" />
                       </svg>
-                      Watch Demo
+                      Request Demo
                     </router-link>
                   </div>
                 </div>
 
                 <!-- Social Proof -->
-                <div class="mt-12">
+                <!-- <div class="mt-12">
                   <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Trusted by leading companies</p>
-                  <div class="mt-4 flex items-center space-x-8 opacity-60">
-                    <div class="h-8 w-24 bg-gray-200 rounded flex items-center justify-center">
-                      <span class="text-xs font-semibold text-gray-600">Company 1</span>
-                    </div>
-                    <div class="h-8 w-24 bg-gray-200 rounded flex items-center justify-center">
-                      <span class="text-xs font-semibold text-gray-600">Company 2</span>
-                    </div>
-                    <div class="h-8 w-24 bg-gray-200 rounded flex items-center justify-center">
-                      <span class="text-xs font-semibold text-gray-600">Company 3</span>
-                    </div>
-                    <div class="h-8 w-24 bg-gray-200 rounded flex items-center justify-center">
-                      <span class="text-xs font-semibold text-gray-600">Company 4</span>
-                    </div>
-                  </div>
-                </div>
+                  
+                </div> -->
               </div>
             </main>
           </div>
@@ -170,31 +157,31 @@
       </div>
 
       <!-- Statistics Section -->
-      <div class="bg-gradient-to-r from-primary-600 to-blue-600 py-16">
+      <div class="bg-gradient-to-r from-primary-600 to-blue-600 py-8 mt-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="grid grid-cols-2 gap-8 md:grid-cols-4">
+          <div class="grid grid-cols-2 gap-6 md:grid-cols-4">
             <div class="text-center">
-              <div class="text-4xl font-bold text-white sm:text-5xl">10K+</div>
-              <div class="mt-2 text-lg text-primary-100">Active Users</div>
+              <div class="text-3xl font-bold text-white sm:text-4xl">10K+</div>
+              <div class="mt-1 text-sm text-primary-100">Active Users</div>
             </div>
             <div class="text-center">
-              <div class="text-4xl font-bold text-white sm:text-5xl">99.9%</div>
-              <div class="mt-2 text-lg text-primary-100">Uptime</div>
+              <div class="text-3xl font-bold text-white sm:text-4xl">99.9%</div>
+              <div class="mt-1 text-sm text-primary-100">Uptime</div>
             </div>
             <div class="text-center">
-              <div class="text-4xl font-bold text-white sm:text-5xl">24/7</div>
-              <div class="mt-2 text-lg text-primary-100">Support</div>
+              <div class="text-3xl font-bold text-white sm:text-4xl">24/7</div>
+              <div class="mt-1 text-sm text-primary-100">Support</div>
             </div>
             <div class="text-center">
-              <div class="text-4xl font-bold text-white sm:text-5xl">50+</div>
-              <div class="mt-2 text-lg text-primary-100">Countries</div>
+              <div class="text-3xl font-bold text-white sm:text-4xl">50+</div>
+              <div class="mt-1 text-sm text-primary-100">Countries</div>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Features Section -->
-      <div id="features" class="py-20 bg-white">
+      <div id="features" class="py-12 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="text-center">
             <h2 class="text-base text-primary-600 font-semibold tracking-wide uppercase">Features</h2>
@@ -206,23 +193,23 @@
             </p>
           </div>
 
-          <div class="mt-16">
-            <div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+          <div class="mt-12">
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               <div
                 v-for="feature in features"
                 :key="feature.id"
-                class="relative group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-primary-200"
+                class="relative group bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 hover:border-primary-200"
               >
-                <div class="absolute -top-4 left-8">
-                  <div class="flex items-center justify-center h-12 w-12 rounded-xl bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div class="absolute -top-3 left-6">
+                  <div class="flex items-center justify-center h-10 w-10 rounded-lg bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-md group-hover:scale-105 transition-transform duration-300">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="feature.icon" />
                     </svg>
                   </div>
                 </div>
-                <div class="pt-4">
-                  <h3 class="text-xl font-bold text-gray-900 mb-3">{{ feature.title }}</h3>
-                  <p class="text-gray-600 leading-relaxed">
+                <div class="pt-3">
+                  <h3 class="text-lg font-bold text-gray-900 mb-2">{{ feature.title }}</h3>
+                  <p class="text-gray-600 leading-relaxed text-sm">
                     {{ feature.description }}
                   </p>
                 </div>
@@ -237,7 +224,7 @@
           </div>
 
           <!-- Additional Feature Highlights -->
-          <div class="mt-20">
+          <div class="mt-12">
             <div class="bg-gradient-to-r from-gray-50 to-primary-50 rounded-3xl p-8 md:p-12">
               <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <div>
@@ -308,7 +295,7 @@
       </div>
 
       <!-- Testimonials Section -->
-      <div id="testimonials" class="py-20 bg-gray-50">
+      <div id="testimonials" class="py-12 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="text-center">
             <h2 class="text-base text-primary-600 font-semibold tracking-wide uppercase">Testimonials</h2>
@@ -320,8 +307,8 @@
             </p>
           </div>
 
-          <div class="mt-16 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-            <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <div class="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div class="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow duration-300">
               <div class="flex items-center mb-4">
                 <div class="flex text-yellow-400">
                   <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -427,7 +414,7 @@
       </div>
 
       <!-- Pricing Section -->
-      <div v-if="featureFlags.showPricing" id="pricing" class="py-20 bg-white">
+      <div v-if="featureFlags.showPricing" id="pricing" class="py-12 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="text-center">
             <h2 class="text-base text-primary-600 font-semibold tracking-wide uppercase">Pricing</h2>
@@ -440,7 +427,7 @@
           </div>
 
           <!-- Billing Interval Toggle -->
-          <div class="mt-12 flex justify-center">
+          <div class="mt-10 flex justify-center">
             <div class="bg-gray-100 rounded-xl p-1 inline-flex shadow-sm">
               <button
                 @click="billingInterval = 'monthly'"
@@ -468,41 +455,41 @@
             </div>
           </div>
 
-          <div class="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          <div class="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             <!-- Dynamic Package Cards -->
             <div
               v-for="(pkg, index) in packages"
               :key="pkg.id"
               :class="[
-                'relative bg-white rounded-2xl shadow-lg border-2 p-8 transition-all duration-300 hover:shadow-2xl hover:scale-105',
-                pkg.is_popular ? 'border-primary-500 ring-2 ring-primary-200' : 'border-gray-200 hover:border-primary-300'
+                'relative bg-white rounded-xl shadow-md border-2 p-6 transition-all duration-300 hover:shadow-lg',
+                pkg.is_popular ? 'border-primary-500 ring-1 ring-primary-200' : 'border-gray-200 hover:border-primary-300'
               ]"
             >
-              <div v-if="pkg.is_popular" class="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                <span class="bg-gradient-to-r from-primary-600 to-primary-700 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
+              <div v-if="pkg.is_popular" class="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                <span class="bg-gradient-to-r from-primary-600 to-primary-700 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-md">
                   Most Popular
                 </span>
               </div>
               
               <div class="text-center">
-                <h3 class="text-2xl font-bold text-gray-900 mb-2">{{ pkg.name }}</h3>
-                <div class="mt-6 mb-4">
-                  <span class="text-5xl font-extrabold text-gray-900">
+                <h3 class="text-xl font-bold text-gray-900 mb-2">{{ pkg.name }}</h3>
+                <div class="mt-4 mb-3">
+                  <span class="text-4xl font-extrabold text-gray-900">
                     ${{ billingInterval === 'monthly' ? pkg.price : pkg.yearly_price }}
                   </span>
-                  <span class="text-lg text-gray-500 ml-1">
+                  <span class="text-base text-gray-500 ml-1">
                     /{{ billingInterval === 'monthly' ? 'month' : 'year' }}
                   </span>
                 </div>
-                <p class="text-gray-600 mb-8">{{ pkg.description }}</p>
+                <p class="text-gray-600 mb-6 text-sm">{{ pkg.description }}</p>
               </div>
               
-              <ul class="space-y-4 mb-8">
+              <ul class="space-y-3 mb-6">
                 <li v-for="feature in pkg.features" :key="feature" class="flex items-start">
-                  <svg class="h-5 w-5 text-green-500 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <svg class="h-4 w-4 text-green-500 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                   </svg>
-                  <span class="text-gray-700">{{ feature }}</span>
+                  <span class="text-gray-700 text-sm">{{ feature }}</span>
                 </li>
               </ul>
               
@@ -526,7 +513,7 @@
           </div>
 
           <!-- Pricing FAQ -->
-          <div class="mt-20">
+          <div class="mt-12">
             <div class="bg-gradient-to-r from-gray-50 to-primary-50 rounded-3xl p-8 md:p-12">
               <div class="text-center mb-12">
                 <h3 class="text-3xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h3>
@@ -557,7 +544,7 @@
       </div>
 
       <!-- Contact Us Section -->
-      <div v-if="featureFlags.showContactForm" id="contact" class="py-16 bg-white">
+      <div v-if="featureFlags.showContactForm" id="contact" class="py-12 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="text-center">
             <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">
@@ -605,7 +592,7 @@
                   </div>
                   <div class="ml-4">
                     <p class="text-sm font-medium text-gray-900">Business Hours</p>
-                    <p class="text-lg text-gray-700">Monday - Friday: 9:00 AM - 6:00 PM EST</p>
+                    <p class="text-lg text-gray-700">{{ branding.businessHours }}</p>
                   </div>
                 </div>
               </div>
@@ -738,14 +725,14 @@
       </div>
 
       <!-- CTA Section -->
-      <div class="bg-gradient-to-r from-primary-600 via-primary-700 to-blue-600 py-20 relative overflow-hidden">
+      <div class="bg-gradient-to-r from-primary-600 via-primary-700 to-blue-600 py-12 relative overflow-hidden">
         <!-- Background Pattern -->
         <div class="absolute inset-0 bg-grid-pattern opacity-10"></div>
         <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/10 to-transparent"></div>
         
-        <div class="relative z-10 max-w-4xl mx-auto text-center py-16 px-4 sm:px-6 lg:px-8">
-          <div class="mb-8">
-            <div class="inline-flex items-center px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 mb-6">
+        <div class="relative z-10 max-w-4xl mx-auto text-center py-8 px-4 sm:px-6 lg:px-8">
+          <div class="mb-6">
+            <div class="inline-flex items-center px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 mb-4">
               <svg class="h-5 w-5 text-white mr-2" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
               </svg>
@@ -753,38 +740,38 @@
             </div>
           </div>
           
-          <h2 class="text-4xl font-extrabold text-white sm:text-5xl lg:text-6xl mb-6">
+          <h2 class="text-3xl font-extrabold text-white sm:text-4xl lg:text-5xl mb-4">
             <span class="block">Ready to transform</span>
             <span class="block text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-300">your business?</span>
           </h2>
-          <p class="mt-6 text-xl leading-8 text-primary-100 max-w-2xl mx-auto">
+          <p class="mt-4 text-lg leading-7 text-primary-100 max-w-2xl mx-auto">
             Start your free trial today and see how {{ branding.appName }} can revolutionize your customer service operations.
           </p>
           
-          <div class="mt-12 flex flex-col sm:flex-row gap-6 justify-center items-center">
+          <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center items-center">
             <router-link 
               v-if="!isAuthenticated" 
               to="/register" 
-              class="group w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 border border-transparent text-lg font-semibold rounded-xl text-primary-600 bg-white hover:bg-gray-50 transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl"
+              class="group w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-semibold rounded-lg text-primary-600 bg-white hover:bg-gray-50 transition-all duration-300 shadow-lg hover:shadow-xl"
             >
-              <svg class="h-6 w-6 mr-3 group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg class="h-5 w-5 mr-2 group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
               Start Free Trial
-              <svg class="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg class="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
               </svg>
             </router-link>
             <router-link 
               v-else 
               to="/dashboard" 
-              class="group w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 border border-transparent text-lg font-semibold rounded-xl text-primary-600 bg-white hover:bg-gray-50 transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl"
+              class="group w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-semibold rounded-lg text-primary-600 bg-white hover:bg-gray-50 transition-all duration-300 shadow-lg hover:shadow-xl"
             >
-              <svg class="h-6 w-6 mr-3 group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg class="h-5 w-5 mr-2 group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
               Go to Dashboard
-              <svg class="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg class="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
               </svg>
             </router-link>
@@ -792,12 +779,12 @@
             <router-link 
               v-if="featureFlags.showDemoRequest" 
               to="/demo-request" 
-              class="group w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 border-2 border-white text-lg font-semibold rounded-xl text-white hover:bg-white hover:text-primary-600 transition-all duration-300 transform hover:scale-105"
+              class="group w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border-2 border-white text-base font-semibold rounded-lg text-white hover:bg-white hover:text-primary-600 transition-all duration-300"
             >
-              <svg class="h-6 w-6 mr-3 group-hover:scale-110 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg class="h-5 w-5 mr-2 group-hover:scale-110 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h8m-5-10V3a2 2 0 00-2-2H6a2 2 0 00-2 2v1m12 0V3a2 2 0 012-2h2a2 2 0 012 2v1m-4 0H8m0 0V3a2 2 0 012-2h2a2 2 0 012 2v1" />
               </svg>
-              Watch Demo
+              Request Demo
             </router-link>
           </div>
           

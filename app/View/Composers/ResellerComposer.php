@@ -28,6 +28,7 @@ class ResellerComposer
             'company_email' => 'support@example.com',
             'company_phone' => '+1 (555) 123-4567',
             'company_address' => '',
+            'business_hours' => 'Monday - Friday: 9:00 AM - 6:00 PM EST',
             'domain' => request()->getHost(),
             'reseller_id' => null,
             'webhook_url' => route('core.webhook'),
@@ -49,6 +50,7 @@ class ResellerComposer
                     'secondary_color' => ResellerSetting::getValue($reseller->id, 'secondary_color', $resellerData['secondary_color']),
                     'company_phone' => ResellerSetting::getValue($reseller->id, 'company_phone', $resellerData['company_phone']),
                     'company_address' => ResellerSetting::getValue($reseller->id, 'company_address', $resellerData['company_address']),
+                    'business_hours' => ResellerSetting::getValue($reseller->id, 'business_hours', 'Monday - Friday: 9:00 AM - 6:00 PM EST'),
                     'logo_url' => $resellerData['logo_url'],
                     
                     // Additional branding settings
