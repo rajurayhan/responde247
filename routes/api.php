@@ -20,7 +20,7 @@ use App\Http\Controllers\SaasPublicController;
 
 // Public routes
 Route::get('/features', [App\Http\Controllers\FeatureController::class, 'index'])->middleware('reseller');
-Route::get('/subscriptions/packages', [SubscriptionController::class, 'getPackages']);
+Route::get('/subscriptions/packages', [SubscriptionController::class, 'getPackages'])->middleware('reseller');
 Route::get('/stripe/config', [App\Http\Controllers\StripeController::class, 'getConfig'])->middleware('reseller');
 
 // SaaS public logo route
@@ -140,7 +140,6 @@ Route::middleware(['auth:sanctum', 'admin', 'reseller'])->group(function () {
 
 // Subscription routes (protected)
 Route::middleware(['auth:sanctum', 'reseller'])->group(function () {
-    Route::get('/subscriptions/packages', [SubscriptionController::class, 'getPackages']);
     Route::get('/subscriptions/current', [SubscriptionController::class, 'getCurrentSubscription']);
     Route::get('/subscriptions/usage', [SubscriptionController::class, 'getUsage']); 
     Route::post('/subscriptions/subscribe', [SubscriptionController::class, 'subscribe']);

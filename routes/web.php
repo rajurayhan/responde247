@@ -13,6 +13,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// Home route - no middleware to allow public access
+Route::get('/', function () {
+    return view('app');
+})->name('home');
+
 // Authentication routes - with reseller middleware for domain detection
 Route::get('/login', function () {
     return view('app');

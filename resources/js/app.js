@@ -80,8 +80,7 @@ const router = createRouter({
         {
             path: '/',
             name: 'landing',
-            component: Login,
-            meta: { requiresGuest: true }
+            component: LandingPage
         },
         {
             path: '/login',
@@ -384,15 +383,8 @@ router.beforeEach((to, from, next) => {
         const hostname = window.location.hostname;
         const allowedHosts = ['localhost', 'app.sulus.ai'];
         
-        console.log('Reseller registration access check:', {
-            hostname,
-            allowedHosts,
-            isAllowed: allowedHosts.includes(hostname)
-        });
-        
         if (!allowedHosts.includes(hostname)) {
             // Redirect to 404 page for unauthorized hosts
-            console.log('Access denied for hostname:', hostname);
             next('/not-found');
             return;
         }

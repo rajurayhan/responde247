@@ -20,8 +20,11 @@ class SubscriptionController extends Controller
      */
     public function getPackages(): JsonResponse
     {
+        // Get current reseller from middleware
+        $currentReseller = app('currentReseller');
+        
         $packages = SubscriptionPackage::active()
-            ->contentProtection()
+            ->where('reseller_id', $currentReseller->id)
             ->orderBy('price')
             ->get();
 
