@@ -11,7 +11,7 @@ const languages = {
 }
 
 // Current language state
-const currentLanguage = ref('en')
+const currentLanguage = ref('es')
 
 // Initialize language from localStorage or browser preference
 const initializeLanguage = () => {
@@ -45,9 +45,7 @@ const t = (key, fallback = '') => {
 
 // Set language
 const setLanguage = (langCode) => {
-  console.log('setLanguage called with:', langCode)
   if (languages[langCode]) {
-    console.log('Language found, setting to:', langCode)
     currentLanguage.value = langCode
     localStorage.setItem('preferred-language', langCode)
     
@@ -58,9 +56,6 @@ const setLanguage = (langCode) => {
     window.dispatchEvent(new CustomEvent('language-changed', { 
       detail: { language: langCode } 
     }))
-    console.log('Language set successfully')
-  } else {
-    console.log('Language not found:', langCode)
   }
 }
 

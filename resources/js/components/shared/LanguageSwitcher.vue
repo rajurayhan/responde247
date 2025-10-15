@@ -71,18 +71,15 @@ export default {
     const { currentLanguage, currentLanguageInfo, availableLanguages, setLanguage } = useLanguage()
 
     const selectLanguage = (langCode) => {
-      console.log('Selecting language:', langCode)
       setLanguage(langCode)
       isOpen.value = false
     }
 
     const toggleDropdown = () => {
-      console.log('Toggling dropdown, current state:', isOpen.value)
       isOpen.value = !isOpen.value
     }
 
     const closeDropdown = () => {
-      console.log('Closing dropdown')
       isOpen.value = false
     }
 

@@ -430,12 +430,12 @@
       <div v-if="featureFlags.showPricing" id="pricing" class="py-12 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="text-center">
-            <h2 class="text-base text-slate-600 font-semibold tracking-wide uppercase">Pricing</h2>
+            <h2 class="text-base text-slate-600 font-semibold tracking-wide uppercase">{{ t('pricing.title') }}</h2>
             <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-              Simple, transparent pricing
+              {{ t('pricing.subtitle') }}
             </p>
             <p class="mt-4 max-w-2xl text-xl text-gray-600 mx-auto">
-              Choose the plan that's right for your business. Start free and scale as you grow.
+              {{ t('pricing.description') }}
             </p>
           </div>
 
@@ -451,7 +451,7 @@
                     : 'text-gray-600 hover:text-gray-800'
                 ]"
               >
-                Monthly
+                {{ t('pricing.monthly') }}
               </button>
               <button
                 @click="billingInterval = 'yearly'"
@@ -462,8 +462,8 @@
                     : 'text-gray-600 hover:text-gray-800'
                 ]"
               >
-                Yearly
-                <span class="absolute -top-2 -right-2 text-xs bg-green-500 text-white px-2 py-1 rounded-full font-medium">Save 20%</span>
+                {{ t('pricing.yearly') }}
+                <span class="absolute -top-2 -right-2 text-xs bg-green-500 text-white px-2 py-1 rounded-full font-medium">{{ t('pricing.save20') }}</span>
               </button>
             </div>
           </div>
@@ -480,7 +480,7 @@
             >
               <div v-if="pkg.is_popular" class="absolute -top-3 left-1/2 transform -translate-x-1/2">
                 <span class="bg-gradient-to-r from-primary-600 to-primary-700 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-md">
-                  Most Popular
+                  {{ t('pricing.mostPopular') }}
                 </span>
               </div>
               
@@ -491,7 +491,7 @@
                     ${{ billingInterval === 'monthly' ? pkg.price : pkg.yearly_price }}
                   </span>
                   <span class="text-base text-gray-500 ml-1">
-                    /{{ billingInterval === 'monthly' ? 'month' : 'year' }}
+                    /{{ billingInterval === 'monthly' ? t('pricing.monthly').toLowerCase() : t('pricing.yearly').toLowerCase() }}
                   </span>
                 </div>
                 <p class="text-gray-600 mb-6 text-sm">{{ pkg.description }}</p>
@@ -519,7 +519,7 @@
                   <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
-                  Get Started
+                  {{ t('pricing.getStarted') }}
                 </router-link>
               </div>
             </div>
@@ -529,26 +529,26 @@
           <div class="mt-12">
             <div class="bg-gradient-to-r from-gray-50 to-primary-50 rounded-3xl p-8 md:p-12">
               <div class="text-center mb-12">
-                <h3 class="text-3xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h3>
-                <p class="text-xl text-gray-600">Everything you need to know about our pricing</p>
+                <h3 class="text-3xl font-bold text-gray-900 mb-4">{{ t('pricing.faq.title') }}</h3>
+                <p class="text-xl text-gray-600">{{ t('pricing.faq.subtitle') }}</p>
               </div>
               
               <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div class="bg-white rounded-xl p-6 shadow-sm">
-                  <h4 class="text-lg font-semibold text-gray-900 mb-3">Can I change plans anytime?</h4>
-                  <p class="text-gray-600">Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately.</p>
+                  <h4 class="text-lg font-semibold text-gray-900 mb-3">{{ t('pricing.faq.questions.0.question') }}</h4>
+                  <p class="text-gray-600">{{ t('pricing.faq.questions.0.answer') }}</p>
                 </div>
                 <div class="bg-white rounded-xl p-6 shadow-sm">
-                  <h4 class="text-lg font-semibold text-gray-900 mb-3">Is there a free trial?</h4>
-                  <p class="text-gray-600">Absolutely! Start with our free trial and explore all features before committing to a paid plan.</p>
+                  <h4 class="text-lg font-semibold text-gray-900 mb-3">{{ t('pricing.faq.questions.1.question') }}</h4>
+                  <p class="text-gray-600">{{ t('pricing.faq.questions.1.answer') }}</p>
                 </div>
                 <div class="bg-white rounded-xl p-6 shadow-sm">
-                  <h4 class="text-lg font-semibold text-gray-900 mb-3">What payment methods do you accept?</h4>
-                  <p class="text-gray-600">We accept all major credit cards, PayPal, and bank transfers for enterprise customers.</p>
+                  <h4 class="text-lg font-semibold text-gray-900 mb-3">{{ t('pricing.faq.questions.2.question') }}</h4>
+                  <p class="text-gray-600">{{ t('pricing.faq.questions.2.answer') }}</p>
                 </div>
                 <div class="bg-white rounded-xl p-6 shadow-sm">
-                  <h4 class="text-lg font-semibold text-gray-900 mb-3">Do you offer refunds?</h4>
-                  <p class="text-gray-600">Yes, we offer a 30-day money-back guarantee if you're not completely satisfied.</p>
+                  <h4 class="text-lg font-semibold text-gray-900 mb-3">{{ t('pricing.faq.questions.3.question') }}</h4>
+                  <p class="text-gray-600">{{ t('pricing.faq.questions.3.answer') }}</p>
                 </div>
               </div>
             </div>
@@ -561,17 +561,17 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="text-center">
             <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">
-              Get in Touch
+              {{ t('contact.title') }}
             </h2>
             <p class="mt-4 text-xl text-gray-600">
-              Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+              {{ t('contact.subtitle') }}
             </p>
           </div>
 
           <div class="mt-12 grid grid-cols-1 gap-8 lg:grid-cols-2">
             <!-- Contact Information -->
             <div class="bg-gray-50 rounded-lg p-8">
-              <h3 class="text-lg font-medium text-gray-900 mb-6">Contact Information</h3>
+              <h3 class="text-lg font-medium text-gray-900 mb-6">{{ t('contact.contactInfo') }}</h3>
               <div class="space-y-6">
                 <div class="flex items-center">
                   <div class="flex-shrink-0">
@@ -580,7 +580,7 @@
                     </svg>
                   </div>
                   <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-900">Phone</p>
+                    <p class="text-sm font-medium text-gray-900">{{ t('contact.phone') }}</p>
                     <a :href="`tel:${branding.companyPhone}`" class="text-lg text-slate-600 hover:text-primary-700 font-medium">{{ branding.companyPhone }}</a>
                   </div>
                 </div>
@@ -592,7 +592,7 @@
                     </svg>
                   </div>
                   <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-900">Email</p>
+                    <p class="text-sm font-medium text-gray-900">{{ t('contact.email') }}</p>
                     <a :href="`mailto:${branding.supportEmail}`" class="text-lg text-slate-600 hover:text-primary-700 font-medium">{{ branding.supportEmail }}</a>
                   </div>
                 </div>
@@ -604,7 +604,7 @@
                     </svg>
                   </div>
                   <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-900">Business Hours</p>
+                    <p class="text-sm font-medium text-gray-900">{{ t('contact.businessHours') }}</p>
                     <p class="text-lg text-gray-700">{{ branding.businessHours }}</p>
                   </div>
                 </div>
@@ -613,7 +613,7 @@
 
             <!-- Contact Form -->
             <div class="bg-white border border-gray-200 rounded-lg p-8">
-              <h3 class="text-lg font-medium text-gray-900 mb-6">Send us a Message</h3>
+              <h3 class="text-lg font-medium text-gray-900 mb-6">{{ t('contact.sendMessage') }}</h3>
               
               <!-- Success Message -->
               <div v-if="contactFormSuccess" class="mb-6 p-4 bg-green-50 border border-green-200 rounded-md">
@@ -646,7 +646,7 @@
               <form @submit.prevent="submitContactForm" class="space-y-6">
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                   <div>
-                    <label for="first_name" class="block text-sm font-medium text-gray-700">First Name</label>
+                    <label for="first_name" class="block text-sm font-medium text-gray-700">{{ t('contact.firstName') }}</label>
                     <input
                       type="text"
                       id="first_name"
@@ -656,7 +656,7 @@
                     />
                   </div>
                   <div>
-                    <label for="last_name" class="block text-sm font-medium text-gray-700">Last Name</label>
+                    <label for="last_name" class="block text-sm font-medium text-gray-700">{{ t('contact.lastName') }}</label>
                     <input
                       type="text"
                       id="last_name"
@@ -668,7 +668,7 @@
                 </div>
                 
                 <div>
-                  <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                  <label for="email" class="block text-sm font-medium text-gray-700">{{ t('contact.email') }}</label>
                   <input
                     type="email"
                     id="email"
@@ -679,7 +679,7 @@
                 </div>
                 
                 <div>
-                  <label for="phone" class="block text-sm font-medium text-gray-700">Phone (Optional)</label>
+                  <label for="phone" class="block text-sm font-medium text-gray-700">{{ t('contact.phoneOptional') }}</label>
                   <input
                     type="tel"
                     id="phone"
@@ -689,32 +689,32 @@
                 </div>
                 
                 <div>
-                  <label for="subject" class="block text-sm font-medium text-gray-700">Subject</label>
+                  <label for="subject" class="block text-sm font-medium text-gray-700">{{ t('contact.subject') }}</label>
                   <select
                     id="subject"
                     v-model="contactForm.subject"
                     required
                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                   >
-                    <option value="">Select a subject</option>
-                    <option value="general">General Inquiry</option>
-                    <option value="sales">Sales Question</option>
-                    <option value="support">Technical Support</option>
-                    <option value="demo">Demo Request</option>
-                    <option value="partnership">Partnership</option>
-                    <option value="other">Other</option>
+                    <option value="">{{ t('contact.selectSubject') }}</option>
+                    <option value="general">{{ t('contact.subjects.general') }}</option>
+                    <option value="sales">{{ t('contact.subjects.sales') }}</option>
+                    <option value="support">{{ t('contact.subjects.support') }}</option>
+                    <option value="demo">{{ t('contact.subjects.demo') }}</option>
+                    <option value="partnership">{{ t('contact.subjects.partnership') }}</option>
+                    <option value="other">{{ t('contact.subjects.other') }}</option>
                   </select>
                 </div>
                 
                 <div>
-                  <label for="message" class="block text-sm font-medium text-gray-700">Message</label>
+                  <label for="message" class="block text-sm font-medium text-gray-700">{{ t('contact.message') }}</label>
                   <textarea
                     id="message"
                     v-model="contactForm.message"
                     rows="4"
                     required
                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                    placeholder="Tell us how we can help you..."
+                    placeholder="{{ t('contact.messagePlaceholder') }}"
                   ></textarea>
                 </div>
                 
@@ -728,7 +728,7 @@
                       <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                       <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    {{ contactFormSubmitting ? 'Sending...' : 'Send Message' }}
+                    {{ contactFormSubmitting ? t('contact.sending') : t('contact.sendMessageBtn') }}
                   </button>
                 </div>
               </form>
@@ -749,16 +749,16 @@
               <svg class="h-5 w-5 text-white mr-2" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
               </svg>
-              <span class="text-sm font-medium text-white">Join 10,000+ businesses already using {{ branding.appName }}</span>
+              <span class="text-sm font-medium text-white">{{ t('cta.joinBusinesses') }} {{ branding.appName }}</span>
             </div>
           </div>
           
           <h2 class="text-3xl font-extrabold text-white sm:text-4xl lg:text-5xl mb-4">
-            <span class="block">Ready to transform</span>
-            <span class="block text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-300">your business?</span>
+            <span class="block">{{ t('cta.readyToTransform') }}</span>
+            <span class="block text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-300">{{ t('cta.yourBusiness') }}</span>
           </h2>
           <p class="mt-4 text-lg leading-7 text-gray-200 max-w-2xl mx-auto">
-            Start your free trial today and see how {{ branding.appName }} can revolutionize your customer service operations.
+            {{ t('cta.startTrialDescription') }} {{ branding.appName }} {{ t('cta.canRevolutionize') }}
           </p>
           
           <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -770,7 +770,7 @@
               <svg class="h-5 w-5 mr-2 group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
-              Start Free Trial
+              {{ t('hero.startFreeTrial') }}
               <svg class="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
               </svg>
@@ -783,7 +783,7 @@
               <svg class="h-5 w-5 mr-2 group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
-              Go to Dashboard
+              {{ t('hero.goToDashboard') }}
               <svg class="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
               </svg>
@@ -797,7 +797,7 @@
               <svg class="h-5 w-5 mr-2 group-hover:scale-110 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h8m-5-10V3a2 2 0 00-2-2H6a2 2 0 00-2 2v1m12 0V3a2 2 0 012-2h2a2 2 0 012 2v1m-4 0H8m0 0V3a2 2 0 012-2h2a2 2 0 012 2v1" />
               </svg>
-              Request Demo
+              {{ t('hero.requestDemo') }}
             </router-link>
           </div>
           
@@ -805,19 +805,19 @@
           <div class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 opacity-80">
             <div class="text-center">
               <div class="text-2xl font-bold text-white">99.9%</div>
-              <div class="text-sm text-primary-200">Uptime SLA</div>
+              <div class="text-sm text-primary-200">{{ t('cta.trustIndicators.uptimeSLA') }}</div>
             </div>
             <div class="text-center">
               <div class="text-2xl font-bold text-white">24/7</div>
-              <div class="text-sm text-primary-200">Support</div>
+              <div class="text-sm text-primary-200">{{ t('cta.trustIndicators.support247') }}</div>
             </div>
             <div class="text-center">
               <div class="text-2xl font-bold text-white">SOC 2</div>
-              <div class="text-sm text-primary-200">Compliant</div>
+              <div class="text-sm text-primary-200">{{ t('cta.trustIndicators.soc2Compliant') }}</div>
             </div>
             <div class="text-center">
               <div class="text-2xl font-bold text-white">30-day</div>
-              <div class="text-sm text-primary-200">Money Back</div>
+              <div class="text-sm text-primary-200">{{ t('cta.trustIndicators.moneyBack') }}</div>
             </div>
           </div>
         </div>
