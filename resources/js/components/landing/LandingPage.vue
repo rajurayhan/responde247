@@ -714,7 +714,7 @@
                     rows="4"
                     required
                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                    placeholder="{{ t('contact.messagePlaceholder') }}"
+                    :placeholder="t('contact.messagePlaceholder')"
                   ></textarea>
                 </div>
                 
