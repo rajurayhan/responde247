@@ -107,6 +107,11 @@
         window.APP_SLOGAN = "{{ $resellerData['slogan'] }}";
         window.COMPANY_NAME = "{{ $resellerData['company_name'] }}";
         window.LOGO_URL = "{{ $resellerData['logo_url'] }}";
+        
+        // Set default language to Spanish if no preference is saved
+        if (!localStorage.getItem('preferred-language')) {
+            localStorage.setItem('preferred-language', 'es');
+        }
     </script>
 </head>
 <body class="font-sans antialiased">

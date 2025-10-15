@@ -19,11 +19,8 @@ const initializeLanguage = () => {
   if (savedLanguage && languages[savedLanguage]) {
     currentLanguage.value = savedLanguage
   } else {
-    // Detect browser language
-    const browserLang = navigator.language.split('-')[0]
-    if (languages[browserLang]) {
-      currentLanguage.value = browserLang
-    }
+    // Default to Spanish for new users (ignore browser language detection)
+    currentLanguage.value = 'es'
   }
 }
 
@@ -79,6 +76,9 @@ const getAvailableLanguages = computed(() => {
 
 // Initialize on import
 initializeLanguage()
+
+// Set document language attribute immediately
+document.documentElement.lang = currentLanguage.value
 
 export function useLanguage() {
   return {
