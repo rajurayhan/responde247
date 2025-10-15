@@ -113,8 +113,19 @@
               <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
             </svg>
           </div>
-          <div class="ml-3">
+          <div class="ml-3 flex-1">
             <p class="text-sm text-green-800">{{ success }}</p>
+          </div>
+          <!-- Dismiss button for update success messages -->
+          <div v-if="!isCreating" class="ml-3 flex-shrink-0">
+            <button
+              @click="success = null"
+              class="text-green-400 hover:text-green-600 focus:outline-none focus:text-green-600"
+            >
+              <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </button>
           </div>
         </div>
       </div>
@@ -1394,7 +1405,8 @@ You embody the highest standards of customer service that {{company_name}} would
 
     const saveAssistant = async () => {
       try {
-        
+        // Set loading state
+        submitting.value = true
         error.value = null
         success.value = null
         
@@ -1494,10 +1506,10 @@ You embody the highest standards of customer service that {{company_name}} would
         
         if (isCreating.value) {
           await axios.post('/api/assistants', assistantData)
-          success.value = 'Assistant created successfully!'
+          success.value = 'Assistant created successfully! Redirecting to assistants list...'
           // Clear any previous errors
           error.value = null
-          // Navigate after a short delay to show success message
+          // Navigate to assistants list after a short delay to show success message
           setTimeout(() => {
             if (isAdmin.value) {
               router.push('/admin/assistants')
@@ -1510,14 +1522,7 @@ You embody the highest standards of customer service that {{company_name}} would
           success.value = 'Assistant updated successfully!'
           // Clear any previous errors
           error.value = null
-          // Navigate after a short delay to show success message
-          setTimeout(() => {
-            if (isAdmin.value) {
-              router.push('/admin/assistants')
-            } else {
-              router.push('/assistants')
-            }
-          }, 2000)
+          // Stay on the same page - no navigation for updates
         }
       } catch (err) {
         
