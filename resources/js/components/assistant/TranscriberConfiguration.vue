@@ -42,7 +42,7 @@
         </option>
       </select>
       <p v-if="fieldErrors.language" class="text-xs text-red-600 mt-1">{{ fieldErrors.language }}</p>
-      <p v-else class="text-xs text-gray-500 mt-1">Select the primary language for speech recognition</p>
+      <p v-else class="text-xs text-gray-500 mt-1">Select the primary language for speech recognition. Choose "Multi (Auto-detect)" for automatic language detection across multiple languages.</p>
     </div>
 
     <div v-if="getAvailableModels().length > 0">
@@ -128,20 +128,75 @@ export default {
       formatTurns: true
     })
 
-    // Language options
+    // Language options - comprehensive list for multi-language support
     const languages = [
+      { code: 'multi', name: 'Multi (Auto-detect)' },
       { code: 'en', name: 'English' },
+      { code: 'en-US', name: 'English (US)' },
+      { code: 'en-GB', name: 'English (UK)' },
+      { code: 'en-AU', name: 'English (Australia)' },
+      { code: 'en-CA', name: 'English (Canada)' },
+      { code: 'en-IN', name: 'English (India)' },
       { code: 'es', name: 'Spanish' },
+      { code: 'es-ES', name: 'Spanish (Spain)' },
+      { code: 'es-MX', name: 'Spanish (Mexico)' },
+      { code: 'es-AR', name: 'Spanish (Argentina)' },
+      { code: 'es-CO', name: 'Spanish (Colombia)' },
+      { code: 'es-PE', name: 'Spanish (Peru)' },
       { code: 'fr', name: 'French' },
+      { code: 'fr-FR', name: 'French (France)' },
+      { code: 'fr-CA', name: 'French (Canada)' },
       { code: 'de', name: 'German' },
+      { code: 'de-DE', name: 'German (Germany)' },
+      { code: 'de-AT', name: 'German (Austria)' },
+      { code: 'de-CH', name: 'German (Switzerland)' },
       { code: 'it', name: 'Italian' },
+      { code: 'it-IT', name: 'Italian (Italy)' },
       { code: 'pt', name: 'Portuguese' },
+      { code: 'pt-BR', name: 'Portuguese (Brazil)' },
+      { code: 'pt-PT', name: 'Portuguese (Portugal)' },
       { code: 'ru', name: 'Russian' },
+      { code: 'ru-RU', name: 'Russian (Russia)' },
       { code: 'ja', name: 'Japanese' },
+      { code: 'ja-JP', name: 'Japanese (Japan)' },
       { code: 'ko', name: 'Korean' },
+      { code: 'ko-KR', name: 'Korean (South Korea)' },
       { code: 'zh', name: 'Chinese' },
+      { code: 'zh-CN', name: 'Chinese (Simplified)' },
+      { code: 'zh-TW', name: 'Chinese (Traditional)' },
       { code: 'ar', name: 'Arabic' },
-      { code: 'hi', name: 'Hindi' }
+      { code: 'ar-SA', name: 'Arabic (Saudi Arabia)' },
+      { code: 'ar-EG', name: 'Arabic (Egypt)' },
+      { code: 'ar-AE', name: 'Arabic (UAE)' },
+      { code: 'hi', name: 'Hindi' },
+      { code: 'hi-IN', name: 'Hindi (India)' },
+      { code: 'nl', name: 'Dutch' },
+      { code: 'nl-NL', name: 'Dutch (Netherlands)' },
+      { code: 'nl-BE', name: 'Dutch (Belgium)' },
+      { code: 'sv', name: 'Swedish' },
+      { code: 'sv-SE', name: 'Swedish (Sweden)' },
+      { code: 'no', name: 'Norwegian' },
+      { code: 'no-NO', name: 'Norwegian (Norway)' },
+      { code: 'da', name: 'Danish' },
+      { code: 'da-DK', name: 'Danish (Denmark)' },
+      { code: 'fi', name: 'Finnish' },
+      { code: 'fi-FI', name: 'Finnish (Finland)' },
+      { code: 'pl', name: 'Polish' },
+      { code: 'pl-PL', name: 'Polish (Poland)' },
+      { code: 'tr', name: 'Turkish' },
+      { code: 'tr-TR', name: 'Turkish (Turkey)' },
+      { code: 'he', name: 'Hebrew' },
+      { code: 'he-IL', name: 'Hebrew (Israel)' },
+      { code: 'th', name: 'Thai' },
+      { code: 'th-TH', name: 'Thai (Thailand)' },
+      { code: 'vi', name: 'Vietnamese' },
+      { code: 'vi-VN', name: 'Vietnamese (Vietnam)' },
+      { code: 'id', name: 'Indonesian' },
+      { code: 'id-ID', name: 'Indonesian (Indonesia)' },
+      { code: 'ms', name: 'Malay' },
+      { code: 'ms-MY', name: 'Malay (Malaysia)' },
+      { code: 'tl', name: 'Filipino' },
+      { code: 'tl-PH', name: 'Filipino (Philippines)' }
     ]
 
       // Model options for each provider
