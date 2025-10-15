@@ -122,7 +122,7 @@ export default {
     const isUpdatingFromProps = ref(false)
     const transcriberConfig = ref({
       provider: 'deepgram',
-      language: 'en',
+      language: 'multi',
       model: 'nova-2',
       confidenceThreshold: 0.4,
       formatTurns: true
@@ -233,13 +233,14 @@ export default {
     // Provider change handler
     const onProviderChange = () => {
       // Reset to default values when provider changes
-      transcriberConfig.value.language = 'en'
+      transcriberConfig.value.language = 'multi'
       transcriberConfig.value.confidenceThreshold = 0.4
       transcriberConfig.value.formatTurns = true
       
       // Set default model based on provider
       if (transcriberConfig.value.provider === 'deepgram') {
         transcriberConfig.value.model = 'nova-2'
+        transcriberConfig.value.language = 'multi'
       } else if (transcriberConfig.value.provider === '11labs') {
         transcriberConfig.value.model = 'scribe_v1'
       } else {
@@ -263,7 +264,7 @@ export default {
         // Use default Deepgram configuration when no transcriber value exists
         transcriberConfig.value = {
           provider: 'deepgram',
-          language: 'en',
+          language: 'multi',
           model: 'nova-2',
           confidenceThreshold: 0.4,
           formatTurns: true,

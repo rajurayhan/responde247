@@ -81,6 +81,44 @@
           <span>4x (Fast)</span>
         </div>
       </div>
+
+      <!-- Stability Control (for ElevenLabs) -->
+      <div v-if="voiceConfig.provider === '11labs'">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Stability</label>
+        <input
+          v-model.number="voiceConfig.stability"
+          type="range"
+          min="0"
+          max="1"
+          step="0.1"
+          class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+        />
+        <div class="flex justify-between text-xs text-gray-500 mt-1">
+          <span>0.0 (Variable)</span>
+          <span>{{ voiceConfig.stability }}</span>
+          <span>1.0 (Stable)</span>
+        </div>
+        <p class="text-xs text-gray-500 mt-1">Controls voice consistency and variation</p>
+      </div>
+
+      <!-- Similarity Boost Control (for ElevenLabs) -->
+      <div v-if="voiceConfig.provider === '11labs'">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Similarity Boost</label>
+        <input
+          v-model.number="voiceConfig.similarityBoost"
+          type="range"
+          min="0"
+          max="1"
+          step="0.1"
+          class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+        />
+        <div class="flex justify-between text-xs text-gray-500 mt-1">
+          <span>0.0 (Original)</span>
+          <span>{{ voiceConfig.similarityBoost }}</span>
+          <span>1.0 (Enhanced)</span>
+        </div>
+        <p class="text-xs text-gray-500 mt-1">Controls how closely the voice matches the original</p>
+      </div>
     </div>
   </div>
 </template>
@@ -104,10 +142,12 @@ export default {
   setup(props, { emit }) {
     const isUpdatingFromProps = ref(false)
     const voiceConfig = ref({
-      provider: 'vapi',
-      voiceId: 'spencer',
-      model: '',
-      speed: 1
+      provider: '11labs',
+      voiceId: 'sarah',
+      model: 'eleven_turbo_v2_5',
+      speed: 1,
+      stability: 0.5,
+      similarityBoost: 0.75
     })
 
     // Voice options for each provider
@@ -539,6 +579,14 @@ export default {
       
       // Reset speed to default
       voiceConfig.value.speed = 1
+      
+      // Reset ElevenLabs specific settings
+      if (voiceConfig.value.provider === '11labs') {
+        voiceConfig.value.stability = 0.5
+        voiceConfig.value.similarityBoost = 0.75
+        voiceConfig.value.voiceId = 'sarah'
+        voiceConfig.value.model = 'eleven_turbo_v2_5'
+      }
     }
 
     // Watch for changes and emit updates (but not when updating from props)

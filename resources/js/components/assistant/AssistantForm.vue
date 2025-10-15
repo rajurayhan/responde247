@@ -841,14 +841,16 @@ You embody the highest standards of customer service that {{company_name}} would
         tools: []
       },
       voice: {
-        provider: 'vapi',
-        voiceId: 'Spencer',
+        provider: '11labs',
+        voiceId: 'sarah',
         speed: 1,
-        model: ''
+        model: 'eleven_turbo_v2_5',
+        stability: 0.5,
+        similarityBoost: 0.75
       },
       transcriber: {
         provider: 'deepgram',
-        language: 'en',
+        language: 'multi',
         model: 'nova-2',
         confidenceThreshold: 0.4,
         formatTurns: true,
@@ -1149,17 +1151,19 @@ You embody the highest standards of customer service that {{company_name}} would
         
                     // Map voice configuration
             if (assistant.vapi_data?.voice) {
-              form.value.voice.provider = assistant.vapi_data.voice.provider || 'vapi'
-              form.value.voice.voiceId = assistant.vapi_data.voice.voiceId || 'spencer'
+              form.value.voice.provider = assistant.vapi_data.voice.provider || '11labs'
+              form.value.voice.voiceId = assistant.vapi_data.voice.voiceId || 'sarah'
               form.value.voice.speed = assistant.vapi_data.voice.speed || 1
-              form.value.voice.model = assistant.vapi_data.voice.model || ''
+              form.value.voice.model = assistant.vapi_data.voice.model || 'eleven_turbo_v2_5'
+              form.value.voice.stability = assistant.vapi_data.voice.stability || 0.5
+              form.value.voice.similarityBoost = assistant.vapi_data.voice.similarityBoost || 0.75
             }
             
             // Map transcriber configuration
             console.log('AssistantForm: VAPI transcriber data:', assistant.vapi_data?.transcriber)
             if (assistant.vapi_data?.transcriber) {
               form.value.transcriber.provider = assistant.vapi_data.transcriber.provider || 'deepgram'
-              form.value.transcriber.language = assistant.vapi_data.transcriber.language || 'en'
+              form.value.transcriber.language = assistant.vapi_data.transcriber.language || 'multi'
               form.value.transcriber.model = assistant.vapi_data.transcriber.model || 'nova-2'
               form.value.transcriber.confidenceThreshold = assistant.vapi_data.transcriber.confidenceThreshold || 0.4
               form.value.transcriber.formatTurns = assistant.vapi_data.transcriber.formatTurns !== undefined ? assistant.vapi_data.transcriber.formatTurns : true
@@ -1176,7 +1180,7 @@ You embody the highest standards of customer service that {{company_name}} would
               // Use default Deepgram configuration when no transcriber exists
               form.value.transcriber = {
                 provider: 'deepgram',
-                language: 'en',
+                language: 'multi',
                 model: 'nova-2',
                 confidenceThreshold: 0.4,
                 formatTurns: true,
