@@ -34,17 +34,30 @@
       <!-- Voice Selection (Common for all providers) -->
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">Voice *</label>
+        <div class="relative">
+          <input
+            v-model="voiceSearchQuery"
+            type="text"
+            placeholder="Search voices..."
+            class="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 mb-2"
+          />
+          <div class="absolute right-2 top-2 text-gray-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+          </div>
+        </div>
         <select
           v-model="voiceConfig.voiceId"
           data-field="voice_voiceId"
           :class="[
-            'w-full px-3 py-2 border rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500',
+            'w-full px-3 py-2 border rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 max-h-60 overflow-y-auto',
             fieldErrors.voiceId 
               ? 'border-red-300 focus:border-red-500 focus:ring-red-500 bg-red-50' 
               : 'border-gray-300 focus:border-green-500 bg-white'
           ]"
         >
-          <option v-for="voice in getAvailableVoices()" :key="voice.value" :value="voice.value">
+          <option v-for="voice in getFilteredVoices()" :key="voice.value" :value="voice.value">
             {{ voice.label }}
           </option>
         </select>
@@ -103,6 +116,7 @@ export default {
   emits: ['update:voice'],
   setup(props, { emit }) {
     const isUpdatingFromProps = ref(false)
+    const voiceSearchQuery = ref('')
     const voiceConfig = ref({
       provider: 'vapi',
       voiceId: 'spencer',
@@ -125,55 +139,26 @@ export default {
         { value: 'Elliot', label: 'Elliot (Male, Professional)' },
       ],
       '11labs': [
-        { value: 'wPZU8v1TgihzaR9aQ8Wj', label: 'Payne (male)' },
-        { value: 'bIHbv24MWmeRgasZH58o', label: 'Will (male)' },
-        { value: 'rECOLXj3kZIXXxR3SBqN', label: 'Charlie (male)' },
-        { value: '8N2ng9i2uiUWqstgmWlH', label: 'Beth - gentle and nurturing (female)' },
-        { value: 'Ky9j3wxFbp3dSAdrkOEv', label: 'Bex UK Female (female)' },
-        { value: 'h415g7h7bSwQrn1qw4ar', label: '  Knightley Javier -Calm, Gentle (male)' },
-        { value: 'fzDFBB4mgvMlL36gPXcz', label: 'Giovanni Rossi - giovane (male)' },
-        { value: 'ZncGbt9ecxkwpmaX6V9z', label: 'Alex Ozwyn (female)' },
-        { value: 'Kq9pDHHIMmJsG9PEqOtv', label: 'Kina (Cute happy girl) - Perfect for Social Media & Ads (female)' },
-        { value: 'sDh3eviBhiuHKi0MjTNq', label: 'Kiko Hdz (male)' },
-        { value: '25bLwNw4T14AIILU3SLV', label: 'Kira - authentic storytelling voice (female)' },
-        { value: 'ewEFvMMmA0G6DU92XEL4', label: 'BrittW (female)' },
-        { value: '7SG1YzJ0DRGq9iGmANwb', label: 'Calistria - Enchanting, Refined, Quick-witted (female)' },
-        { value: 'tWGXkYJGea4wMBN4mLD1', label: 'CS New  (male)' },
-        { value: 'z0gdR3nhVl1Ig2kiEigL', label: 'Luisa (female)' },
-        { value: 'DHeSUVQvhhYeIxNUbtj3', label: 'Christopher (male)' },
-        { value: 'jBzLvP03992lMFEkj2kJ', label: 'Claire - middle age fresh, very realistic  (female)' },
-        { value: '2qfp6zPuviqeCOZIE9RZ', label: 'Christina - Calming  Yoga Instructor (female)' },
-        { value: 'SCk3zv5L1cHDM9Z8w9G0', label: 'Lady Dalia - Posh, Youthful, Articulate (female)' },
-        { value: '9MWX5JB9xHEOYMB4OPy3', label: 'Chase - Animated Childlike Characters (female)' },
-        { value: '09f2tX4N0acZFU0hZoGz', label: 'Pierre from Nice (male)' },
-        { value: 'vgsapVXnlLvlrWNbPs6y', label: 'Mahmood (male)' },
-        { value: '1WXz8v08ntDcSTeVXMN2', label: 'Malena Tango (female)' },
-        { value: '6MoEUz34rbRrmmyxgRm4', label: 'Manav -  Husky, Conversational voice (male)' },
-        { value: '0JRpJnrcyEVIabsZ4U5I', label: 'Jean-Paul Niko (male)' },
-        { value: 'TcAStCk0faGcHdNIFX23', label: 'Jennifer - expressive and cheerful narrator (female)' },
-        { value: 'mCQMfsqGDT6IDkEKR20a', label: 'Jeevan - Expressive Indian Voice (male)' },
-        { value: '0mW2NzhwPkJ7cWxShgXf', label: 'MUZAFFER (male)' },
-        { value: 'Qs4qmNrqlneCgYPLSNQ7', label: 'Maciej Litwiniec - Your best choice. (male)' },
-        { value: '8eUAQkdtMZhJoX5VPmEL', label: 'Madison - snappy (female)' },
-        { value: 'DUnzBkwtjRWXPr6wRbmL', label: 'Mad Scientist - For All Languages (male)' },
-        { value: 'GLHtjkeLJ9Rxcv9JhLmh', label: 'MUHAMMER ARABACI - Professional Turkish Voice Over (male)' },
-        { value: 'nJwS4S6dQMrtcx51spEu', label: 'Magnolia - Mature and Wellspoken (female)' },
-        { value: 'yyPLNYHg3CvjlSdSOdLh', label: 'Balazs (male)' },
-        { value: 'pGYsZruQzo8cpdFVZyJc', label: 'Smriti - Indian Storyteller (female)' },
-        { value: 'seJWV2pfGHXEBSspFxma', label: 'Sohaib Jasra (male)' },
-        { value: 'x10MLxaAmShMYt7vs7pl', label: 'Maevys (female)' },
-        { value: 'teW6PCla0IBGRBWS4L5R', label: 'Fatih Yıldırım (male)' },
-        { value: 'Av6UPhNoPwr9E4GrgD59', label: 'Andrew J Griffin (male)' },
-        { value: 'cJi4iYb9fQ8QIRKkX8Fd', label: 'Letizia (female)' },
-        { value: 'ABvMrd8urrMUl3V6UZ3Y', label: 'Vincent - Factual (male)' },
-        { value: 'LGAG9SB8uLv5PsjBMv2e', label: 'SERGIO JUVENAL (male)' },
-        { value: 'DqJyltrKaeMDuX3dXkp4', label: 'Sammy Zimmermanns (male)' },
-        { value: 'DguSKGFJeOJdyMI6NrYY', label: 'Miss French - For AUDIOBOOK (female)' },
-        { value: 'qMfbtjrTDTlGtBy52G6E', label: 'Emilie Lacroix (female)' },
-        { value: 'G7iiSdUpTxfaEQrlPlp1', label: 'Emily - Calm yet charismatic (female)' },
-        { value: 'b3jcIbyC3BSnaRu8avEk', label: 'Emma (female)' },
-        { value: 'q8qwd1jY2jS3AWOBeq25', label: 'Pratama (male)' },
-        { value: 'JigslbTSI6z9hOVIWIRA', label: 'Olivia (female)' },
+        { value: 'pNInz6obpgDQGcFmaJgB', label: 'Adam (Male)' },
+        { value: 'EXAVITQu4vr4xnSDxMaL', label: 'Bella (Female)' },
+        { value: 'VR6AewLTigWG4xSOukaG', label: 'Josh (Male)' },
+        { value: 'AZnzlk1XvdvUeBnXmlld', label: 'Domi (Female)' },
+        { value: 'MF3mGyEYCl7XYWbV9V6O', label: 'Elli (Female)' },
+        { value: 'TxGEqnHWrfWFTfGW9XjX', label: 'Rachel (Female)' },
+        { value: 'VR6AewLTigWG4xSOukaG', label: 'Drew (Male)' },
+        { value: 'pMsXgVXv3BLzUgSXRplE', label: 'Clyde (Male)' },
+        { value: 'yoZ06aMxZJJ28mfd3POQ', label: 'Dave (Male)' },
+        { value: 'onwK4e9ZLuTAKqWW03F9', label: 'Fin (Male)' },
+        { value: 'AcKYDwz6v5TcyRJdhGza', label: 'Grace (Female)' },
+        { value: 'Hqze3u5S2If1m24xHZ3z', label: 'James (Male)' },
+        { value: 'XB0fDUnXU5powFXDhCwa', label: 'Joseph (Male)' },
+        { value: 'Zlb1dXrM653N07WRdFW3', label: 'Lily (Female)' },
+        { value: 'pqHfZKP75CvOlQylNhV4', label: 'Michael (Male)' },
+        { value: 'flq6f7yk4E4fJM5XTYuZ', label: 'Grace (Female)' },
+        { value: 'pqHfZKP75CvOlQylNhV4', label: 'Nicole (Female)' },
+        { value: 'yoZ06aMxZJJ28mfd3POQ', label: 'Sarah (Female)' },
+        { value: 'XB0fDUnXU5powFXDhCwa', label: 'Sam (Male)' },
+        { value: 'Zlb1dXrM653N07WRdFW3', label: 'Thomas (Male)' },
         { value: '4VZIsMPtgggwNg7OXbPY', label: 'James Gao (male)' },
         { value: 'Zn9Dr8ByqLL28MA9iEiR', label: 'Mia Chou (female)' },
         { value: 'cgSgspJ2msm6clMCkdW9', label: 'Jessica (female)' },
@@ -410,7 +395,7 @@ export default {
         { value: 'GoEy5CmodqJy0T9AxjLk', label: 'Mélanie (female)' },
         { value: 'dDU5VfWXOm9eAwl9oqA1', label: 'Om Tobi NOBAR (male)' },
         { value: 'xi3rF0t7dg7uN2M0WUhr', label: 'Yuna (female)' },
-        { value: 'emSmWzY0c0xtx5IFMCVv', label: 'Sarah - Fun, Realistic Voice for Kids & Cartoons (neutral)' },
+        { value: 'sarah', label: 'Sarah - Fun, Realistic Voice for Kids & Cartoons (neutral)' },
         { value: 'XBDAUT8ybuJTTCoOLSUj', label: 'MC Anh Đức (male)' },
         { value: 'O7RnF5aNrnDdDZdG7kki', label: 'Isaiah - Male Soft Quiet Voice (male)' },
         { value: 'GgmlugwQ4LYXBbEXENWm', label: 'Maya | Young & Calming  (female)' },
@@ -506,7 +491,19 @@ export default {
 
     // Get available voices for current provider
     const getAvailableVoices = () => {
-      return voiceOptions[voiceConfig.value.provider] || []
+      const voices = voiceOptions[voiceConfig.value.provider] || []
+      return voices.sort((a, b) => a.label.localeCompare(b.label))
+    }
+
+    // Get filtered voices based on search query
+    const getFilteredVoices = () => {
+      const voices = getAvailableVoices()
+      if (!voiceSearchQuery.value.trim()) {
+        return voices
+      }
+      return voices.filter(voice => 
+        voice.label.toLowerCase().includes(voiceSearchQuery.value.toLowerCase())
+      )
     }
 
     // Get available models for current provider
@@ -555,7 +552,9 @@ export default {
 
     return {
       voiceConfig,
+      voiceSearchQuery,
       getAvailableVoices,
+      getFilteredVoices,
       getAvailableModels,
       supportsSpeed,
       onProviderChange
