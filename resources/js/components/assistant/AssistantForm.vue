@@ -1045,9 +1045,9 @@ You embody the highest standards of customer service that {{company_name}} would
 
     // Watch for type changes to handle template loading
     watch(() => form.value.type, (newType, oldType) => {
-      // Only proceed if type actually changed and we're creating a new assistant
-      if (newType === 'demo' && newType !== oldType && isCreating.value) {
-        // Auto-load templates for demo assistants if templates are available
+      // Apply templates to all new assistants when type changes
+      if (newType !== oldType && isCreating.value) {
+        // Auto-load templates if templates are available
         if (templates.value.system_prompt) {
           loadDefaultTemplate()
           loadDefaultFirstMessage()
@@ -1623,27 +1623,42 @@ You embody the highest standards of customer service that {{company_name}} would
 
     const loadTemplates = async () => {
       try {
-        const response = await axios.get('/api/assistant-templates')
+        const response = await axios.get('/api/admin/templates')
         if (response.data.success) {
           templates.value = response.data.data
           // Update templated data with current company info
           updateTemplatedData()
           
-          // Apply templates to form fields if creating a demo assistant
-          if (isCreating.value && form.value.type === 'demo') {
+          // Apply templates to form fields for all new assistants
+          if (isCreating.value) {
             loadDefaultTemplate()
             loadDefaultFirstMessage()
             loadDefaultEndCallMessage()
           }
         }
       } catch (error) {
-        // Handle error silently
+        // Fallback to assistant-templates endpoint if admin endpoint fails
+        try {
+          const fallbackResponse = await axios.get('/api/assistant-templates')
+          if (fallbackResponse.data.success) {
+            templates.value = fallbackResponse.data.data
+            updateTemplatedData()
+            
+            if (isCreating.value) {
+              loadDefaultTemplate()
+              loadDefaultFirstMessage()
+              loadDefaultEndCallMessage()
+            }
+          }
+        } catch (fallbackError) {
+          // Handle error silently
+        }
       }
     }
 
     const loadDefaultTemplate = () => {
-      // This function is now only used for creating new assistants
-      if (isCreating.value && form.value.type === 'demo') {
+      // Apply templates to all new assistants
+      if (isCreating.value) {
         form.value.model.messages[0].content = templates.value.system_prompt || `## COMPANY PROFILE - 
 \`\`\`
 COMPANY_NAME: {{company_name}}
@@ -1659,15 +1674,15 @@ You embody the highest standards of customer service that {{company_name}} would
     }
 
     const loadDefaultFirstMessage = () => {
-      // This function is now only used for creating new assistants
-      if (isCreating.value && form.value.type === 'demo') {
+      // Apply templates to all new assistants
+      if (isCreating.value) {
         form.value.firstMessage = templates.value.first_message || 'Thank you for calling {{company_name}}, this is Sarah. How may I assist you today?'
       }
     }
 
     const loadDefaultEndCallMessage = () => {
-      // This function is now only used for creating new assistants
-      if (isCreating.value && form.value.type === 'demo') {
+      // Apply templates to all new assistants
+      if (isCreating.value) {
         form.value.endCallMessage = templates.value.end_call_message || 'Thank you for calling {{company_name}}. Have a wonderful day!'
       }
     }
