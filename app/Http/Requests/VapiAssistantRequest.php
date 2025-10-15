@@ -31,7 +31,7 @@ class VapiAssistantRequest extends FormRequest
             // Transcriber configuration
             'transcriber' => 'nullable|array',
             'transcriber.provider' => 'nullable|string|in:11labs,deepgram',
-            'transcriber.language' => 'nullable|string|size:2',
+            'transcriber.language' => 'nullable|string|in:multi,en,es,fr,de,it,pt,ru,ja,ko,zh,ar,hi,nl,sv,da,no,fi,pl,tr,cs,hu,ro,bg,hr,sk,sl,et,lv,lt,mt,cy,ga,is,fo,kl,se,sm,to,ty,ve,wo,yo,zu,af,sq,am,az,eu,be,bn,bs,ca,co,el,fa,gl,gu,he,hy,id,ka,kk,km,kn,ky,lo,mk,ml,mn,mr,ms,my,ne,or,pa,si,sr,sw,ta,te,th,uk,ur,uz,vi',
             'transcriber.confidenceThreshold' => 'nullable|numeric|min:0|max:1',
             'transcriber.formatTurns' => 'nullable|boolean',
 
@@ -156,7 +156,7 @@ class VapiAssistantRequest extends FormRequest
             'user_id.exists' => 'The selected user does not exist.',
             'selected_phone_number.regex' => 'Phone number must be in international format (e.g., +1234567890).',
             'transcriber.provider.in' => 'Invalid transcriber provider.',
-            'transcriber.language.size' => 'Language code must be exactly 2 characters.',
+            'transcriber.language.in' => 'Invalid language code. Use "multi" for auto-detect or a valid 2-character language code.',
             'transcriber.confidenceThreshold.between' => 'Confidence threshold must be between 0 and 1.',
             'model.provider.in' => 'Invalid model provider.',
             'model.temperature.between' => 'Temperature must be between 0 and 2.',
