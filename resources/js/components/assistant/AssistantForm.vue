@@ -182,7 +182,7 @@
               ]"
             >
               <option value="United States" selected>United States</option>
-              <option value="Mexico" disabled>Mexico (Coming Soon)</option>
+              <option value="Mexico">Mexico</option>
             </select>
             <p v-if="fieldErrors.country" class="text-xs text-red-600 mt-1">{{ fieldErrors.country }}</p>
             <p v-else class="text-xs text-gray-500 mt-1">Country for phone number search</p>
@@ -311,7 +311,7 @@
                 
                 <!-- Area Code Support Info -->
                 <div v-if="form.metadata.country && !isAreaCodeSupported" class="mb-3 p-2 bg-yellow-100 rounded text-xs text-yellow-800">
-                  <span class="font-medium">ℹ️ Note:</span> Area codes are supported for United States, Canada, Australia, and United Kingdom phone numbers.
+                  <span class="font-medium">ℹ️ Note:</span> Area codes are supported for United States and Mexico phone numbers.
                 </div>
                 
                 <!-- Search Reset Message -->
