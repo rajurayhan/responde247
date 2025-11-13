@@ -32,6 +32,15 @@
     <meta property="twitter:description" content="{{ $resellerData['meta_description'] ?? $resellerData['description'] }}">
     <meta property="twitter:image" content="{{ url($resellerData['logo_url']) }}">
 
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-16644469311"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'AW-16644469311');
+    </script>
+
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ $resellerData['favicon_url'] ?? '/favicon.ico' }}">
     <link rel="shortcut icon" type="image/x-icon" href="{{ $resellerData['favicon_url'] ?? '/favicon.ico' }}">

@@ -180,11 +180,25 @@ class TwilioService
             }
             
             // Add address SID for countries that require it (but not for Mexico when using Bundle)
-            if ($countryCode !== 'MX' || !$bundleSid) {
+            // Check if country requires address verification
+            $countriesRequiringAddress = ['AU', 'CA', 'GB', 'NZ', 'IE', 'MX'];
+            $requiresAddress = in_array($countryCode, $countriesRequiringAddress);
+            
+            if ($requiresAddress && ($countryCode !== 'MX' || !$bundleSid)) {
                 $addressSid = $this->getAddressSidForCountry($countryCode);
                 if ($addressSid) {
                     $purchaseParams['addressSid'] = $addressSid;
                     Log::info('Twilio Purchase Number: Using address SID ' . $addressSid . ' for country ' . $countryCode);
+                } else {
+                    // Country requires address but AddressSid is not configured
+                    Log::error('Twilio Purchase Number: Address SID required but not configured', [
+                        'country_code' => $countryCode,
+                        'phone_number' => $phoneNumber
+                    ]);
+                    return [
+                        'success' => false,
+                        'message' => 'Address verification required for this country (' . $countryCode . '). Please ensure TWILIO_' . $countryCode . '_ADDRESS_SID is configured in your environment variables.'
+                    ];
                 }
             }
             
@@ -214,11 +228,11 @@ class TwilioService
         } catch (TwilioException $e) {
             Log::error('Twilio Purchase Number Error: ' . $e->getMessage());
             Log::error('Twilio Purchase Number Request Data: ' . json_encode([
-                'PhoneNumber' => $phoneNumber,
-                'VoiceUrl' => config('app.url') . '/api/twilio/voice',
-                'SmsUrl' => config('app.url') . '/api/twilio/sms',
-                'VoiceMethod' => 'POST',
-                'SmsMethod' => 'POST'
+                'phone_number' => $phoneNumber,
+                'country_code' => $countryCode ?? 'unknown',
+                'purchase_params' => $purchaseParams ?? [],
+                'has_address_sid' => isset($purchaseParams['addressSid']),
+                'has_bundle_sid' => isset($purchaseParams['bundleSid']),
             ]));
             
             $errorMessage = 'Failed to purchase number from Twilio';
@@ -234,6 +248,24 @@ class TwilioService
                     $errorMessage = 'Phone number is already owned by another account. Please select a different number.';
                 } elseif (str_contains($errorMessage, 'Bundle required')) {
                     $errorMessage = 'Bundle verification required for this country. Please create a Bundle in Twilio Console and add the Bundle SID to your environment variables. Bundle SIDs start with "BU" and are different from Address SIDs.';
+                } elseif ((str_contains($errorMessage, 'AddressSid') || str_contains($errorMessage, 'Address')) && str_contains($errorMessage, 'empty')) {
+                    // Enhanced error message for AddressSid requirement
+                    $detectedCountry = $countryCode ?? 'unknown';
+                    $addressSid = $this->getAddressSidForCountry($detectedCountry);
+                    
+                    if (!$addressSid) {
+                        $errorMessage = 'Address verification required for this phone number (detected country: ' . $detectedCountry . '). Please ensure TWILIO_' . $detectedCountry . '_ADDRESS_SID is configured in your environment variables. If the country code is incorrect, please specify the correct country code when purchasing.';
+                    } else {
+                        $errorMessage = 'Address verification issue. The configured Address SID (' . $addressSid . ') may be invalid or expired. Please verify the Address SID in your Twilio Console and update your environment variables.';
+                    }
+                    
+                    Log::error('Twilio AddressSid Error Details', [
+                        'country_code' => $detectedCountry,
+                        'phone_number' => $phoneNumber,
+                        'address_sid_configured' => $addressSid ? 'yes' : 'no',
+                        'address_sid_value' => $addressSid,
+                        'purchase_params' => $purchaseParams ?? []
+                    ]);
                 } elseif (str_contains($errorMessage, 'AddressSid') || str_contains($errorMessage, 'is invalid')) {
                     if (str_contains($errorMessage, 'AD') && $countryCode === 'MX') {
                         $errorMessage = 'Invalid Bundle or Address SID for Mexico. Please ensure TWILIO_MEXICO_BUNDLE_SID in your .env file is a valid Bundle SID (starts with "BU") and TWILIO_MEXICO_ADDRESS_SID is a valid Address SID (starts with "AD") if required.';
