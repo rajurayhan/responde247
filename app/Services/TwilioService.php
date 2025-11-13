@@ -161,17 +161,31 @@ class TwilioService
             
             // Add bundle SID for countries that require it (like UK and Mexico)
             $bundleSid = $this->getBundleSidForCountry($countryCode);
-            if ($bundleSid) {
+            
+            // For Mexico, a valid Bundle SID is required (must start with BU)
+            if ($countryCode === 'MX') {
+                if (!$bundleSid) {
+                    return [
+                        'success' => false,
+                        'message' => 'Mexico requires a valid Bundle SID. Please ensure TWILIO_MEXICO_BUNDLE_SID in your .env file is set to a valid Bundle SID (starts with "BU"). The current value appears to be invalid or missing.'
+                    ];
+                }
+                $purchaseParams['bundleSid'] = $bundleSid;
+                Log::info('Twilio Purchase Number: Using bundle SID ' . $bundleSid . ' for country ' . $countryCode);
+                // Note: For Mexico, we don't send Address SID when using Bundle SID (Bundle includes address info)
+            } elseif ($bundleSid) {
+                // For other countries (like UK), use Bundle SID if available
                 $purchaseParams['bundleSid'] = $bundleSid;
                 Log::info('Twilio Purchase Number: Using bundle SID ' . $bundleSid . ' for country ' . $countryCode);
             }
             
-            // Add address SID for countries that require it
-            // Note: Some countries (like Mexico) require BOTH bundle and address SIDs
-            $addressSid = $this->getAddressSidForCountry($countryCode);
-            if ($addressSid) {
-                $purchaseParams['addressSid'] = $addressSid;
-                Log::info('Twilio Purchase Number: Using address SID ' . $addressSid . ' for country ' . $countryCode);
+            // Add address SID for countries that require it (but not for Mexico when using Bundle)
+            if ($countryCode !== 'MX' || !$bundleSid) {
+                $addressSid = $this->getAddressSidForCountry($countryCode);
+                if ($addressSid) {
+                    $purchaseParams['addressSid'] = $addressSid;
+                    Log::info('Twilio Purchase Number: Using address SID ' . $addressSid . ' for country ' . $countryCode);
+                }
             }
             
             // Log the complete purchase parameters for debugging
@@ -219,9 +233,13 @@ class TwilioService
                 } elseif (str_contains($errorMessage, 'already owned')) {
                     $errorMessage = 'Phone number is already owned by another account. Please select a different number.';
                 } elseif (str_contains($errorMessage, 'Bundle required')) {
-                    $errorMessage = 'Bundle verification required for UK phone numbers. Please create a Bundle in Twilio Console and add the Bundle SID to your environment variables. Bundle SIDs start with "BU" and are different from Address SIDs.';
-                } elseif (str_contains($errorMessage, 'AddressSid')) {
-                    $errorMessage = 'Address verification required for this country. Please contact support to set up address verification in your Twilio account.';
+                    $errorMessage = 'Bundle verification required for this country. Please create a Bundle in Twilio Console and add the Bundle SID to your environment variables. Bundle SIDs start with "BU" and are different from Address SIDs.';
+                } elseif (str_contains($errorMessage, 'AddressSid') || str_contains($errorMessage, 'is invalid')) {
+                    if (str_contains($errorMessage, 'AD') && $countryCode === 'MX') {
+                        $errorMessage = 'Invalid Bundle or Address SID for Mexico. Please ensure TWILIO_MEXICO_BUNDLE_SID in your .env file is a valid Bundle SID (starts with "BU") and TWILIO_MEXICO_ADDRESS_SID is a valid Address SID (starts with "AD") if required.';
+                    } else {
+                        $errorMessage = 'Address or Bundle verification issue. Please verify that the Bundle SID (starts with "BU") and Address SID (starts with "AD") are correct in your environment variables.';
+                    }
                 }
             }
             
@@ -530,6 +548,20 @@ class TwilioService
         
         if (in_array($countryCode, $countriesRequiringBundle) && isset($bundleSids[$countryCode])) {
             $bundleSid = $bundleSids[$countryCode];
+            
+            // Validate that the SID is actually a Bundle SID (starts with BU)
+            // Address SIDs start with AD and cannot be used as Bundle SIDs
+            if (!str_starts_with($bundleSid, 'BU')) {
+                Log::error('Twilio Bundle SID Validation: Invalid format - Bundle SID must start with "BU", but got: ' . $bundleSid);
+                
+                // For Mexico, provide a helpful error message
+                if ($countryCode === 'MX') {
+                    Log::error('Twilio Mexico Bundle SID Error: The configured Bundle SID appears to be an Address SID. Please ensure TWILIO_MEXICO_BUNDLE_SID in your .env file starts with "BU" (not "AD").');
+                }
+                
+                return null;
+            }
+            
             Log::info('Twilio Bundle SID Lookup: Found bundle SID ' . $bundleSid . ' for country ' . $countryCode);
             
             // For Mexico, we'll use the bundle SID directly without validation for now
