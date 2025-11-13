@@ -172,19 +172,20 @@ class TwilioService
                 }
                 $purchaseParams['bundleSid'] = $bundleSid;
                 Log::info('Twilio Purchase Number: Using bundle SID ' . $bundleSid . ' for country ' . $countryCode);
-                // Note: For Mexico, we don't send Address SID when using Bundle SID (Bundle includes address info)
+                // Note: Mexico requires BOTH BundleSid AND AddressSid (both will be added below)
             } elseif ($bundleSid) {
                 // For other countries (like UK), use Bundle SID if available
                 $purchaseParams['bundleSid'] = $bundleSid;
                 Log::info('Twilio Purchase Number: Using bundle SID ' . $bundleSid . ' for country ' . $countryCode);
             }
             
-            // Add address SID for countries that require it (but not for Mexico when using Bundle)
+            // Add address SID for countries that require it
+            // Note: Mexico requires BOTH BundleSid AND AddressSid (not just BundleSid)
             // Check if country requires address verification
             $countriesRequiringAddress = ['AU', 'CA', 'GB', 'NZ', 'IE', 'MX'];
             $requiresAddress = in_array($countryCode, $countriesRequiringAddress);
             
-            if ($requiresAddress && ($countryCode !== 'MX' || !$bundleSid)) {
+            if ($requiresAddress) {
                 $addressSid = $this->getAddressSidForCountry($countryCode);
                 if ($addressSid) {
                     $purchaseParams['addressSid'] = $addressSid;
